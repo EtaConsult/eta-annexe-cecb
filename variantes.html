@@ -58,18 +58,10 @@ button{cursor:pointer;font-family:inherit}
 .matrix-table tr.category-row td{font-weight:700;background:#f9fafb;color:#333;padding:10px 8px;border-bottom:1px solid #ccc}
 .matrix-table tr.item-row:hover{background:#f0faf5}
 .matrix-table input[type=checkbox]{width:18px;height:18px;accent-color:#189663;cursor:pointer}
-.item-label-ponts{color:#FF0000}
-
-/* ─── Text Selectors ───────────────────────────────── */
-.text-selectors-group{margin-bottom:18px}
-.text-selectors-group h3{font-size:14px;color:#1a6b47;margin:14px 0 8px;padding:6px 10px;background:#f0faf5;border-radius:6px}
-.text-selector-item{padding:10px 12px;border:1px solid #eee;border-radius:8px;margin-bottom:8px;background:#fafafa}
-.text-selector-item label{display:block;font-weight:600;font-size:13px;color:#444;margin-bottom:6px}
-.text-selector-item select{width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px;background:#fff}
-.text-selector-item select:focus{outline:none;border-color:#189663}
-.text-selector-item .text-preview{margin-top:6px;padding:8px 10px;background:#fff;border-left:3px solid #189663;font-size:12px;color:#555;line-height:1.5;border-radius:0 4px 4px 0;max-height:80px;overflow-y:auto}
-.text-selector-item textarea{width:100%;margin-top:6px;padding:8px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px;min-height:60px;resize:vertical;display:none}
-.text-selector-item textarea.visible{display:block}
+.matrix-table .item-select{width:100%;padding:4px 6px;border:1px solid #ddd;border-radius:4px;font-size:11px;margin-top:5px;background:#fff;color:#555}
+.matrix-table .item-select:focus{outline:none;border-color:#189663}
+.matrix-table .item-custom-ta{width:100%;padding:4px 6px;border:1px solid #ddd;border-radius:4px;font-size:11px;margin-top:3px;resize:vertical;min-height:36px;display:none}
+.matrix-table .item-custom-ta.visible{display:block}
 
 /* ─── Framework Texts ──────────────────────────────── */
 .fw-item{margin-bottom:14px}
@@ -95,17 +87,14 @@ button{cursor:pointer;font-family:inherit}
 .export-buttons button{padding:8px 16px;border:1px solid #ddd;background:#fff;border-radius:6px;font-size:13px;font-weight:500;color:#444;transition:all .2s}
 .export-buttons button:hover{background:#f0faf5;border-color:#189663;color:#1a6b47}
 #summaryTableContainer{overflow-x:auto}
-.summary-table{max-width:680px;border-collapse:collapse;font-family:Arial,sans-serif;font-size:9.5pt;background:#fff;table-layout:fixed}
+.summary-table{width:585px;border-collapse:collapse;font-family:Arial,sans-serif;font-size:9.5pt;background:#fff;table-layout:fixed}
 .summary-table th{padding:6px 8px;font-weight:700;text-align:center;border-bottom:2px solid #333;background:#fff}
-.summary-table th:first-child{text-align:left;width:320px}
-.summary-table th:nth-child(2){width:70px}
-.summary-table th:nth-child(n+3){width:80px}
 .summary-table th .st-sub{font-weight:400;font-size:8pt;color:#555;display:block}
 .summary-table td{padding:5px 8px;border-bottom:1px solid #E3DAD1;vertical-align:middle;overflow:hidden;text-overflow:ellipsis}
+.summary-table td:first-child{text-align:left}
 .summary-table td:not(:first-child){text-align:center}
 .summary-table tr.st-cat td{font-weight:700;padding:7px 8px;background:#fafafa}
 .summary-table .st-check{color:#189663;font-weight:700;font-size:14px}
-.summary-table .st-ponts{color:#FF0000}
 .summary-table tr.st-cost td{border-top:2px solid #333;font-weight:600;background:#fafafa}
 
 /* ─── Notification ─────────────────────────────────── */
@@ -138,7 +127,6 @@ button{cursor:pointer;font-family:inherit}
     <div class="section-nav" id="sectionNav">
         <a href="#configSection" class="active">Configuration</a>
         <a href="#matrixSection">Matrice</a>
-        <a href="#textSelectorsSection">Textes descriptifs</a>
         <a href="#frameworkSection">Textes-cadre</a>
         <a href="#previewSection">Aperçu</a>
         <a href="#tableSection">Tableau</a>
@@ -163,12 +151,6 @@ button{cursor:pointer;font-family:inherit}
             <div class="matrix-wrap">
                 <table class="matrix-table" id="matrixTable"></table>
             </div>
-        </section>
-
-        <!-- Section 1c: Text selectors -->
-        <section class="section" id="textSelectorsSection">
-            <h2>Textes descriptifs par poste</h2>
-            <div id="textSelectors"></div>
         </section>
 
         <!-- Section 2: Framework texts -->
@@ -415,7 +397,7 @@ function init() {
     loadState();
     renderVariantConfig();
     renderMatrix();
-    renderTextSelectors();
+
     renderFrameworkTexts();
     updatePreview();
     renderSummaryTable();
@@ -472,9 +454,20 @@ function renderMatrix() {
     CATEGORIES.forEach(cat => {
         html += '<tr class="category-row"><td colspan="5">' + escapeHtml(cat.name) + '</td></tr>';
         cat.items.forEach(item => {
-            const isPonts = item.id === 'ponts';
-            const cls = isPonts ? ' class="item-label-ponts"' : '';
-            html += '<tr class="item-row"><td' + cls + '>' + escapeHtml(item.label) + '</td><td></td>';
+            // Item label + inline text selector in first cell
+            html += '<tr class="item-row"><td>' + escapeHtml(item.label);
+            html += '<select class="item-select" data-item="' + item.id + '">';
+            const options = TEXT_LIBRARY[item.id];
+            options.forEach(function(text, idx) {
+                const sel = state.selectedTexts[item.id] === idx ? ' selected' : '';
+                html += '<option value="' + idx + '"' + sel + '>' + escapeHtml(truncate(text, 90)) + '</option>';
+            });
+            const customSel = state.selectedTexts[item.id] === 'custom' ? ' selected' : '';
+            html += '<option value="custom"' + customSel + '>Texte personnalisé...</option>';
+            html += '</select>';
+            const showCustom = state.selectedTexts[item.id] === 'custom' ? ' visible' : '';
+            html += '<textarea class="item-custom-ta' + showCustom + '" data-item="' + item.id + '" placeholder="Texte personnalisé...">' + escapeHtml(state.customTexts[item.id]) + '</textarea>';
+            html += '</td><td></td>';
             for (let v = 0; v < 3; v++) {
                 const checked = state.checks[item.id][v] ? ' checked' : '';
                 html += '<td><input type="checkbox" data-item="' + item.id + '" data-v="' + v + '"' + checked + '></td>';
@@ -494,6 +487,23 @@ function renderMatrix() {
             updatePreview();
             renderSummaryTable();
         }
+        if (e.target.classList.contains('item-select')) {
+            const id = e.target.dataset.item;
+            const val = e.target.value === 'custom' ? 'custom' : parseInt(e.target.value);
+            state.selectedTexts[id] = val;
+            const ta = e.target.parentElement.querySelector('.item-custom-ta');
+            if (ta) ta.classList.toggle('visible', val === 'custom');
+            saveState();
+            updatePreview();
+        }
+    });
+    table.addEventListener('input', function(e) {
+        if (e.target.classList.contains('item-custom-ta')) {
+            const id = e.target.dataset.item;
+            state.customTexts[id] = e.target.value;
+            saveState();
+            updatePreview();
+        }
     });
 }
 
@@ -502,81 +512,6 @@ function updateMatrixHeaders() {
         const el = document.getElementById('matrixVName' + v);
         if (el) el.textContent = state.variantNames[v];
     }
-}
-
-/* ═══════════════════════════════════════════════════════
-   RENDER — Text Selectors
-   ═══════════════════════════════════════════════════════ */
-
-function renderTextSelectors() {
-    const container = document.getElementById('textSelectors');
-    container.innerHTML = '';
-
-    CATEGORIES.forEach(cat => {
-        const group = document.createElement('div');
-        group.className = 'text-selectors-group';
-        const title = document.createElement('h3');
-        title.textContent = cat.name;
-        group.appendChild(title);
-
-        cat.items.forEach(item => {
-            const div = document.createElement('div');
-            div.className = 'text-selector-item';
-
-            const label = document.createElement('label');
-            label.textContent = item.label;
-            div.appendChild(label);
-
-            const select = document.createElement('select');
-            select.dataset.item = item.id;
-            const options = TEXT_LIBRARY[item.id];
-            options.forEach((text, idx) => {
-                const opt = document.createElement('option');
-                opt.value = idx;
-                opt.textContent = truncate(text, 100);
-                opt.selected = state.selectedTexts[item.id] === idx;
-                select.appendChild(opt);
-            });
-            const customOpt = document.createElement('option');
-            customOpt.value = 'custom';
-            customOpt.textContent = 'Texte personnalisé...';
-            if (state.selectedTexts[item.id] === 'custom') customOpt.selected = true;
-            select.appendChild(customOpt);
-            div.appendChild(select);
-
-            const textarea = document.createElement('textarea');
-            textarea.dataset.item = item.id;
-            textarea.placeholder = 'Entrez votre texte personnalisé...';
-            textarea.value = state.customTexts[item.id];
-            if (state.selectedTexts[item.id] === 'custom') textarea.classList.add('visible');
-            div.appendChild(textarea);
-
-            const preview = document.createElement('div');
-            preview.className = 'text-preview';
-            preview.id = 'preview_' + item.id;
-            preview.textContent = getSelectedText(item.id);
-            div.appendChild(preview);
-
-            select.addEventListener('change', function() {
-                const val = this.value === 'custom' ? 'custom' : parseInt(this.value);
-                state.selectedTexts[item.id] = val;
-                textarea.classList.toggle('visible', val === 'custom');
-                preview.textContent = getSelectedText(item.id);
-                saveState();
-                updatePreview();
-            });
-
-            textarea.addEventListener('input', function() {
-                state.customTexts[item.id] = this.value;
-                preview.textContent = getSelectedText(item.id);
-                saveState();
-                updatePreview();
-            });
-
-            group.appendChild(div);
-        });
-        container.appendChild(group);
-    });
 }
 
 function getSelectedText(itemId) {
@@ -737,7 +672,8 @@ function renderSummaryTable() {
     const container = document.getElementById('summaryTableContainer');
 
     let html = '<table class="summary-table" id="summaryTable">';
-    html += '<thead><tr><th rowspan="2">Poste</th><th rowspan="2">État initial</th>';
+    html += '<colgroup><col style="width:300px"><col style="width:60px"><col style="width:75px"><col style="width:75px"><col style="width:75px"></colgroup>';
+    html += '<thead><tr><th rowspan="2" style="text-align:left">Poste</th><th rowspan="2">État initial</th>';
     for (let v = 0; v < 3; v++) {
         html += '<th>Variante ' + (v + 1) + '</th>';
     }
@@ -750,8 +686,7 @@ function renderSummaryTable() {
     CATEGORIES.forEach(cat => {
         html += '<tr class="st-cat"><td colspan="5">' + escapeHtml(cat.name) + '</td></tr>';
         cat.items.forEach(item => {
-            const isPonts = item.id === 'ponts';
-            html += '<tr><td' + (isPonts ? ' class="st-ponts"' : '') + '>' + escapeHtml(item.label) + '</td><td></td>';
+            html += '<tr><td>' + escapeHtml(item.label) + '</td><td></td>';
             for (let v = 0; v < 3; v++) {
                 html += '<td>';
                 if (state.checks[item.id][v]) {
@@ -788,7 +723,7 @@ function setupExport() {
     document.getElementById('copyTable').addEventListener('click', async function() {
         const tableEl = document.getElementById('summaryTable');
         const tableHTML = tableEl.outerHTML;
-        const styledHTML = '<style>table{max-width:680px;border-collapse:collapse;font-family:Arial,sans-serif;font-size:9.5pt;table-layout:fixed}th,td{padding:5px 8px;border-bottom:1px solid #E3DAD1;overflow:hidden}th{font-weight:700;border-bottom:2px solid #333;text-align:center}th:first-child,td:first-child{text-align:left;width:320px}td:not(:first-child){text-align:center}.st-cat td{font-weight:700}.st-check{color:#189663;font-weight:700}.st-ponts{color:#FF0000}.st-cost td{border-top:2px solid #333;font-weight:600}.st-sub{font-weight:400;font-size:8pt;color:#555}</style>' + tableHTML;
+        const styledHTML = '<style>table{border-collapse:collapse;font-family:Arial,sans-serif;font-size:9.5pt}th,td{padding:5px 8px;border-bottom:1px solid #E3DAD1;overflow:hidden}th{font-weight:700;border-bottom:2px solid #333;text-align:center}th:first-child,td:first-child{text-align:left}td:not(:first-child){text-align:center}.st-cat td{font-weight:700}.st-check{color:#189663;font-weight:700}.st-cost td{border-top:2px solid #333;font-weight:600}.st-sub{font-weight:400;font-size:8pt;color:#555}</style>' + tableHTML;
         try {
             await navigator.clipboard.write([
                 new ClipboardItem({
@@ -820,7 +755,7 @@ function setupExport() {
 
     document.getElementById('downloadHTML').addEventListener('click', function() {
         const tableEl = document.getElementById('summaryTable');
-        const htmlContent = '<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Tableau Variantes CECB</title><style>body{margin:20px;font-family:Arial,sans-serif}table{max-width:680px;border-collapse:collapse;font-size:9.5pt;table-layout:fixed}th,td{padding:5px 8px;border-bottom:1px solid #E3DAD1;vertical-align:middle;overflow:hidden}th{font-weight:700;border-bottom:2px solid #333;text-align:center}th:first-child{text-align:left;width:320px}th:nth-child(2){width:70px}th:nth-child(n+3){width:80px}td:not(:first-child){text-align:center}.st-cat td{font-weight:700;background:#fafafa}.st-check{color:#189663;font-weight:700;font-size:14px}.st-ponts{color:#FF0000}.st-cost td{border-top:2px solid #333;font-weight:600;background:#fafafa}.st-sub{font-weight:400;font-size:8pt;color:#555;display:block}</style></head><body>' + tableEl.outerHTML + '</body></html>';
+        const htmlContent = '<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Tableau Variantes CECB</title><style>body{margin:20px;font-family:Arial,sans-serif}table{border-collapse:collapse;font-size:9.5pt}th,td{padding:5px 8px;border-bottom:1px solid #E3DAD1;vertical-align:middle;overflow:hidden}th{font-weight:700;border-bottom:2px solid #333;text-align:center}th:first-child{text-align:left}td:not(:first-child){text-align:center}.st-cat td{font-weight:700;background:#fafafa}.st-check{color:#189663;font-weight:700;font-size:14px}.st-cost td{border-top:2px solid #333;font-weight:600;background:#fafafa}.st-sub{font-weight:400;font-size:8pt;color:#555;display:block}</style></head><body>' + tableEl.outerHTML + '</body></html>';
         const blob = new Blob([htmlContent], { type: 'text/html' });
         const link = document.createElement('a');
         link.download = 'tableau_variantes.html';
@@ -891,7 +826,7 @@ function resetAll() {
 function fullRender() {
     renderVariantConfig();
     renderMatrix();
-    renderTextSelectors();
+
     renderFrameworkTexts();
     updatePreview();
     renderSummaryTable();
