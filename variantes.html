@@ -62,6 +62,11 @@ button{cursor:pointer;font-family:inherit}
 .matrix-table .item-select:focus{outline:none;border-color:#189663}
 .matrix-table .item-custom-ta{width:100%;padding:4px 6px;border:1px solid #ddd;border-radius:4px;font-size:11px;margin-top:3px;resize:vertical;min-height:36px;display:none}
 .matrix-table .item-custom-ta.visible{display:block}
+.matrix-table .v-name-input{width:100%;padding:4px 6px;border:1px solid #ccc;border-radius:4px;font-size:11px;text-align:center;margin-top:4px;background:#fff}
+.matrix-table .v-name-input:focus{outline:none;border-color:#189663}
+.matrix-table .cost-input-matrix{width:100%;padding:4px 6px;border:1px solid #ccc;border-radius:4px;font-size:12px;text-align:center;background:#fff}
+.matrix-table .cost-input-matrix:focus{outline:none;border-color:#189663}
+.matrix-table tr.cost-row td{border-top:2px solid #333;font-weight:600;background:#fafafa;padding:10px 8px}
 
 /* ─── Framework Texts ──────────────────────────────── */
 .fw-item{margin-bottom:14px}
@@ -87,7 +92,7 @@ button{cursor:pointer;font-family:inherit}
 .export-buttons button{padding:8px 16px;border:1px solid #ddd;background:#fff;border-radius:6px;font-size:13px;font-weight:500;color:#444;transition:all .2s}
 .export-buttons button:hover{background:#f0faf5;border-color:#189663;color:#1a6b47}
 #summaryTableContainer{overflow-x:auto}
-.summary-table{width:585px;border-collapse:collapse;font-family:Arial,sans-serif;font-size:9.5pt;background:#fff;table-layout:fixed}
+.summary-table{width:525px;border-collapse:collapse;font-family:Arial,sans-serif;font-size:9.5pt;background:#fff;table-layout:fixed}
 .summary-table th{padding:6px 8px;font-weight:700;text-align:center;border-bottom:2px solid #333;background:#fff}
 .summary-table th .st-sub{font-weight:400;font-size:8pt;color:#555;display:block}
 .summary-table td{padding:5px 8px;border-bottom:1px solid #E3DAD1;vertical-align:middle;overflow:hidden;text-overflow:ellipsis}
@@ -110,7 +115,7 @@ button{cursor:pointer;font-family:inherit}
 
 /* ─── Print ────────────────────────────────────────── */
 @media print{
-    .main-nav,.section-nav,.toolbar,.export-buttons,.copy-btn,#configSection,#textSelectorsSection,#frameworkSection{display:none!important}
+    .main-nav,.section-nav,.toolbar,.export-buttons,.copy-btn,.copy-bloc-buttons,#textSelectorsSection,#frameworkSection{display:none!important}
     .section{box-shadow:none;border:none;padding:0;margin:0}
     body{background:#fff;padding:0}
     .summary-table{page-break-inside:avoid}
@@ -125,8 +130,7 @@ button{cursor:pointer;font-family:inherit}
     </nav>
 
     <div class="section-nav" id="sectionNav">
-        <a href="#configSection" class="active">Configuration</a>
-        <a href="#matrixSection">Matrice</a>
+        <a href="#matrixSection" class="active">Matrice</a>
         <a href="#frameworkSection">Textes-cadre</a>
         <a href="#previewSection">Aperçu</a>
         <a href="#tableSection">Tableau</a>
@@ -139,13 +143,7 @@ button{cursor:pointer;font-family:inherit}
             <button class="btn-reset" id="resetAll">Réinitialiser</button>
         </div>
 
-        <!-- Section 1a: Variant names & costs -->
-        <section class="section" id="configSection">
-            <h2>Configuration des variantes</h2>
-            <div class="variant-config" id="variantConfig"></div>
-        </section>
-
-        <!-- Section 1b: Matrix -->
+        <!-- Section 1: Matrix -->
         <section class="section" id="matrixSection">
             <h2>Matrice de sélection</h2>
             <div class="matrix-wrap">
@@ -165,6 +163,11 @@ button{cursor:pointer;font-family:inherit}
             <h3>Blocs par variante</h3>
             <div class="bloc-tabs" id="blocTabs"></div>
             <div class="bloc-content" id="blocContent"></div>
+            <div class="copy-bloc-buttons" style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+                <button class="copy-btn copy-bloc-btn" data-v="0">Copier Variante 1</button>
+                <button class="copy-btn copy-bloc-btn" data-v="1">Copier Variante 2</button>
+                <button class="copy-btn copy-bloc-btn" data-v="2">Copier Variante 3</button>
+            </div>
             <h3>Rapport final</h3>
             <div class="report-box" id="reportPreview"></div>
             <button class="copy-btn" id="copyReport">Copier le texte du rapport</button>
@@ -184,6 +187,7 @@ button{cursor:pointer;font-family:inherit}
 
     <div class="notification" id="notification"></div>
 
+    <script src="auth.js"></script>
     <script>
 /* ═══════════════════════════════════════════════════════
    DATA
@@ -395,9 +399,7 @@ function loadState() {
 
 function init() {
     loadState();
-    renderVariantConfig();
     renderMatrix();
-
     renderFrameworkTexts();
     updatePreview();
     renderSummaryTable();
@@ -407,54 +409,21 @@ function init() {
 }
 
 /* ═══════════════════════════════════════════════════════
-   RENDER — Variant Config
-   ═══════════════════════════════════════════════════════ */
-
-function renderVariantConfig() {
-    const container = document.getElementById('variantConfig');
-    container.innerHTML = '';
-    for (let v = 0; v < 3; v++) {
-        const card = document.createElement('div');
-        card.className = 'variant-card';
-        card.innerHTML =
-            '<h4>Variante ' + (v + 1) + '</h4>' +
-            '<input type="text" class="name-input" data-v="' + v + '" placeholder="Nom de la variante" value="">' +
-            '<input type="text" class="cost-input" data-v="' + v + '" placeholder="Coût estimé (ex: 120\'000.-)" value="">';
-        container.appendChild(card);
-        card.querySelector('.name-input').value = state.variantNames[v];
-        card.querySelector('.cost-input').value = state.variantCosts[v];
-    }
-    container.addEventListener('input', function(e) {
-        const v = parseInt(e.target.dataset.v);
-        if (e.target.classList.contains('name-input')) {
-            state.variantNames[v] = e.target.value;
-        } else if (e.target.classList.contains('cost-input')) {
-            state.variantCosts[v] = e.target.value;
-        }
-        saveState();
-        updateMatrixHeaders();
-        updatePreview();
-        renderSummaryTable();
-    });
-}
-
-/* ═══════════════════════════════════════════════════════
-   RENDER — Matrix
+   RENDER — Matrix (with inline variant names & costs)
    ═══════════════════════════════════════════════════════ */
 
 function renderMatrix() {
     const table = document.getElementById('matrixTable');
-    // Header
-    let html = '<thead><tr><th>Poste</th><th>État initial</th>';
+    // Header with editable variant names
+    let html = '<thead><tr><th>Poste</th>';
     for (let v = 0; v < 3; v++) {
-        html += '<th>Variante ' + (v + 1) + '<span class="v-sub" id="matrixVName' + v + '">' + escapeHtml(state.variantNames[v]) + '</span></th>';
+        html += '<th>Variante ' + (v + 1) + '<input type="text" class="v-name-input" data-v="' + v + '" placeholder="Nom..."></th>';
     }
     html += '</tr></thead><tbody>';
 
     CATEGORIES.forEach(cat => {
-        html += '<tr class="category-row"><td colspan="5">' + escapeHtml(cat.name) + '</td></tr>';
+        html += '<tr class="category-row"><td colspan="4">' + escapeHtml(cat.name) + '</td></tr>';
         cat.items.forEach(item => {
-            // Item label + inline text selector in first cell
             html += '<tr class="item-row"><td>' + escapeHtml(item.label);
             html += '<select class="item-select" data-item="' + item.id + '">';
             const options = TEXT_LIBRARY[item.id];
@@ -467,7 +436,7 @@ function renderMatrix() {
             html += '</select>';
             const showCustom = state.selectedTexts[item.id] === 'custom' ? ' visible' : '';
             html += '<textarea class="item-custom-ta' + showCustom + '" data-item="' + item.id + '" placeholder="Texte personnalisé...">' + escapeHtml(state.customTexts[item.id]) + '</textarea>';
-            html += '</td><td></td>';
+            html += '</td>';
             for (let v = 0; v < 3; v++) {
                 const checked = state.checks[item.id][v] ? ' checked' : '';
                 html += '<td><input type="checkbox" data-item="' + item.id + '" data-v="' + v + '"' + checked + '></td>';
@@ -475,9 +444,24 @@ function renderMatrix() {
             html += '</tr>';
         });
     });
+
+    // Cost row
+    html += '<tr class="cost-row"><td>Coûts estimés (CHF)</td>';
+    for (let v = 0; v < 3; v++) {
+        html += '<td><input type="text" class="cost-input-matrix" data-v="' + v + '" placeholder="ex: 120\'000.-"></td>';
+    }
+    html += '</tr>';
+
     html += '</tbody>';
     table.innerHTML = html;
 
+    // Set input values safely (avoids HTML encoding issues)
+    for (let v = 0; v < 3; v++) {
+        table.querySelector('.v-name-input[data-v="' + v + '"]').value = state.variantNames[v];
+        table.querySelector('.cost-input-matrix[data-v="' + v + '"]').value = state.variantCosts[v];
+    }
+
+    // Event delegation
     table.addEventListener('change', function(e) {
         if (e.target.type === 'checkbox') {
             const id = e.target.dataset.item;
@@ -504,14 +488,20 @@ function renderMatrix() {
             saveState();
             updatePreview();
         }
+        if (e.target.classList.contains('v-name-input')) {
+            const v = parseInt(e.target.dataset.v);
+            state.variantNames[v] = e.target.value;
+            saveState();
+            updatePreview();
+            renderSummaryTable();
+        }
+        if (e.target.classList.contains('cost-input-matrix')) {
+            const v = parseInt(e.target.dataset.v);
+            state.variantCosts[v] = e.target.value;
+            saveState();
+            renderSummaryTable();
+        }
     });
-}
-
-function updateMatrixHeaders() {
-    for (let v = 0; v < 3; v++) {
-        const el = document.getElementById('matrixVName' + v);
-        if (el) el.textContent = state.variantNames[v];
-    }
 }
 
 function getSelectedText(itemId) {
@@ -572,6 +562,11 @@ function renderBlocTabs() {
         });
         container.appendChild(tab);
     }
+    // Update copy bloc button labels
+    document.querySelectorAll('.copy-bloc-btn').forEach(function(btn) {
+        const v = parseInt(btn.dataset.v);
+        btn.textContent = 'Copier V' + (v + 1) + ' — ' + (state.variantNames[v] || 'Variante ' + (v + 1));
+    });
 }
 
 function renderBlocContent() {
@@ -604,6 +599,18 @@ function renderBlocContent() {
         }
         container.appendChild(div);
     });
+}
+
+function generateVariantBloc(variantIdx) {
+    let text = '';
+    CATEGORIES.forEach(function(cat, catIdx) {
+        const bloc = generateBloc(variantIdx, catIdx, true);
+        if (bloc) {
+            if (text) text += '\n\n';
+            text += bloc;
+        }
+    });
+    return text;
 }
 
 function generateBloc(variantIdx, categoryIdx, includeTitle) {
@@ -672,8 +679,8 @@ function renderSummaryTable() {
     const container = document.getElementById('summaryTableContainer');
 
     let html = '<table class="summary-table" id="summaryTable">';
-    html += '<colgroup><col style="width:300px"><col style="width:60px"><col style="width:75px"><col style="width:75px"><col style="width:75px"></colgroup>';
-    html += '<thead><tr><th rowspan="2" style="text-align:left">Poste</th><th rowspan="2">État initial</th>';
+    html += '<colgroup><col style="width:300px"><col style="width:75px"><col style="width:75px"><col style="width:75px"></colgroup>';
+    html += '<thead><tr><th rowspan="2" style="text-align:left">Poste</th>';
     for (let v = 0; v < 3; v++) {
         html += '<th>Variante ' + (v + 1) + '</th>';
     }
@@ -684,9 +691,9 @@ function renderSummaryTable() {
     html += '</tr></thead><tbody>';
 
     CATEGORIES.forEach(cat => {
-        html += '<tr class="st-cat"><td colspan="5">' + escapeHtml(cat.name) + '</td></tr>';
+        html += '<tr class="st-cat"><td colspan="4">' + escapeHtml(cat.name) + '</td></tr>';
         cat.items.forEach(item => {
-            html += '<tr><td>' + escapeHtml(item.label) + '</td><td></td>';
+            html += '<tr><td>' + escapeHtml(item.label) + '</td>';
             for (let v = 0; v < 3; v++) {
                 html += '<td>';
                 if (state.checks[item.id][v]) {
@@ -698,10 +705,12 @@ function renderSummaryTable() {
         });
     });
 
-    // Cost row
-    html += '<tr class="st-cost"><td>Coûts estimés</td><td></td>';
+    // Cost row with CHF formatting
+    html += '<tr class="st-cost"><td>Coûts estimés</td>';
     for (let v = 0; v < 3; v++) {
-        html += '<td>' + escapeHtml(state.variantCosts[v]) + '</td>';
+        const cost = state.variantCosts[v];
+        const formatted = cost ? (cost.toLowerCase().startsWith('chf') ? cost : 'CHF ' + cost) : '';
+        html += '<td>' + escapeHtml(formatted) + '</td>';
     }
     html += '</tr>';
 
@@ -714,6 +723,21 @@ function renderSummaryTable() {
    ═══════════════════════════════════════════════════════ */
 
 function setupExport() {
+    // Copy variant bloc buttons
+    document.querySelectorAll('.copy-bloc-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const v = parseInt(this.dataset.v);
+            const text = generateVariantBloc(v);
+            if (!text) {
+                showNotification('Aucun poste sélectionné pour cette variante');
+                return;
+            }
+            navigator.clipboard.writeText(text).then(function() {
+                showNotification('Variante ' + (v + 1) + ' copiée');
+            });
+        });
+    });
+
     document.getElementById('copyReport').addEventListener('click', function() {
         navigator.clipboard.writeText(generateReport()).then(function() {
             showNotification('Rapport copié dans le presse-papier');
@@ -824,9 +848,7 @@ function resetAll() {
 }
 
 function fullRender() {
-    renderVariantConfig();
     renderMatrix();
-
     renderFrameworkTexts();
     updatePreview();
     renderSummaryTable();
