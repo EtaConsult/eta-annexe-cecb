@@ -23,8 +23,9 @@ h1 {
     font-weight: 600;
 }
 
+/* Project name section */
 .project-name-section {
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 }
 
 .project-name-section label {
@@ -34,8 +35,14 @@ h1 {
     color: #444;
 }
 
-.project-name-section input {
-    width: 100%;
+.project-input-row {
+    display: flex;
+    gap: 10px;
+    align-items: stretch;
+}
+
+.project-input-row input {
+    flex: 1;
     padding: 12px 16px;
     font-size: 16px;
     border: 2px solid #ddd;
@@ -43,11 +50,174 @@ h1 {
     transition: border-color 0.2s;
 }
 
-.project-name-section input:focus {
+.project-input-row input:focus {
     outline: none;
     border-color: #4a90d9;
 }
 
+.btn-save {
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: white;
+    background: #28a745;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+}
+
+.btn-save:hover {
+    background: #218838;
+}
+
+.btn-new {
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: white;
+    background: #6c757d;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+}
+
+.btn-new:hover {
+    background: #5a6268;
+}
+
+/* Saved projects section */
+.saved-projects-section {
+    margin-bottom: 24px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+
+.saved-projects-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s;
+}
+
+.saved-projects-header:hover {
+    background: #f8f9fa;
+}
+
+.saved-projects-header h2 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #444;
+}
+
+.toggle-arrow {
+    font-size: 12px;
+    color: #888;
+    transition: transform 0.3s;
+}
+
+.toggle-arrow.collapsed {
+    transform: rotate(-90deg);
+}
+
+.project-list {
+    border-top: 1px solid #eee;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.project-list.collapsed {
+    display: none;
+}
+
+.project-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.2s;
+}
+
+.project-item:last-child {
+    border-bottom: none;
+}
+
+.project-item:hover {
+    background: #f8f9fa;
+}
+
+.project-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.project-info .project-name {
+    font-weight: 500;
+    color: #333;
+    font-size: 14px;
+}
+
+.project-info .project-meta {
+    font-size: 12px;
+    color: #888;
+}
+
+.project-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.project-actions .btn-load {
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    color: white;
+    background: #4a90d9;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.project-actions .btn-load:hover {
+    background: #357abd;
+}
+
+.project-actions .btn-delete {
+    padding: 6px 10px;
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+    background: rgba(220, 53, 69, 0.85);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s;
+    line-height: 1;
+}
+
+.project-actions .btn-delete:hover {
+    background: #c82333;
+}
+
+.no-projects {
+    padding: 20px;
+    text-align: center;
+    color: #999;
+    font-size: 14px;
+}
+
+/* Dropzone */
 .dropzone {
     border: 2px dashed #ccc;
     border-radius: 8px;
@@ -83,6 +253,7 @@ h1 {
     margin: 0;
 }
 
+/* Photos grid */
 .photos-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -185,6 +356,7 @@ h1 {
     z-index: 10;
 }
 
+/* Generate button */
 .generate-btn {
     display: block;
     width: 100%;
@@ -213,6 +385,29 @@ h1 {
 
 .generate-btn:active:not(:disabled) {
     transform: translateY(0);
+}
+
+/* Notification */
+.notification {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: #333;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    opacity: 0;
+    transition: transform 0.3s, opacity 0.3s;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.notification.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
 }
 
 /* Drag and drop visual feedback */

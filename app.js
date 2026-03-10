@@ -1,5 +1,6 @@
 // State
 let photos = [];
+let db = null;
 
 // DOM Elements
 const dropzone = document.getElementById('dropzone');
@@ -7,16 +8,228 @@ const fileInput = document.getElementById('fileInput');
 const photosGrid = document.getElementById('photosGrid');
 const generateBtn = document.getElementById('generateBtn');
 const projectNameInput = document.getElementById('projectName');
+const saveBtn = document.getElementById('saveBtn');
+const newBtn = document.getElementById('newBtn');
+const projectList = document.getElementById('projectList');
+const toggleProjects = document.getElementById('toggleProjects');
+const toggleArrow = document.getElementById('toggleArrow');
+const notification = document.getElementById('notification');
 
 // Initialize
 init();
 
-function init() {
+async function init() {
+    await initDB();
     setupDropzone();
     setupGenerateButton();
+    setupProjectControls();
+    loadProjectList();
 }
 
-// Dropzone setup
+// ─── IndexedDB ──────────────────────────────────────────
+
+function initDB() {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open('cecb-photos-db', 1);
+        request.onupgradeneeded = (e) => {
+            const database = e.target.result;
+            if (!database.objectStoreNames.contains('projects')) {
+                database.createObjectStore('projects', { keyPath: 'name' });
+            }
+        };
+        request.onsuccess = (e) => {
+            db = e.target.result;
+            resolve();
+        };
+        request.onerror = (e) => {
+            console.error('IndexedDB error:', e);
+            resolve(); // Continue without persistence
+        };
+    });
+}
+
+// ─── Project Management ─────────────────────────────────
+
+function setupProjectControls() {
+    saveBtn.addEventListener('click', saveProject);
+    newBtn.addEventListener('click', newProject);
+
+    toggleProjects.addEventListener('click', () => {
+        projectList.classList.toggle('collapsed');
+        toggleArrow.classList.toggle('collapsed');
+    });
+}
+
+async function saveProject() {
+    const name = projectNameInput.value.trim();
+    if (!name) {
+        showNotification('Veuillez entrer un nom de projet');
+        return;
+    }
+    if (photos.length === 0) {
+        showNotification('Aucune photo à sauvegarder');
+        return;
+    }
+
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Sauvegarde...';
+
+    try {
+        // Compress photos for storage
+        const storedPhotos = await Promise.all(photos.map(async (photo) => {
+            const compressed = await compressImageForStorage(photo.src);
+            return { src: compressed, caption: photo.caption };
+        }));
+
+        const project = {
+            name: name,
+            date: new Date().toISOString(),
+            photoCount: photos.length,
+            photos: storedPhotos
+        };
+
+        const tx = db.transaction('projects', 'readwrite');
+        const store = tx.objectStore('projects');
+        store.put(project);
+
+        tx.oncomplete = () => {
+            loadProjectList();
+            showNotification('Projet sauvegardé : ' + name);
+        };
+        tx.onerror = () => {
+            showNotification('Erreur lors de la sauvegarde');
+        };
+    } catch (err) {
+        console.error('Save error:', err);
+        showNotification('Erreur lors de la sauvegarde');
+    } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Sauvegarder';
+    }
+}
+
+function loadProject(name) {
+    const tx = db.transaction('projects', 'readonly');
+    const store = tx.objectStore('projects');
+    const request = store.get(name);
+
+    request.onsuccess = () => {
+        const project = request.result;
+        if (project) {
+            projectNameInput.value = project.name;
+            photos = project.photos.map((p, i) => ({
+                id: Date.now() + i,
+                src: p.src,
+                caption: p.caption
+            }));
+            renderPhotos();
+            updateGenerateButton();
+            showNotification('Projet chargé : ' + project.name);
+        }
+    };
+}
+
+function deleteProject(name) {
+    if (!confirm('Supprimer le projet "' + name + '" ?')) return;
+
+    const tx = db.transaction('projects', 'readwrite');
+    const store = tx.objectStore('projects');
+    store.delete(name);
+
+    tx.oncomplete = () => {
+        loadProjectList();
+        showNotification('Projet supprimé');
+    };
+}
+
+function newProject() {
+    if (photos.length > 0 && !confirm('Effacer le projet en cours ?')) return;
+    projectNameInput.value = '';
+    photos = [];
+    renderPhotos();
+    updateGenerateButton();
+}
+
+function loadProjectList() {
+    if (!db) return;
+
+    const tx = db.transaction('projects', 'readonly');
+    const store = tx.objectStore('projects');
+    const request = store.getAll();
+
+    request.onsuccess = () => {
+        renderProjectList(request.result);
+    };
+}
+
+function renderProjectList(projects) {
+    projectList.innerHTML = '';
+
+    if (projects.length === 0) {
+        const p = document.createElement('p');
+        p.className = 'no-projects';
+        p.textContent = 'Aucun projet sauvegardé';
+        projectList.appendChild(p);
+        return;
+    }
+
+    // Sort by date descending
+    projects.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    projects.forEach(project => {
+        const date = new Date(project.date).toLocaleDateString('fr-CH');
+        const item = document.createElement('div');
+        item.className = 'project-item';
+
+        const info = document.createElement('div');
+        info.className = 'project-info';
+
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'project-name';
+        nameSpan.textContent = project.name;
+
+        const metaSpan = document.createElement('span');
+        metaSpan.className = 'project-meta';
+        metaSpan.textContent = project.photoCount + ' photos \u00b7 ' + date;
+
+        info.appendChild(nameSpan);
+        info.appendChild(metaSpan);
+
+        const actions = document.createElement('div');
+        actions.className = 'project-actions';
+
+        const loadBtn = document.createElement('button');
+        loadBtn.className = 'btn-load';
+        loadBtn.textContent = 'Charger';
+        loadBtn.addEventListener('click', () => loadProject(project.name));
+
+        const delBtn = document.createElement('button');
+        delBtn.className = 'btn-delete';
+        delBtn.textContent = '\u00d7';
+        delBtn.title = 'Supprimer';
+        delBtn.addEventListener('click', () => deleteProject(project.name));
+
+        actions.appendChild(loadBtn);
+        actions.appendChild(delBtn);
+
+        item.appendChild(info);
+        item.appendChild(actions);
+        projectList.appendChild(item);
+    });
+}
+
+// ─── Notification ───────────────────────────────────────
+
+function showNotification(message) {
+    notification.textContent = message;
+    notification.classList.add('show');
+    setTimeout(() => {
+        notification.classList.remove('show');
+    }, 2500);
+}
+
+// ─── Dropzone ───────────────────────────────────────────
+
 function setupDropzone() {
     dropzone.addEventListener('click', () => fileInput.click());
 
@@ -60,7 +273,8 @@ function handleFiles(files) {
     });
 }
 
-// Render photos grid
+// ─── Photos Grid ────────────────────────────────────────
+
 function renderPhotos() {
     photosGrid.innerHTML = '';
 
@@ -70,29 +284,41 @@ function renderPhotos() {
         card.draggable = true;
         card.dataset.index = index;
 
-        card.innerHTML = `
-            <span class="photo-number">${index + 1}</span>
-            <button class="delete-btn" title="Supprimer">&times;</button>
-            <div class="photo-wrapper">
-                <img src="${photo.src}" alt="Photo ${index + 1}">
-            </div>
-            <input type="text" class="caption-input" placeholder="Légende..." value="${photo.caption}">
-        `;
+        const number = document.createElement('span');
+        number.className = 'photo-number';
+        number.textContent = index + 1;
 
-        // Delete button
-        card.querySelector('.delete-btn').addEventListener('click', (e) => {
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'delete-btn';
+        deleteBtn.title = 'Supprimer';
+        deleteBtn.innerHTML = '&times;';
+        deleteBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             deletePhoto(index);
         });
 
-        // Caption input
-        card.querySelector('.caption-input').addEventListener('input', (e) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'photo-wrapper';
+        const img = document.createElement('img');
+        img.src = photo.src;
+        img.alt = 'Photo ' + (index + 1);
+        wrapper.appendChild(img);
+
+        const captionInput = document.createElement('input');
+        captionInput.type = 'text';
+        captionInput.className = 'caption-input';
+        captionInput.placeholder = 'Légende...';
+        captionInput.value = photo.caption;
+        captionInput.addEventListener('input', (e) => {
             photos[index].caption = e.target.value;
         });
 
-        // Drag events for reordering
-        setupDragEvents(card, index);
+        card.appendChild(number);
+        card.appendChild(deleteBtn);
+        card.appendChild(wrapper);
+        card.appendChild(captionInput);
 
+        setupDragEvents(card, index);
         photosGrid.appendChild(card);
     });
 }
@@ -152,12 +378,12 @@ function updateGenerateButton() {
     generateBtn.disabled = photos.length === 0;
 }
 
-// Setup generate button
+// ─── Generate PDF ───────────────────────────────────────
+
 function setupGenerateButton() {
     generateBtn.addEventListener('click', generatePDF);
 }
 
-// Generate PDF
 async function generatePDF() {
     const { jsPDF } = window.jspdf;
     const projectName = projectNameInput.value.trim() || 'Sans titre';
@@ -213,7 +439,7 @@ async function generatePDF() {
         if (page === 0) {
             pdf.setFont('helvetica', 'normal');
             pdf.setFontSize(14);
-            pdf.text(`D.1 Photo : ${projectName}`, marginLeft, marginTop + 4);
+            pdf.text('D.1 Photo : ' + projectName, marginLeft, marginTop + 4);
         }
 
         // Calculate cell height based on available space
@@ -234,8 +460,8 @@ async function generatePDF() {
             const cellX = marginLeft + col * (cellWidth + gapX);
             const cellY = currentMarginTop + currentTitleHeight + row * (cellHeight + gapY);
 
-            // Load and add image
             try {
+                const compressedSrc = await compressImageForPDF(photo.src);
                 const imgData = await loadImage(photo.src);
                 const imgRatio = imgData.width / imgData.height;
 
@@ -251,9 +477,9 @@ async function generatePDF() {
                 const imgX = cellX + (cellWidth - imgWidth) / 2;
                 const imgY = cellY;
 
-                pdf.addImage(photo.src, 'JPEG', imgX, imgY, imgWidth, imgHeight);
+                pdf.addImage(compressedSrc, 'JPEG', imgX, imgY, imgWidth, imgHeight);
 
-                // Caption - aligned left, close to photo
+                // Caption
                 if (photo.caption) {
                     pdf.setFontSize(8);
                     pdf.setFont('helvetica', 'normal');
@@ -267,14 +493,67 @@ async function generatePDF() {
     }
 
     // Save PDF
-    pdf.save(`Annexe_Photos_${projectName.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
+    pdf.save('Annexe_Photos_' + projectName.replace(/[^a-zA-Z0-9]/g, '_') + '.pdf');
 }
 
-// Load image and get dimensions
+// ─── Image Utilities ────────────────────────────────────
+
 function loadImage(src) {
     return new Promise((resolve, reject) => {
         const img = new Image();
         img.onload = () => resolve({ width: img.width, height: img.height });
+        img.onerror = reject;
+        img.src = src;
+    });
+}
+
+// Compress for PDF output (smaller, lower quality)
+function compressImageForPDF(src, maxWidth = 600, quality = 0.50) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+            let w = img.width;
+            let h = img.height;
+
+            if (w > maxWidth) {
+                h = Math.round(h * maxWidth / w);
+                w = maxWidth;
+            }
+
+            const canvas = document.createElement('canvas');
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+
+            resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = reject;
+        img.src = src;
+    });
+}
+
+// Compress for storage (higher quality for later re-editing)
+function compressImageForStorage(src, maxWidth = 800, quality = 0.65) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+            let w = img.width;
+            let h = img.height;
+
+            if (w > maxWidth) {
+                h = Math.round(h * maxWidth / w);
+                w = maxWidth;
+            }
+
+            const canvas = document.createElement('canvas');
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+
+            resolve(canvas.toDataURL('image/jpeg', quality));
+        };
         img.onerror = reject;
         img.src = src;
     });

@@ -1,0 +1,63 @@
+================================================================================
+  ANNEXE PHOTOS CECB PLUS — Description de l'application
+================================================================================
+
+OBJECTIF
+--------
+Application web locale permettant de générer des annexes photos au format PDF
+pour les rapports CECB (Certificat Énergétique Cantonal des Bâtiments).
+Le PDF produit affiche les photos en grille 2x3 par page avec légendes,
+précédées du titre "D.1 Photo : [Nom du projet]".
+
+FONCTIONNALITÉS
+---------------
+1. Import de photos par glisser-déposer ou sélection de fichiers
+2. Réorganisation des photos par glisser-déposer
+3. Ajout de légendes sous chaque photo
+4. Suppression individuelle de photos
+5. Génération d'un PDF A4 avec mise en page automatique (2 colonnes x 3 lignes)
+6. Sauvegarde de projets en local (IndexedDB) pour modifications ultérieures
+7. Chargement et suppression de projets sauvegardés
+
+COMPRESSION DES IMAGES
+-----------------------
+- Stockage (IndexedDB) : redimensionnement max 800px, qualité JPEG 65%
+  → permet de re-éditer plus tard avec une qualité correcte
+- Export PDF : redimensionnement max 600px, qualité JPEG 50%
+  → fichier PDF léger pour transmission
+
+PERSISTANCE DES PROJETS
+------------------------
+Les projets sont stockés dans IndexedDB (base de données locale du navigateur).
+Chaque projet contient :
+  - Nom du projet
+  - Date de sauvegarde
+  - Nombre de photos
+  - Photos compressées avec leurs légendes
+
+Note : les données sont liées au navigateur et à la machine. Chaque poste
+de travail a sa propre base de projets.
+
+TECHNOLOGIES
+------------
+- HTML5 / CSS3 / JavaScript (vanilla, aucun framework)
+- jsPDF 2.5.1 (via CDN) pour la génération PDF
+- IndexedDB pour la persistance locale
+- Aucun serveur requis — fonctionne en ouvrant index.html directement
+
+UTILISATION
+-----------
+1. Ouvrir index.html dans Chrome
+2. Entrer le nom du projet (ex: "La Vy-de-l'Etraz 17, 1276 Gingins")
+3. Glisser-déposer les photos
+4. Ajouter des légendes si nécessaire
+5. Réorganiser l'ordre par glisser-déposer
+6. Cliquer "Sauvegarder" pour garder trace du projet
+7. Cliquer "Générer PDF" pour produire le fichier
+
+STRUCTURE DES FICHIERS
+----------------------
+index.html  — Page principale
+style.css   — Styles de l'interface
+app.js      — Logique applicative (import, gestion, PDF, persistance)
+prompt.txt  — Ce fichier (documentation)

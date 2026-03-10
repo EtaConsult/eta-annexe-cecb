@@ -3,16 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Annexe Photos CECB</title>
+    <title>Annexe Photos CECB Plus</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <h1>Générateur d'annexe photos CECB</h1>
+        <h1>Annexe Photos CECB Plus</h1>
 
         <div class="project-name-section">
             <label for="projectName">Nom du projet :</label>
-            <input type="text" id="projectName" placeholder="Entrez le nom du projet">
+            <div class="project-input-row">
+                <input type="text" id="projectName" placeholder="Entrez le nom du projet">
+                <button class="btn-save" id="saveBtn" title="Sauvegarder le projet">Sauvegarder</button>
+                <button class="btn-new" id="newBtn" title="Nouveau projet">Nouveau</button>
+            </div>
+        </div>
+
+        <div class="saved-projects-section" id="savedProjectsSection">
+            <div class="saved-projects-header" id="toggleProjects">
+                <h2>Projets sauvegardés</h2>
+                <span class="toggle-arrow" id="toggleArrow">&#9660;</span>
+            </div>
+            <div class="project-list" id="projectList"></div>
         </div>
 
         <div class="photos-grid" id="photosGrid"></div>
@@ -33,6 +45,8 @@
             Générer PDF
         </button>
     </div>
+
+    <div class="notification" id="notification"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="app.js"></script>
