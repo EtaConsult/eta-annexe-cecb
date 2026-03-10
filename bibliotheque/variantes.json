@@ -1,0 +1,254 @@
+{
+  "id": "variantes",
+  "name": "Variantes de rénovation",
+  "variantes_definition": {
+    "variante_1": {"nom": "Travaux correctifs", "colonne": "C"},
+    "variante_2": {"nom": "Toiture", "colonne": "D"},
+    "variante_3": {"nom": "Global", "colonne": "E"}
+  },
+  "couts": {
+    "variante_1": "0'000.-",
+    "variante_2": "0'000.-",
+    "variante_3": "0'000.-"
+  },
+  "mesures": [
+    {
+      "id": "toits_plafonds_ext",
+      "nom": "Isolation des toits / plafonds contre extérieur",
+      "section": "Enveloppe du bâtiment",
+      "position": 1,
+      "variantes_checkbox": {"variante_1": false, "variante_2": true, "variante_3": true},
+      "description_defaut": "Isolation améliorée de la toiture pour limiter les pertes thermiques, atteindre une valeur U \u2264 0,15 W/m\u00b2K et être éligible aux subventions du Programme Bâtiment de CHF 80.-/m\u00b2 de surface isolée  (Mesure M01).",
+      "options_variantes_liste": [
+        {"value": "Isolation améliorée de la toiture pour limiter les pertes thermiques, atteindre une valeur U \u2264 0,20 W/m\u00b2K et être éligible aux subventions du Programme Bâtiment de CHF 50.-/m\u00b2 de surface isolée  (Mesure M01)."},
+        {"value": "Isolation améliorée de la toiture pour limiter les pertes thermiques, atteindre une valeur U \u2264 0,15 W/m\u00b2K et être éligible aux subventions du Programme Bâtiment de CHF 80.-/m\u00b2 de surface isolée  (Mesure M01)."},
+        {"value": "Aucune mesure relative aux toits contre extérieur n'est prise en compte dans le bilan thermique."}
+      ]
+    },
+    {
+      "id": "plafonds_combles",
+      "nom": "Isolation des plafonds contre combles non chauffés",
+      "section": "Enveloppe du bâtiment",
+      "position": 2,
+      "variantes_checkbox": {"variante_1": true, "variante_2": true, "variante_3": true},
+      "description_defaut": "Isolation améliorée du plancher des combles pour limiter les pertes thermiques et atteindre une valeur U \u2264 0,20 W/m\u00b2K.",
+      "options_variantes_liste": [
+        {"value": "Isolation améliorée du plancher des combles pour limiter les pertes thermiques et atteindre une valeur U \u2264 0,25 W/m\u00b2K."},
+        {"value": "Isolation améliorée du plancher des combles pour limiter les pertes thermiques et atteindre une valeur U \u2264 0,20 W/m\u00b2K."},
+        {"value": "Isolation améliorée du plancher des combles pour limiter les pertes thermiques et atteindre une valeur U \u2264 0,15 W/m\u00b2K."},
+        {"value": "Aucune mesure relative aux plafonds contre combles non chauffés n'est prise en compte dans le bilan thermique."}
+      ]
+    },
+    {
+      "id": "facades_murs_ext",
+      "nom": "Isolation des façades / murs contre extérieur",
+      "section": "Enveloppe du bâtiment",
+      "position": 3,
+      "variantes_checkbox": {"variante_1": false, "variante_2": false, "variante_3": true},
+      "description_defaut": "Isolation améliorée de la façade pour limiter les pertes thermiques, atteindre une valeur U \u2264 0,15 W/m\u00b2K et être éligible aux subventions du Programme Bâtiments de CHF 80.-/m\u00b2 de surface isolée (Mesure M01).",
+      "options_variantes_liste": [
+        {"value": "Isolation améliorée de la façade pour limiter les pertes thermiques, atteindre une valeur U \u2264 0,20 W/m\u00b2K et être éligible aux subventions du Programme Bâtiments de CHF 50.-/m\u00b2 de surface isolée (Mesure M01)."},
+        {"value": "Isolation améliorée de la façade pour limiter les pertes thermiques, atteindre une valeur U \u2264 0,15 W/m\u00b2K et être éligible aux subventions du Programme Bâtiments de CHF 80.-/m\u00b2 de surface isolée (Mesure M01)."},
+        {"value": "Isolation améliorée de la façade pour limiter les pertes thermiques, atteindre une valeur U \u2264 0,40 W/m\u00b2K. La valeur U n'étant pas une valeur rénovative, l'intervention n'est pas éligible aux subventions du Programme Bâtiments de CHF 50.-/m\u00b2 de surface isolée (Mesure M01). "},
+        {"value": "Aucune mesure n'est prise en compte dans le bilan thermique."}
+      ]
+    },
+    {
+      "id": "murs_non_chauffes",
+      "nom": "Isolation des murs contre locaux non chauffés",
+      "section": "Enveloppe du bâtiment",
+      "position": 4,
+      "variantes_checkbox": {"variante_1": true, "variante_2": true, "variante_3": true},
+      "description_defaut": "Isolation améliorée des murs adjacents aux espaces non chauffés pour limiter les pertes thermiques et atteindre une valeur U \u2264 0,25 W/m\u00b2K.",
+      "options_variantes_liste": [
+        {"value": "Isolation améliorée des murs adjacents aux espaces non chauffés pour limiter les pertes thermiques et atteindre une valeur U \u2264 0,20 W/m\u00b2K."},
+        {"value": "Isolation améliorée des murs adjacents aux espaces non chauffés pour limiter les pertes thermiques et atteindre une valeur U \u2264 0,25 W/m\u00b2K."},
+        {"value": "Aucune mesure n'est prise en compte dans le bilan thermique."}
+      ]
+    },
+    {
+      "id": "fenetres",
+      "nom": "Remplacement des fenêtres",
+      "section": "Enveloppe du bâtiment",
+      "position": 5,
+      "variantes_checkbox": {"variante_1": false, "variante_2": false, "variante_3": false},
+      "description_defaut": "Aucune mesure n'est prise en compte dans le bilan thermique.",
+      "options_variantes_liste": [
+        {"value": "Remplacement des fenêtres par des fenêtres avec triple vitrage performant et cadre PVC: Ug=0.7 W/m2K - gp=0.5 - Uf=1.4 W/m2K - \u03a8g=0.04 W/mK."},
+        {"value": "Aucune mesure n'est prise en compte dans le bilan thermique."}
+      ]
+    },
+    {
+      "id": "sols_ext",
+      "nom": "Isolation des sols contre extérieur",
+      "section": "Enveloppe du bâtiment",
+      "position": 6,
+      "variantes_checkbox": {"variante_1": false, "variante_2": false, "variante_3": false},
+      "description_defaut": "",
+      "options_variantes_liste": [
+        {"value": "Isolation améliorée des sols contre exétrieur pour limiter les pertes thermiques et atteindre une valeur U \u2264 0,15 W/m\u00b2K."},
+        {"value": "Isolation améliorée des sols contre exétrieur pour limiter les pertes thermiques et atteindre une valeur U \u2264 0,20 W/m\u00b2K."},
+        {"value": "Aucune mesure n'est prise en compte dans le bilan thermique."}
+      ]
+    },
+    {
+      "id": "sols_non_chauffes",
+      "nom": "Isolation des sols contre locaux non chauffés",
+      "section": "Enveloppe du bâtiment",
+      "position": 7,
+      "variantes_checkbox": {"variante_1": false, "variante_2": false, "variante_3": false},
+      "description_defaut": "Aucune mesure n'est prise en compte dans le bilan thermique pour le sol contre espaces non chauffés.",
+      "options_variantes_liste": [
+        {"value": "Isolation améliorée du sol contre espace non chauffé (sous dalle) pour limiter les pertes thermiques, atteindre une valeur U \u2264 0,20 W/m\u00b2K."},
+        {"value": "Isolation améliorée du sol contre espace non chauffé (sous dalle) pour limiter les pertes thermiques, atteindre une valeur U \u2264 0,25 W/m\u00b2K."},
+        {"value": "Aucune mesure n'est prise en compte dans le bilan thermique pour le sol contre espaces non chauffés."}
+      ]
+    },
+    {
+      "id": "sols_terrain",
+      "nom": "Isolation des sols contre terrain",
+      "section": "Enveloppe du bâtiment",
+      "position": 8,
+      "variantes_checkbox": {"variante_1": false, "variante_2": false, "variante_3": false},
+      "description_defaut": "Aucune mesure n'est prise en compte dans le bilan thermique pour le sol enterré contre terrain.",
+      "options_variantes_liste": [
+        {"value": "Isolation améliorée du sol enterré contre terrain (sur dalle) pour limiter les pertes thermiques, atteindre une valeur U \u2264 0,25 W/m\u00b2K et être éligible aux subventions du Programme Bâtiment de CHF 50.-/m\u00b2 de surface isolée (Mesure M01)."},
+        {"value": "Isolation améliorée du sol enterré contre terrain (sur dalle) pour limiter les pertes thermiques, atteindre une valeur U \u2264 0,15 W/m\u00b2K et être éligible aux subventions du Programme Bâtiment de CHF 80.-/m\u00b2 de surface isolée (Mesure M01)."},
+        {"value": "Aucune mesure n'est prise en compte dans le bilan thermique pour le sol enterré contre terrain."}
+      ]
+    },
+    {
+      "id": "ponts_thermiques",
+      "nom": "Ponts",
+      "section": "Enveloppe du bâtiment",
+      "position": 9,
+      "variantes_checkbox": {"variante_1": false, "variante_2": true, "variante_3": true},
+      "description_defaut": "Les ponts thermiques relatifs aux travaux de rénovation ont été pris en compte.",
+      "options_variantes_liste": [
+        {"value": "Les ponts thermiques relatifs aux travaux de rénovation ont été pris en compte."},
+        {"value": "En l'absence d'isolation, les ponts thermiques sont négligeables."}
+      ]
+    },
+    {
+      "id": "producteur_chaleur",
+      "nom": "Remplacement du producteur de chaleur",
+      "section": "Technique du bâtiment",
+      "position": 10,
+      "variantes_checkbox": {"variante_1": true, "variante_2": true, "variante_3": true},
+      "description_defaut": "Remplacement du sytème existant au profit de l'installation d'un chauffage centralisé PAC air/eau.",
+      "options_variantes_liste": [
+        {"value": "Remplacement du sytème existant au profit de l'installation d'un chauffage centralisé PAC air/eau."},
+        {"value": "Remplacement du sytème existant au profit d'un raccordement au réseau CAD."},
+        {"value": "Aucune mesure relative au remplacement du producteur de chaleur n'a été prise en compte dans le bilan thermique. Il est toutefois recommandé d'évaluer l'opportunité de son remplacement, notamment en faveur d'un système utilisant les énergies renouvelables ou d'un raccordement à un chauffage à distance."}
+      ]
+    },
+    {
+      "id": "producteur_ecs",
+      "nom": "Remplacement du producteur d'ECS",
+      "section": "Technique du bâtiment",
+      "position": 11,
+      "variantes_checkbox": {"variante_1": true, "variante_2": true, "variante_3": true},
+      "description_defaut": "Couplage de la production d'eau chaude sanitaire au nouveau système de chauffage.",
+      "options_variantes_liste": [
+        {"value": "Couplage de la production d'eau chaude sanitaire au nouveau système de chauffage."},
+        {"value": "Aucune mesure relative au remplacement du producteur d\u2019eau chaude sanitaire (ECS) n\u2019a été prise en compte dans le bilan thermique. Il est recommandé d\u2019évaluer son efficacité énergétique et d\u2019envisager son remplacement par un système plus performant ou utilisant des énergies renouvelables."},
+        {"value": "Remplacement du boiler électrique par un modèle plus performant ou une production couplée au chauffage."},
+        {"value": "Remplacement du système d\u2019ECS par un boiler pompe à chaleur indépendant."},
+        {"value": "Remplacement du boiler existant par un système solaire thermique en appoint, avec régulation différenciée."},
+        {"value": "Installation d\u2019un système de production d\u2019ECS décentralisé pour réduire les pertes de distribution."},
+        {"value": "Séparation de la production d\u2019ECS et du chauffage pour plus de flexibilité et une meilleure régulation saisonnière."}
+      ]
+    },
+    {
+      "id": "distributeur_chaleur",
+      "nom": "Distributeur de chaleur",
+      "section": "Technique du bâtiment",
+      "position": 12,
+      "variantes_checkbox": {"variante_1": false, "variante_2": false, "variante_3": false},
+      "description_defaut": "Aucune mesure relative à la distribution de chaleur n\u2019a été prise en compte dans le bilan thermique. Il est recommandé de vérifier l\u2019état des conduites existantes afin d\u2019évaluer leur compatibilité avec un éventuel remplacement du système de production.",
+      "options_variantes_liste": [
+        {"value": "Création d'un système de distribution de chaleur hydraulique par radiateurs."},
+        {"value": "Création d'un système de distribution de chaleur hydraulique par chauffage au sol."},
+        {"value": "Aucune mesure relative à la distribution de chaleur n\u2019a été prise en compte dans le bilan thermique. Il est recommandé de vérifier l\u2019état des conduites existantes afin d\u2019évaluer leur compatibilité avec un éventuel remplacement du système de production."}
+      ]
+    },
+    {
+      "id": "distribution_ecs",
+      "nom": "Distribution ECS",
+      "section": "Technique du bâtiment",
+      "position": 13,
+      "variantes_checkbox": {"variante_1": false, "variante_2": false, "variante_3": false},
+      "description_defaut": "Aucune mesure relative à la distribution d\u2019eau chaude sanitaire (ECS) n\u2019a été prise en compte dans le bilan thermique. Il est recommandé de contrôler l\u2019état des conduites existantes afin de s\u2019assurer de leur compatibilité avec un éventuel remplacement du système de production.",
+      "options_variantes_liste": [
+        {"value": "Aucune mesure relative à la distribution d\u2019eau chaude sanitaire (ECS) n\u2019a été prise en compte dans le bilan thermique. Il est recommandé de contrôler l\u2019état des conduites existantes afin de s\u2019assurer de leur compatibilité avec un éventuel remplacement du système de production."}
+      ]
+    },
+    {
+      "id": "ventilation",
+      "nom": "Système de ventilation",
+      "section": "Technique du bâtiment",
+      "position": 14,
+      "variantes_checkbox": {"variante_1": false, "variante_2": false, "variante_3": false},
+      "description_defaut": "Aucune mesure relative à la ventilation n\u2019a été prise en compte dans le bilan thermique. Il est recommandé d\u2019évaluer le système existant afin de vérifier sa capacité à garantir un renouvellement d\u2019air hygiénique, notamment en cas d\u2019amélioration de l\u2019étanchéité à l\u2019air du bâtiment.",
+      "options_variantes_liste": [
+        {"value": "Aucune mesure relative à la ventilation n\u2019a été prise en compte dans le bilan thermique. Il est recommandé d\u2019évaluer le système existant afin de vérifier sa capacité à garantir un renouvellement d\u2019air hygiénique, notamment en cas d\u2019amélioration de l\u2019étanchéité à l\u2019air du bâtiment."},
+        {"value": "Installation d\u2019un système de ventilation simple flux avec récupération de chaleur, réglettes d\u2019aération hygroréglables dans les cadres des fenêtres des pièces de vie et ventilateurs dans les pièces humides."},
+        {"value": "Installation d\u2019un système de ventilation simple flux sans récupération de chaleur, réglettes d\u2019aération hygroréglables dans les cadres des fenêtres des pièces de vie et ventilateurs dans les pièces humides."},
+        {"value": "Installation d\u2019un système de ventilation double flux avec récupération de chaleur centralisée, incluant un réseau de gaines et un échangeur haute efficacité."},
+        {"value": "Installation d\u2019un système de ventilation double flux sans récupération de chaleur centralisée, incluant un réseau de gaines."},
+        {"value": "Amélioration de la ventilation naturelle par la pose de grilles hygroréglables et d\u2019extracteurs ponctuels dans les pièces humides."},
+        {"value": "Installation d\u2019un système de ventilation mécanique contrôlée (VMC) simple flux hygroréglable adapté à la configuration du logement."},
+        {"value": "Aération naturelle suffisante, aucune intervention recommandée à ce stade."},
+        {"value": "Présence d\u2019un système de ventilation déjà performant, conforme aux standards actuels."},
+        {"value": "L\u2019amélioration de l\u2019étanchéité à l\u2019air du bâtiment impose la mise en place d\u2019un système de ventilation contrôlée adapté."}
+      ]
+    },
+    {
+      "id": "appareils_electriques",
+      "nom": "Remplacement des appareils électroniques",
+      "section": "Electricité",
+      "position": 15,
+      "variantes_checkbox": {"variante_1": false, "variante_2": false, "variante_3": false},
+      "description_defaut": "Aucune mesure relative au remplacement des appareils électriques n\u2019a été prise en compte dans le bilan thermique. Leur impact sur la consommation énergétique globale du bâtiment reste marginal dans le contexte de l\u2019analyse thermique.",
+      "options_variantes_liste": [
+        {"value": "Aucune mesure relative au remplacement des appareils électriques n\u2019a été prise en compte dans le bilan thermique. Leur impact sur la consommation énergétique globale du bâtiment reste marginal dans le contexte de l\u2019analyse thermique."}
+      ]
+    },
+    {
+      "id": "photovoltaique",
+      "nom": "Production d'électricité / Installation photovoltaïque",
+      "section": "Electricité",
+      "position": 16,
+      "variantes_checkbox": {"variante_1": false, "variante_2": false, "variante_3": true},
+      "description_defaut": "Installation d'un système de panneaux solaires photovoltaïques en ajouté sur la toiture rénovée.",
+      "options_variantes_liste": [
+        {"value": "Installation d\u2019un système de panneaux solaires photovoltaïques en ajouté sur la toiture rénovée."},
+        {"value": "Aucune mesure relative à l\u2019installation photovoltaïque n\u2019a été prise en compte dans le bilan thermique. L\u2019opportunité d\u2019une production d\u2019électricité sur site peut toutefois être envisagée afin de réduire la consommation d\u2019énergie non renouvelable du bâtiment."}
+      ]
+    }
+  ],
+  "textes_generaux": {
+    "remarques_generales": {
+      "introduction": "La rénovation d'un édifice représente un projet de grande envergure, nécessitant une analyse exhaus-tive des différentes possibilités de rénovation.",
+      "approche_holistique": "Nous préconisons une approche holistique et globale pour la rénovation énergétique des bâtiments, qui constitue une stratégie efficace pour maximiser les résultats sur le long terme et limiter significativement les consommations. Cette méthode permet de considérer le bâtiment comme un système intégré, où chaque élément interagit avec les autres, plutôt que de traiter les améliorations de façon isolée.",
+      "cecb_plus_note": "Le CECB Plus ne constitue pas une base de planification pour l'exécution des travaux mais une base décisionnelle sur les travaux à entreprendre. Il est important de vérifier suffisamment tôt auprès de l'administration compétente si un permis de construire est requis pour les travaux prévus. De plus, n'oubliez pas que toutes les demandes de subvention doivent être déposées avant le début des tra-vaux.\nCe rapport permet d'évaluer les conséquences des 3 variantes de mesures d'assainissement énergé-tique sur les performances du bâtiment dans son état actuel.",
+      "ponts_thermiques_note": "Lors des travaux de rénovation de la façade, il est essentiel de minimiser autant que possible les ponts thermiques existants. Il est vivement recommandé de les traiter pendant la rénovation pour prévenir d'éventuels problèmes futurs tels que la condensation et la formation de moisissures dans l'habitat."
+    },
+    "variante_1_description": {
+      "introduction": "La Variante 1 propose des mesures correctives de l'enveloppe du bâtiment, tout en minimisant les désagréments pour les utilisateurs des locaux.",
+      "insuffisance": "Ces mesures ne sont pas suffisantes pour atteindre les standards d'un assainissement énergétique pertinent (classe D de l'enveloppe au sens du projet de loi vaudois sur l'énergie LVLEne adopté par le Conseil d'Etat en 09.2024)."
+    },
+    "variante_2_description": {
+      "introduction": "La Variante 2 propose l'ensemble des travaux suivants :"
+    },
+    "variante_3_description": {
+      "introduction": "La Variante 3, quant à elle, propose d'atteindre un niveau d'efficacité énergétique satisfaisant, bien que les coûts soient significatifs. Elle prévoit :"
+    },
+    "conclusion_variantes": "Les variantes 2 et 3 autorisent, une fois l'enveloppe thermique améliorée, le remplacement du système de production de chaleur au profit d'une pompe à chaleur air eau et permettent d'exploiter les énergies renouvelables. Toutefois, l'efficacité de l'enveloppe de la variante 2 n'est pas suffisante pour exploiter au mieux les performances d'une pompe à chaleur."
+  },
+  "template_rapport_variantes": {
+    "description": "Template for assembling the full variants report text (from J31 in Excel)",
+    "template": "Remarques générales\n{introduction}. {approche_holistique}\n{cecb_plus_note}\n{ponts_thermiques_note}\n\n{variante_1_intro}. Cette option inclut l'amélioration partielle de l'enveloppe du bâtiment, à savoir \n{variante_1_mesures}. {variante_1_insuffisance}. \nConcernat les installations techniques du bâtiment, {variante_1_technique}.\n\n{variante_2_intro} \n{variante_2_mesures} \n{variante_2_technique} \n{variante_2_elec}\n\n{variante_3_intro} \n{variante_3_mesures} \n{variante_3_technique} \n{variante_3_elec} \n\n{conclusion_variantes}.\n"
+  },
+  "prompt_ai": "Tu es expert CECB dans le canton de Vaud et architecte avec une aisance rédactionnelle. Améliore, en proposant un texte bien rédigé, le texte cellule J30. Sois concis et professionnel. \nNe recite pas Enveloppe, Electricité et Technique du bâtiment à chque fois.\n"
+}

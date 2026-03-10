@@ -1,0 +1,101 @@
+{
+  "id": "photo",
+  "name": "Installations photovoltaïques",
+  "etat_initial": {
+    "template": "{installation_photo}, de  {puissance_kw} kW, {annee_installation}.",
+    "template_excel": "=CONCATENATE(\"\", C6, \", de  \", C7, \" kW, \", C8, \".\")",
+    "parametres": [
+      {
+        "id": "installation_photo",
+        "nom": "Installation photo",
+        "position": 1,
+        "options": [
+          {"value": "Aucune installation photovoltaïque n'a été relevée sur place. Il n'y a pas d'autoproduction d'électricité."},
+          {"value": "Le bâtiment est équipé d'une installation solaire photovoltaïque."}
+        ]
+      },
+      {
+        "id": "puissance_kw",
+        "nom": "Puissance installée",
+        "position": 2,
+        "type": "number",
+        "unit": "kW"
+      },
+      {
+        "id": "annee_installation",
+        "nom": "Année d'installation",
+        "position": 3,
+        "options": [
+          {"value": "installée en 1990"},
+          {"value": "installée en 1991"},
+          {"value": "installée en 1992"},
+          {"value": "installée en 1993"},
+          {"value": "installée en 1994"},
+          {"value": "installée en 1995"},
+          {"value": "installée en 1996"},
+          {"value": "installée en 1997"},
+          {"value": "installée en 1998"},
+          {"value": "installée en 1999"},
+          {"value": "installée en 2000"},
+          {"value": "installée en 2001"},
+          {"value": "installée en 2002"},
+          {"value": "installée en 2003"},
+          {"value": "installée en 2004"},
+          {"value": "installée en 2005"},
+          {"value": "installée en 2006"},
+          {"value": "installée en 2007"},
+          {"value": "installée en 2008"},
+          {"value": "installée en 2009"},
+          {"value": "installée en 2010"},
+          {"value": "installée en 2011"},
+          {"value": "installée en 2012"},
+          {"value": "installée en 2013"},
+          {"value": "installée en 2014"},
+          {"value": "installée en 2015"},
+          {"value": "installée en 2016"},
+          {"value": "installée en 2017"},
+          {"value": "installée en 2018"},
+          {"value": "installée en 2019"},
+          {"value": "installée en 2020"},
+          {"value": "installée en 2021"},
+          {"value": "installée en 2022"},
+          {"value": "installée en 2023"},
+          {"value": "installée en 2024"},
+          {"value": "installée en 2025"}
+        ]
+      }
+    ],
+    "prompt_ai": "Rôle :\nTu es architecte avec une aisance rédactionnelle et expert en rédaction de rapports CECB\n\nTâche :\nAméliore le texte de la cellule D6.\n\nFormat :\nLe texte doit intégrer ces informations de manière fluide, comme dans un rapport d'expertise CECB. Il doit rester concis, factuel, sans interprétation ni recommandations. \nSi la date de construction de l'élément est connu, ou renseigné, tu peux le citer.\n\nTon :\nUtilise un ton neutre et professionnel. \n\nContraintes :\nNe rappelle pas les paramètres transmis. \nLimiter la réponse à 800 caractères. \nN'ajoute pas d'informations supplémentaires. \nNe mentionne pas la date de construction du bâtiment.\nEvite les répétitions."
+  },
+  "ameliorations": {
+    "template": "{recommandation_photo}. {potentiel}. {pronovo}.",
+    "template_excel": "=CONCATENATE(\"\", C26, \". \", C27, \". \",  C28, \".\")",
+    "parametres": [
+      {
+        "id": "recommandation_photo",
+        "nom": "Recommandation Photo",
+        "position": 1,
+        "options": [
+          {"value": "L'installation d'un système de panneaux solaires photovoltaïques doit être examinée et réalisée sur une toiture assainie au préalable. L'autoproduction d'électricité est en général économique et réduit les émissions de gaz à effet de serre"}
+        ]
+      },
+      {
+        "id": "potentiel",
+        "nom": "Potentiel",
+        "position": 2,
+        "options": [
+          {"value": "Nous recommandons l'exploitation du potentiel maximum de la toiture avec l'installation d'un système solaire photovoltaïque. Cette production minimise les besoins électriques et permettrait de réduire considérablement les émissions de gaz à effet de serre. Nous recommandons également l'intégration d'un système de stockage d'électricité afin d'optimiser l'autoconsommation et de valoriser l'énergie solaire produite localement. Une étude d'ensoleillement est à prévoir pour confirmer la faisabilité technique, notamment en lien avec l'ombrage éventuel et l'orientation de la toiture. "}
+        ]
+      },
+      {
+        "id": "pronovo",
+        "nom": "Pronovo",
+        "position": 3,
+        "options": [
+          {"value": "Les travaux d\u2019installation d\u2019un système photovoltaïque sont subventionnés par Pronovo, en fonction de la taille de l\u2019installation et de l\u2019option choisie (rétribution unique ou à l\u2019injection)"}
+        ]
+      }
+    ],
+    "prompt_ai": "Rôle :\nTu es architecte avec une aisance rédactionnelle et expert en rédaction de rapports CECB\n\nTâche :\nAméliore le texte de la cellule D26\n\nFormat :\nLe texte doit intégrer ces informations de manière fluide, comme dans un rapport d'expertise CECB. Il doit rester factuel, sans interprétation ni recommandations. \nSi la date de construction de l'élément est connu, ou renseigné, tu peux le citer.\n\nTon :\nUtilise un ton neutre et professionnel. \n\nContraintes :\nNe rappelle pas les paramètres transmis. \nLimiter la réponse à 800 caractères.\nN'ajoute pas d'informations supplémentaires. \nNe mentionne pas la date de construction du bâtiment.\nEvite les répétitions, de rephraser les réponses."
+  }
+}

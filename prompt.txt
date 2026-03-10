@@ -1,63 +1,101 @@
 ================================================================================
-  ANNEXE PHOTOS CECB PLUS — Description de l'application
+  CECB PLUS — Assistant CECB (202603_Assistant CECB)
 ================================================================================
 
 OBJECTIF
 --------
-Application web locale permettant de générer des annexes photos au format PDF
-pour les rapports CECB (Certificat Énergétique Cantonal des Bâtiments).
-Le PDF produit affiche les photos en grille 2x3 par page avec légendes,
-précédées du titre "D.1 Photo : [Nom du projet]".
+Application web multi-pages pour l'assistance a la redaction de rapports CECB
+(Certificat Energetique Cantonal des Batiments). L'application regroupe trois
+outils complementaires : generation d'annexes photos PDF, generation automatique
+de textes descriptifs, et configuration de variantes d'assainissement.
 
-FONCTIONNALITÉS
----------------
-1. Import de photos par glisser-déposer ou sélection de fichiers
-2. Réorganisation des photos par glisser-déposer
-3. Ajout de légendes sous chaque photo
-4. Suppression individuelle de photos
-5. Génération d'un PDF A4 avec mise en page automatique (2 colonnes x 3 lignes)
-6. Sauvegarde de projets en local (IndexedDB) pour modifications ultérieures
-7. Chargement et suppression de projets sauvegardés
+PAGES
+-----
+1. Annexe Photos (index.html)
+   - Import de photos par glisser-deposer ou selection de fichiers
+   - Reorganisation des photos par glisser-deposer
+   - Ajout de legendes sous chaque photo
+   - Suppression individuelle de photos
+   - Generation d'un PDF A4 avec mise en page automatique (2 colonnes x 3 lignes)
+   - Sauvegarde de projets en local (IndexedDB) pour modifications ulterieures
+   - Le PDF produit affiche "D.1 Photo : [Nom du projet]"
 
-COMPRESSION DES IMAGES
------------------------
-- Stockage (IndexedDB) : redimensionnement max 800px, qualité JPEG 65%
-  → permet de re-éditer plus tard avec une qualité correcte
-- Export PDF : redimensionnement max 600px, qualité JPEG 50%
-  → fichier PDF léger pour transmission
+2. Textes CECB (textes.html)
+   - Generation automatique de textes descriptifs pour les rapports CECB
+   - Charge des bibliotheques JSON par categorie CECB (batiment, toiture,
+     facade, fenetres, sols, chauffage, ECS, electricite, photos)
+   - Onglets groupes : "Enveloppe du batiment" et "Technique du batiment"
+   - Pour chaque categorie : formulaire parametres (select/text/number)
+     avec sections "Etat initial" (vert) et "Ameliorations" (bleu)
+   - Assemblage automatique de texte via templates JSON avec placeholders
+   - Bouton copier + editeur libre pour modifications manuelles
+   - Port HTML/JS du generateur Streamlit Python (202602_Textes CECB Claude)
 
-PERSISTANCE DES PROJETS
-------------------------
-Les projets sont stockés dans IndexedDB (base de données locale du navigateur).
-Chaque projet contient :
-  - Nom du projet
-  - Date de sauvegarde
-  - Nombre de photos
-  - Photos compressées avec leurs légendes
+3. Variantes (variantes.html)
+   - Matrice de selection pour 3 variantes d'assainissement energetique
+   - Textes-cadre editables pour le rapport (introduction, conclusions)
+   - Bibliotheque de textes pour chaque poste (toiture, facade, etc.)
+   - Apercu en temps reel par variante et rapport complet
+   - Tableau recapitulatif exportable (copie Word, PNG, HTML)
+   - Sauvegarde automatique en localStorage
 
-Note : les données sont liées au navigateur et à la machine. Chaque poste
-de travail a sa propre base de projets.
+DESIGN SYSTEM
+-------------
+- Police : Urbanist (Google Fonts)
+- Palette : Slate (#0F172A, #1E293B, #334155) / Emerald (#059669, #10B981)
+- Navigation sombre avec accent vert emeraude
+- Cards avec border-radius 10-12px et shadows subtiles
+- Texte assemble EI : fond vert gradient (ECFDF5 -> D1FAE5)
+- Texte assemble AM : fond bleu gradient (EFF6FF -> DBEAFE)
+- Editeur manuel : fond jaune pale (FEFCE8) avec bordure dashed
+
+AUTHENTIFICATION
+----------------
+Systeme d'authentification par token GitHub (auth.js) :
+- Connexion via GitHub API avec gestion de tokens
+- Panel admin pour gestion des utilisateurs autorises
+- Barre utilisateur dans la navigation
+
+COMPRESSION DES IMAGES (Photos)
+---------------------------------
+- Stockage (IndexedDB) : redimensionnement max 800px, qualite JPEG 65%
+- Export PDF : redimensionnement max 600px, qualite JPEG 50%
+
+BIBLIOTHEQUE JSON (Textes)
+---------------------------
+Dossier bibliotheque/ contenant les fichiers JSON par categorie :
+  batiment.json, tcext.json, mcext.json, fen.json, asols.json,
+  chauffage.json, ecs.json, elec.json, photo.json, variantes.json
+
+Chaque fichier JSON contient :
+  - name : nom de la categorie
+  - etat_initial : { template, parametres[], prompt_ai }
+  - ameliorations : { template, parametres[], prompt_ai }
+  - Chaque parametre : { id, nom, type, options[], position }
 
 TECHNOLOGIES
 ------------
 - HTML5 / CSS3 / JavaScript (vanilla, aucun framework)
-- jsPDF 2.5.1 (via CDN) pour la génération PDF
-- IndexedDB pour la persistance locale
-- Aucun serveur requis — fonctionne en ouvrant index.html directement
-
-UTILISATION
------------
-1. Ouvrir index.html dans Chrome
-2. Entrer le nom du projet (ex: "La Vy-de-l'Etraz 17, 1276 Gingins")
-3. Glisser-déposer les photos
-4. Ajouter des légendes si nécessaire
-5. Réorganiser l'ordre par glisser-déposer
-6. Cliquer "Sauvegarder" pour garder trace du projet
-7. Cliquer "Générer PDF" pour produire le fichier
+- jsPDF 2.5.1 (via CDN) pour la generation PDF
+- html2canvas (via CDN) pour l'export PNG du tableau
+- IndexedDB pour la persistance locale (photos)
+- localStorage pour la persistance locale (variantes)
+- Google Fonts (Urbanist)
+- GitHub Pages pour l'hebergement en ligne
 
 STRUCTURE DES FICHIERS
 ----------------------
-index.html  — Page principale
-style.css   — Styles de l'interface
-app.js      — Logique applicative (import, gestion, PDF, persistance)
-prompt.txt  — Ce fichier (documentation)
+index.html       — Page Annexe Photos
+textes.html      — Page Textes CECB
+textes.js        — Moteur de generation de textes CECB
+variantes.html   — Page Variantes d'assainissement
+style.css        — Styles partages (design system Urbanist)
+app.js           — Logique photos (import, gestion, PDF, persistance)
+auth.js          — Authentification GitHub
+bibliotheque/    — Fichiers JSON des categories CECB
+prompt.txt       — Ce fichier (documentation)
+
+HEBERGEMENT
+-----------
+- Local : ouvrir index.html dans Chrome ou lancer un serveur local
+- En ligne : GitHub Pages via https://etaconsult.github.io/eta-annexe-cecb/

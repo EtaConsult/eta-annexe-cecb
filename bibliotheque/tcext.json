@@ -1,0 +1,466 @@
+{
+  "id": "tcext",
+  "name": "Toits / plafonds contre extérieur",
+  "etat_initial": {
+    "template": "Le bâtiment est couvert par une toiture {type_toiture} {isolation_en_place} abritant un espace sous combles {espace_sous_combles}, {affectation_combles} {renovation_thermique}{type_renovation}{date_renovation}. La valeur U moyenne de la toiture est de {u_value_moyenne} W/m²K.",
+    "template_excel": "=CONCATENATE(\"Le bâtiment est couvert par une toiture \", C6, \" \", C7, \" abritant un espace sous combles \", C8, \", \", C9, \" \", C10,\"\", C12,\"\", C11,\".\")",
+    "parametres": [
+      {
+        "id": "type_toiture",
+        "nom": "Type de toiture",
+        "position": 1,
+        "options": [
+          {
+            "value": "toiture inclinée traditionnelle",
+            "leso_match": {
+              "roof_type": "SlopedRoof"
+            }
+          },
+          {
+            "value": "toiture inclinée avec chevrons apparents",
+            "leso_match": {
+              "roof_type": "SlopedRoof"
+            }
+          },
+          {
+            "value": "toiture inclinée avec isolation sous chevrons",
+            "leso_match": {
+              "roof_type": "SlopedRoof"
+            }
+          },
+          {
+            "value": "toiture inclinée avec isolation entre chevrons",
+            "leso_match": {
+              "roof_type": "SlopedRoof"
+            }
+          },
+          {
+            "value": "toiture inclinée avec isolation entre et sur chevrons",
+            "leso_match": {
+              "roof_type": "SlopedRoof"
+            }
+          },
+          {
+            "value": "toiture inclinée avec caisson préfabriqué isolé",
+            "leso_match": {
+              "roof_type": "SlopedRoof"
+            }
+          },
+          {
+            "value": "combles non aménagés non isolés",
+            "leso_match": {
+              "roof_type": "SlopedRoof"
+            }
+          },
+          {
+            "value": "combles non aménagés avec isolation sur plancher",
+            "leso_match": {
+              "roof_type": "SlopedRoof"
+            }
+          },
+          {
+            "value": "combles aménagés avec isolation sous rampants",
+            "leso_match": {
+              "roof_type": "SlopedRoof"
+            }
+          },
+          {
+            "value": "combles aménagés avec isolation intérieure et extérieure",
+            "leso_match": {
+              "roof_type": "SlopedRoof"
+            }
+          },
+          {
+            "value": "toiture en tuiles plates",
+            "leso_match": {
+              "roof_type": "SlopedRoof"
+            }
+          },
+          {
+            "value": "toiture en tuiles canal",
+            "leso_match": {
+              "roof_type": "SlopedRoof"
+            }
+          },
+          {
+            "value": "toiture en tôle ondulée",
+            "leso_match": {
+              "roof_type": "SlopedRoof"
+            }
+          },
+          {
+            "value": "toiture en bac acier",
+            "leso_match": {
+              "roof_type": "SlopedRoof"
+            }
+          },
+          {
+            "value": "toiture en panneaux sandwich",
+            "leso_match": {
+              "roof_type": "SlopedRoof"
+            }
+          },
+          {
+            "value": "toiture en shingle (bardeaux bitumineux)",
+            "leso_match": {
+              "roof_type": "SlopedRoof"
+            }
+          },
+          {
+            "value": "toiture en ardoises",
+            "leso_match": {
+              "roof_type": "SlopedRoof"
+            }
+          },
+          {
+            "value": "toiture en bardeaux bois",
+            "leso_match": {
+              "roof_type": "SlopedRoof"
+            }
+          },
+          {
+            "value": "toiture plate non isolée",
+            "leso_match": {
+              "roof_type": "FlatRoof"
+            }
+          },
+          {
+            "value": "toiture plate avec isolation thermique sous étanchéité",
+            "leso_match": {
+              "roof_type": "FlatRoof"
+            }
+          },
+          {
+            "value": "toiture plate avec isolation inversée",
+            "leso_match": {
+              "roof_type": "FlatRoof"
+            }
+          },
+          {
+            "value": "toiture plate végétalisée",
+            "leso_match": {
+              "roof_type": "FlatRoof"
+            }
+          },
+          {
+            "value": "toiture plate technique avec locaux en-dessous",
+            "leso_match": {
+              "roof_type": "FlatRoof"
+            }
+          },
+          {
+            "value": "toiture plate avec dalle béton et isolation intérieure",
+            "leso_match": {
+              "roof_type": "FlatRoof"
+            }
+          },
+          {
+            "value": "toiture plate avec dalle béton et isolation extérieure (ITE)",
+            "leso_match": {
+              "roof_type": "FlatRoof"
+            }
+          },
+          {
+            "value": "toiture plate avec isolation en pente pour l'évacuation",
+            "leso_match": {
+              "roof_type": "FlatRoof"
+            }
+          },
+          {
+            "value": "toiture en terrasse accessible",
+            "leso_match": {
+              "roof_type": "FlatRoof"
+            }
+          },
+          {
+            "value": "toiture en terrasse inaccessible",
+            "leso_match": {
+              "roof_type": "FlatRoof"
+            }
+          }
+        ]
+      },
+      {
+        "id": "isolation_en_place",
+        "nom": "Isolation en place",
+        "position": 2,
+        "options": [
+          {
+            "value": "non isolée"
+          },
+          {
+            "value": "faiblement isolée"
+          },
+          {
+            "value": "partiellement isolée"
+          },
+          {
+            "value": "isolée, conformément aux standards de l'époque de sa construction, mais en desous des exigences pour les nouvelles constructions"
+          },
+          {
+            "value": "isolée, conformément aux standards de l'époque de sa constrcution, mais largement en desous des exigences pour les nouvelles constructions"
+          },
+          {
+            "value": "isolée, conformément aux standards actuels"
+          },
+          {
+            "value": "bien isolée, conforme aux standards actuels"
+          },
+          {
+            "value": "convenablement isolée"
+          },
+          {
+            "value": "très bien isolée"
+          },
+          {
+            "value": "isolée de manière exemplaire (>= Minergie ou équivalent)"
+          }
+        ]
+      },
+      {
+        "id": "espace_sous_combles",
+        "nom": "Espace sous combles",
+        "position": 3,
+        "options": [
+          {
+            "value": "chauffé"
+          },
+          {
+            "value": "non chauffé"
+          }
+        ]
+      },
+      {
+        "id": "affectation_combles",
+        "nom": "Affectation combles",
+        "position": 4,
+        "options": [
+          {
+            "value": "accueillant des logements"
+          },
+          {
+            "value": "accueillant des galetas"
+          },
+          {
+            "value": "aménageables"
+          },
+          {
+            "value": "en combles perdus"
+          },
+          {
+            "value": "ou vide sous toiture"
+          },
+          {
+            "value": "aménagé"
+          },
+          {
+            "value": "accueillant des chambres",
+            "user_added": true
+          }
+        ]
+      },
+      {
+        "id": "renovation_thermique",
+        "nom": "Rénovation thermique",
+        "position": 5,
+        "options": [
+          {
+            "value": "La toiture a fait l'objet de travaux d'amélioration thermique depuis sa construction"
+          },
+          {
+            "value": "La toiture a été entièrement rénovée récemment, avec une isolation conforme aux standards actuels"
+          },
+          {
+            "value": "La toiture a fait l'objet de travaux partiels, avec une isolation partiellement améliorée"
+          },
+          {
+            "value": "La toiture date de l'année de construction du bâtiment et n'a pas fait l'objet de travaux d'amélioration thermiques depuis sa construction"
+          },
+          {
+            "value": "La toiture n'a fait l'objet que de travaux d'entretien depuis sa construction"
+          },
+          {
+            "value": "La toiture a été isolée par l'extérieur (sarking) lors d'une réfection de la couverture"
+          },
+          {
+            "value": "La toiture a été isolée depuis l'intérieur sans réfection complète de la couverture"
+          },
+          {
+            "value": "L'état de la toiture est inconnu, aucun document ne permet de retracer les éventuels travaux"
+          },
+          {
+            "value": "La toiture présente des signes d'usure et nécessitera une rénovation à moyen terme"
+          },
+          {
+            "value": "La toiture est en bon état apparent, mais aucune amélioration thermique n'a été réalisée"
+          }
+        ]
+      },
+      {
+        "id": "date_renovation",
+        "nom": "Date de rénovation",
+        "position": 6,
+        "options_range": {
+          "min": 1950,
+          "max": 2008
+        }
+      },
+      {
+        "id": "u_value_moyenne",
+        "nom": "Valeur U moyenne (W/m²K)",
+        "position": 7,
+        "type": "text"
+      },
+      {
+        "id": "type_renovation",
+        "nom": "Type de rénovation",
+        "position": 8,
+        "options": [
+          {
+            "value": " (aucune rénovation connue, "
+          },
+          {
+            "value": " (rénovation complète, "
+          },
+          {
+            "value": " (isolation sous toiture, "
+          },
+          {
+            "value": " (isolation par l'extérieur, "
+          },
+          {
+            "value": " (réparation ponctuelle de la charpente, "
+          },
+          {
+            "value": " (surélévation, "
+          },
+          {
+            "value": " (ajout de fenêtres de toit, "
+          }
+        ]
+      }
+    ],
+    "prompt_ai": "Rôle :\nTu es architecte avec une aisance rédactionnelle et expert en rédaction de rapports CECB\n\nTâche :\nAméliore le texte de la cellule D6.\nNe commence pas par \"Le bâtiment possède\" mais \"Le bâtiment est couvert par...\". \n\nFormat :\nLe texte doit intégrer ces informations de manière fluide, comme dans un rapport d'expertise CECB. Il doit rester factuel, sans interprétation ni recommandations. \nSi la date de construction de l'élément est connu, ou renseigné, tu peux le citer.\n\nTon :\nUtilise un ton neutre et professionnel. \n\nContraintes :\nNe rappelle pas les paramètres transmis. \nLimiter la réponse à 800 caractères.\nN'ajoute pas d'informations supplémentaires. \nNe mentionne pas la date de construction du bâtiment.\nEvite les répétitions, de rephraser les réponses."
+  },
+  "ameliorations": {
+    "template": "{plancher_combles} {hypothese} Ces travaux sont à planifier {delai}. {valeur_u} {photovoltaique}",
+    "template_excel": "=CONCATENATE(\"\", C26, \" \", C27, \" Ces travaux sont à planifier \", C28, \". \", C29, \" \", C30, \"\")",
+    "parametres": [
+      {
+        "id": "plancher_combles",
+        "nom": "Plancher des combles",
+        "position": 1,
+        "options": [
+          {
+            "value": "L'isolation au plus près de la zone de chauffe est recommandée, à savoir l'isolation du plancher des combles."
+          }
+        ]
+      },
+      {
+        "id": "hypothese",
+        "nom": "Hypothèse",
+        "position": 2,
+        "options": [
+          {
+            "value": "Dans l'hypothèse de travaux importants sur la couverture et dans le cadre de son entretien, nous recommandons d'examiner en parallèle l'amélioration de la performance isolante de la toiture par l'ajout d'une isolation thermique entre les chevrons ainsi qu'au-dessus de ceux-ci."
+          },
+          {
+            "value": "Dans l'optique d'une future exploitation des combles en espace habitable, l'amélioration de la performance isolante de la toiture peut être planifiée, en tenant compte des échéances d'entretien. Dans ce contexte, une surélévation du bâtiment pourrait être pertinente, sous réserve des possibilités offertes par le règlement communal."
+          },
+          {
+            "value": "L'amélioration thermique de la toiture peut être envisagée, en parallèle des prochains travaux de réfection de la couverture."
+          },
+          {
+            "value": "L'ajout d'une isolation extérieure (sarking) est recommandé pour atteindre les performances actuelles et bénéficier de subventions."
+          },
+          {
+            "value": "Une isolation complémentaire du plancher des combles peut être envisagée si une intervention sur la toiture n'est pas planifiée à court terme."
+          },
+          {
+            "value": "Dans le cas d'une transformation des combles en espace habitable, une isolation complète sous rampants est à prévoir."
+          },
+          {
+            "value": "Aucune mesure d'amélioration n'est recommandée à ce stade, la toiture ayant récemment été rénovée avec un bon niveau d'isolation."
+          },
+          {
+            "value": "L'amélioration du pouvoir isolant de la toiture n'est pas une priorité mais demeure pertinente."
+          }
+        ]
+      },
+      {
+        "id": "delai",
+        "nom": "Délai",
+        "position": 3,
+        "options": [
+          {
+            "value": "à court terme, au titre de travaux correctifs."
+          },
+          {
+            "value": "à moyen terme."
+          },
+          {
+            "value": "à long terme."
+          },
+          {
+            "value": "à long terme ou selon les besoins d'entretien de la toiture."
+          }
+        ]
+      },
+      {
+        "id": "valeur_u",
+        "nom": "Valeur U",
+        "position": 4,
+        "options": [
+          {
+            "value": "Une valeur U inférieure à 0,20 W/m²K est requise pour réduire significativement les déperditions thermiques et être éligible aux subventions du Programme Bâtiments."
+          }
+        ]
+      },
+      {
+        "id": "photovoltaique",
+        "nom": "Photovoltaïque",
+        "position": 5,
+        "options": [
+          {
+            "value": "Avant l'installation de panneaux solaires photovoltaïques, il est recommandé de faire vérifier la capacité portante de la charpente par un ingénieur civil."
+          },
+          {
+            "value": "Dans le cadre d'une réfection de toiture, il est pertinent d'envisager simultanément la pose de panneaux solaires photovoltaïques."
+          }
+        ]
+      }
+    ],
+    "prompt_ai": {
+      "assembled_prompt": "Rôle : \nTu es architecte avec une aisance rédactionnelle et expert en rédaction de rapports CECB. {etat_initial_text}.\n\nTâche :\nAméliore le texte suivant : {ameliorations_text}.\n\nFormat :\nLe texte doit intégrer ces informations de manière fluide, comme dans un rapport d'expertise CECB. Il doit rester factuel, sans interprétation ni recommandations. \nSi la date de construction de l'élément est connu, ou renseigné, tu peux le citer.\n\nTon :\nUtilise un ton neutre et professionnel. \n\nContraintes :Ne rappelle pas les paramètres transmis. \nLimiter la réponse à 800 caractères.\nN'ajoute pas d'informations supplémentaires. \nNe mentionne pas la date de construction du bâtiment.\nEvite les répétitions, de rephraser les réponses.",
+      "structure": {
+        "D36_role": "Tu es architecte avec une aisance rédactionnelle et expert en rédaction de rapports CECB. {etat_initial_text}.",
+        "D37_tache": "Améliore le texte suivant : {ameliorations_text}.",
+        "D38_format": "Le texte doit intégrer ces informations de manière fluide, comme dans un rapport d'expertise CECB. Il doit rester factuel, sans interprétation ni recommandations. \nSi la date de construction de l'élément est connu, ou renseigné, tu peux le citer.",
+        "D39_ton": "Utilise un ton neutre et professionnel. ",
+        "D40_contraintes": "Ne rappelle pas les paramètres transmis. \nLimiter la réponse à 800 caractères.\nN'ajoute pas d'informations supplémentaires. \nNe mentionne pas la date de construction du bâtiment.\nEvite les répétitions, de rephraser les réponses."
+      }
+    }
+  },
+  "notes_photovoltaique_toiture": [
+    {
+      "value": "La configuration de la toiture permet une installation photovoltaïque optimale (orientation/surface).",
+      "source": "Tcext_Liste N26"
+    },
+    {
+      "value": "La toiture est peu favorable à l'installation de panneaux photovoltaïques en raison de son orientation ou de son ombrage.",
+      "source": "Tcext_Liste N27"
+    },
+    {
+      "value": "L'installation de panneaux photovoltaïques est recommandée pour couvrir une partie des besoins électriques du bâtiment.",
+      "source": "Tcext_Liste N28"
+    },
+    {
+      "value": "Une étude de faisabilité photovoltaïque est conseillée avant d'engager tout projet d'installation.",
+      "source": "Tcext_Liste N29"
+    },
+    {
+      "value": "L'installation de panneaux photovoltaïques pourrait permettre de bénéficier de subventions cantonales ou fédérales.",
+      "source": "Tcext_Liste N30"
+    }
+  ]
+}

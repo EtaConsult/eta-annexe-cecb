@@ -1,0 +1,152 @@
+{
+  "id": "ecs",
+  "name": "Eau chaude sanitaire",
+  "etat_initial": {
+    "template": "La production d'eau chaude sanitaire est actuellement assurée par {type_production_ecs}. L'installation, {efficacite} date de {annee_installation}. {etat_systeme}. {electricite}. {co2}. {distribution_ecs}. {consommation_ecs}.",
+    "template_excel": "=CONCATENATE(\"La production d'eau chaude sanitaire est actuellement assurée par \", C6,\". L'installation, \", C8, \" date de \", C7, \". \", C9, \". \", C10, \". \", C11, \". \", C12, \". \", C13, \".\")",
+    "parametres": [
+      {
+        "id": "type_production_ecs",
+        "nom": "Type de production ECS",
+        "position": 1,
+        "options": [
+          {"value": "la chaudière existante. Ce système n'est plus conforme aux standards techniques actuels et ne répond pas aux exigences de performance énergétique modernes."},
+          {"value": "les chaudières existantes. Ce système n'est plus conforme aux standards techniques actuels et ne répond pas aux exigences de performance énergétique modernes."},
+          {"value": "un chauffe-eau électrique. L'utilisation d'électricité pour la production d'ECS chaleur est onéreuse et à proscrire"},
+          {"value": "un chauffe-eau électrique centralisé. L'utilisation d'électricité pour la production d'ECS chaleur est onéreuse et à proscrire"},
+          {"value": "des chauffe-eau électriques décentralisés, installés dans chaque appartement"},
+          {"value": "la pompe à chaleur"},
+          {"value": "une installation de panneaux solaires thermiques. La production thermique alimente le boiler combiné (chauffage et eau chaude sanitaire). La chaudière complète la production de chaleur lorsque l'apport solaire est insuffisant (nuits, jours très froids, hiver) pour garantir un confort d'utilisation optimal."},
+          {"value": "en priorité par une installation de panneaux solaires thermiques"}
+        ]
+      },
+      {
+        "id": "annee_installation",
+        "nom": "Année d'installation",
+        "position": 2,
+        "options_range": {
+          "min": 1950,
+          "max": 2008
+        }
+      },
+      {
+        "id": "efficacite",
+        "nom": "Efficacité du producteur d'ECS",
+        "position": 3,
+        "options": [
+          {"value": "dont l'efficacité est insuffisante"},
+          {"value": "dont l'efficacité est faible, entraînant des pertes énergétiques importantes"},
+          {"value": "dont l'efficacité est moyenne"},
+          {"value": "dont l'efficacité est acceptable mais pourrait être améliorée"},
+          {"value": "dont l'efficacité est bonne"},
+          {"value": "dont l'efficacité est très bonne"},
+          {"value": "dont l'efficacité est conforme aux standards actuels"},
+          {"value": "dont l'efficacité est excellente et adaptée aux besoins du bâtiment"},
+          {"value": "qui ne correspond plus à l'état de la technique et aux recommandations actuelles concernant l'utilisation des énergies renouvelables"},
+          {"value": "qui ne correspond plus tout à fait à l'état de la technique et aux recommandations actuelles concernant l'utilisation des énergies renouvelables"},
+          {"value": "qui présente une technologie obsolète, non adaptée aux objectifs de transition énergétique"},
+          {"value": "qui utilise une énergie fossile sans dispositif de régulation performant"}
+        ]
+      },
+      {
+        "id": "etat_systeme",
+        "nom": "Etat du système ECS",
+        "position": 4,
+        "options": [
+          {"value": "est en fin de vie"},
+          {"value": "dépassera sa durée de vie dans les prochaines années"},
+          {"value": "a atteint sa durée de vie théorique mais reste fonctionnel"},
+          {"value": "présente des signes d'usure avancée"},
+          {"value": "est obsolète au regard des standards actuels"},
+          {"value": "semble fonctionner correctement mais nécessite un suivi régulier"},
+          {"value": "semble fonctionner normalement et ne présente pas de dysfonctionnement notable"},
+          {"value": "a été récemment remplacé et ne nécessite pas d'intervention"},
+          {"value": "a été remplacé récemment par un système performant et adapté"},
+          {"value": "a été entretenu régulièrement et reste en bon état de fonctionnement"}
+        ]
+      },
+      {
+        "id": "electricite",
+        "nom": "Electricité",
+        "position": 5,
+        "options": [
+          {"value": "L'utilisation d'électricité pour la production d'ECS est onéreuse et à proscrire"}
+        ]
+      },
+      {
+        "id": "co2",
+        "nom": "CO2",
+        "position": 6,
+        "options": [
+          {"value": "De plus, en utilisant des énergies fossiles, ce système génère des émissions de CO\u2082 élevées"},
+          {"value": "Ce système fonctionne avec une énergie fossile dont les émissions de CO\u2082 sont défavorables pour l'environnement et nuisent à l'atteinte des objectifs climatiques cantonaux et fédéraux"},
+          {"value": "Ce système utilise une pompe à chaleur alimentée par de l'électricité, les émissions directes de CO\u2082 du bâtiment sont considérées nulles. Les émissions de CO\u2082 dépendent du mix électrique"},
+          {"value": "Ce système utilise un chauffage à distance, les émissions directes de CO\u2082 du bâtiment sont considérées nulles. L'impact CO\u2082 dépend fortement de la composition du réseau"},
+          {"value": "Ce système ne permet pas d'atteindre les objectifs climatiques visés par la stratégie énergétique 2050"},
+          {"value": "De plus, en utilisant des énergies renouvelables, ce système ne génère pas d'émissions directes de CO\u2082"},
+          {"value": "Ce système est favorable du point de vue climatique et contribue à la décarbonation du bâtiment"},
+          {"value": "Ce système contribue à la réduction des émissions de CO\u2082 grâce à l'usage d'énergies renouvelables"},
+          {"value": "Ce système n'émet pas de CO\u2082 sur site, mais son impact dépend de la source d'énergie primaire"},
+          {"value": "Ce système repose sur un chauffage électrique direct. Il n'émet pas de CO\u2082 sur site, mais sa performance énergétique est limitée"}
+        ]
+      },
+      {
+        "id": "distribution_ecs",
+        "nom": "Distribution ECS",
+        "position": 7,
+        "type": "text"
+      },
+      {
+        "id": "consommation_ecs",
+        "nom": "Consommation ECS",
+        "position": 8,
+        "options": [
+          {"value": "Les consommations d'ECS sont confondues avec les consommations de chauffage"}
+        ]
+      }
+    ],
+    "prompt_ai": "Rôle :\nTu es architecte avec une aisance rédactionnelle et expert en rédaction de rapports CECB\n\nTâche :\nAméliore le texte de la cellule D6.\n\nFormat :\nLe texte doit intégrer ces informations de manière fluide, comme dans un rapport d'expertise CECB. Il doit rester concis, factuel, sans interprétation ni recommandations. \nSi la date de construction de l'élément est connu, ou renseigné, tu peux le citer.\n\nTon :\nUtilise un ton neutre et professionnel. \n\nContraintes :\nNe rappelle pas les paramètres transmis. \nLimiter la réponse à 800 caractères. \nN'ajoute pas d'informations supplémentaires. \nNe mentionne pas la date de construction du bâtiment.\nEvite les répétitions."
+  },
+  "ameliorations": {
+    "template": "{recommandation_production_ecs}. Cette approche permet non seulement de réduire les coûts, mais également de limiter l'impact environnemental, en privilégiant des sources d'énergie durables. {decret_electricite}.",
+    "template_excel": "=CONCATENATE(\"\", C26, \". Cette approche permet non seulement de réduire les coûts, mais également de limiter l'impact environnemental, en privilégiant des sources d'énergie durables. \",  C27, \".\")",
+    "texte_fixe": "Cette approche permet non seulement de réduire les coûts, mais également de limiter l'impact environnemental, en privilégiant des sources d'énergie durables.",
+    "parametres": [
+      {
+        "id": "recommandation_production_ecs",
+        "nom": "Recommandation production ECS",
+        "position": 1,
+        "options": [
+          {"value": "La production d\u2019ECS peut être assurée par le nouveau système de chauffage, exploitant les énergies renouvelables."},
+          {"value": "Le remplacement du boiler électrique par un boiler pompe à chaleur est recommandé pour améliorer l\u2019efficacité énergétique."},
+          {"value": "Une installation solaire thermique est à envisager pour couvrir partiellement les besoins en ECS."},
+          {"value": "La production d\u2019ECS peut être couplée à une installation solaire thermique, avec appoint via le système principal."},
+          {"value": "Une séparation des systèmes de chauffage et d\u2019ECS permettrait une meilleure régulation énergétique, notamment en été."},
+          {"value": "En l\u2019absence de réseau de chaleur ou de PAC, une production d\u2019ECS décentralisée peut être envisagée à titre transitoire."},
+          {"value": "La chaudière actuelle n\u2019étant pas en fin de vie, seule la production d\u2019ECS peut être optimisée dans un premier temps."},
+          {"value": "Aucune mesure immédiate n\u2019est requise, la production d\u2019ECS existante étant récente et performante."},
+          {"value": "Le système d\u2019ECS actuel étant vétuste, son remplacement est recommandé dans le cadre d\u2019un assainissement global."},
+          {"value": "La chaudière n\u2019étant pas en fin de vie, une installation solaire thermique est à envisager."}
+        ]
+      },
+      {
+        "id": "decret_electricite",
+        "nom": "Décret électricité",
+        "position": 2,
+        "options": [
+          {"value": "Le 1er janvier 2025, le décret vaudois sur l'assainissement des chauffages et chauffe-eau électriques (DACCE, BLV 730.051) est entré en vigueur. Il interdit l'utilisation de ces installations et fixe leur remplacement au plus tard pour le 1er janvier 2033. Ce décret s'applique aux chauffages électriques fixes à résistance, qu'ils soient centralisés ou décentralisés, ainsi qu'aux chauffe-eau électriques centralisés ou décentralisés. Les propriétaires doivent déclarer leurs installations auprès de la Direction de l'énergie (DGE-DIREN) ou de leur distributeur d'électricité avant le 30 juin 2025. Pour faciliter cette transition, le canton de Vaud renforce les subventions destinées au remplacement de ces systèmes par des solutions utilisant des énergies renouvelables, telles que les pompes à chaleur, les chaudières à bois ou le raccordement à un réseau de chauffage à distance.\nDes dérogations peuvent être accordées au cas par cas, notamment si la consommation électrique du bâtiment est faible. Dans ce dernier cas, une dispense d'assainissement peut être envisagée"}
+        ]
+      }
+    ],
+    "prompt_ai": {
+      "assembled_prompt": "Rôle : \nTu es architecte avec une aisance rédactionnelle et expert en rédaction de rapports CECB. {etat_initial_text}.\n\nTâche :\nAméliore le texte suivant : {ameliorations_text}.\n\nFormat :\nLe texte doit intégrer ces informations de manière fluide, comme dans un rapport d'expertise CECB. Il doit rester factuel, sans interprétation ni recommandations. \nSi la date de construction de l'élément est connu, ou renseigné, tu peux le citer.\n\nTon :\nUtilise un ton neutre et professionnel. \n\nContraintes :Ne rappelle pas les paramètres transmis. \nLimiter la réponse à 800 caractères.\nN'ajoute pas d'informations supplémentaires. \nNe mentionne pas la date de construction du bâtiment.\nEvite les répétitions, de rephraser les réponses.",
+      "structure": {
+        "D36_role": "Tu es architecte avec une aisance rédactionnelle et expert en rédaction de rapports CECB. {etat_initial_text}.",
+        "D37_tache": "Améliore le texte suivant : {ameliorations_text}.",
+        "D38_format": "Le texte doit intégrer ces informations de manière fluide, comme dans un rapport d'expertise CECB. Il doit rester factuel, sans interprétation ni recommandations. \nSi la date de construction de l'élément est connu, ou renseigné, tu peux le citer.",
+        "D39_ton": "Utilise un ton neutre et professionnel. ",
+        "D40_contraintes": "Ne rappelle pas les paramètres transmis. \nLimiter la réponse à 800 caractères.\nN'ajoute pas d'informations supplémentaires. \nNe mentionne pas la date de construction du bâtiment.\nEvite les répétitions, de rephraser les réponses."
+      }
+    }
+  }
+}

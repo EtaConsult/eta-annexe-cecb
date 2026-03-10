@@ -1,0 +1,311 @@
+{
+  "id": "mcext",
+  "name": "Murs contre extérieur",
+  "note_isos": "À noter que le bâtiment n'est pas classé à l'inventaire ISOS, ce qui laisse une plus grande souplesse en matière de travaux et de transformations.",
+  "etat_initial": {
+    "template": "Les façades du bâtiment sont constituées de {type_facade} {isolation_en_place}. {renovation}. Les travaux datent de {date_renovation}. La valeur U moyenne des murs est de {u_value_moyenne} W/m²K.",
+    "template_excel": "=CONCATENATE(\"Les façades du bâtiment sont constituées de \", C6, \" \", C7, \". \", C8, \". Les travaux datent de \", C9, \".\")",
+    "parametres": [
+      {
+        "id": "type_facade",
+        "nom": "Type de façade",
+        "position": 1,
+        "options": [
+          {
+            "value": "maçonnerie homogène",
+            "leso_match": {
+              "wall_type": "Masonry"
+            }
+          },
+          {
+            "value": "maçonnerie homogène en béton armé",
+            "leso_match": {
+              "wall_type": "Concrete"
+            }
+          },
+          {
+            "value": "maçonnerie homogène en brique creuse",
+            "leso_match": {
+              "wall_type": "Masonry"
+            }
+          },
+          {
+            "value": "maçonnerie à double paroi avec lame d'air",
+            "leso_match": {
+              "wall_type": "Masonry"
+            }
+          },
+          {
+            "value": "maçonnerie à double paroi avec isolation intermédiaire existante",
+            "leso_match": {
+              "wall_type": "Masonry"
+            }
+          },
+          {
+            "value": "maçonnerie en moellons",
+            "leso_match": {
+              "wall_type": "Stone"
+            }
+          },
+          {
+            "value": "ossature bois",
+            "leso_match": {
+              "wall_type": "Wood"
+            }
+          },
+          {
+            "value": "ossature bois avec remplissage en matériaux isolants",
+            "leso_match": {
+              "wall_type": "Wood"
+            }
+          },
+          {
+            "value": "ossature bois avec parement extérieur en lames bois",
+            "leso_match": {
+              "wall_type": "Wood"
+            }
+          },
+          {
+            "value": "ossature bois avec bardage ventilé",
+            "leso_match": {
+              "wall_type": "Wood"
+            }
+          },
+          {
+            "value": "façade rideau avec structure en métal et vitrage isolant",
+            "leso_match": {
+              "wall_type": "CurtainWall"
+            }
+          },
+          {
+            "value": "mur en béton apparent",
+            "leso_match": {
+              "wall_type": "Concrete"
+            }
+          },
+          {
+            "value": "mur en béton isolé par l'extérieur (ITEC)",
+            "leso_match": {
+              "wall_type": "Concrete"
+            }
+          },
+          {
+            "value": "mur en béton isolé par l'intérieur (ITI)",
+            "leso_match": {
+              "wall_type": "Concrete"
+            }
+          },
+          {
+            "value": "maçonnerie isolée par l'intérieur",
+            "leso_match": {
+              "wall_type": "Masonry"
+            }
+          },
+          {
+            "value": "maçonnerie isolée par l'extérieur",
+            "leso_match": {
+              "wall_type": "Masonry"
+            }
+          },
+          {
+            "value": "mur en briques pleines non isolé",
+            "leso_match": {
+              "wall_type": "Masonry"
+            }
+          },
+          {
+            "value": "mur en briques pleines avec isolation extérieure",
+            "leso_match": {
+              "wall_type": "Masonry"
+            }
+          },
+          {
+            "value": "mur en blocs béton avec enduit isolant",
+            "leso_match": {
+              "wall_type": "Concrete"
+            }
+          },
+          {
+            "value": "structure métallique avec panneaux sandwich",
+            "leso_match": {
+              "wall_type": "Metal"
+            }
+          },
+          {
+            "value": "en maçonnerie de prerre de molasse",
+            "leso_match": {
+              "wall_type": "Stone"
+            }
+          }
+        ]
+      },
+      {
+        "id": "isolation_en_place",
+        "nom": "Isolation en place",
+        "position": 2,
+        "options": [
+          {
+            "value": "non isolée"
+          },
+          {
+            "value": "faiblement isolée"
+          },
+          {
+            "value": "isolée conformément aux standards de l'époque de construciton, mais en dessous des exigences pour les constructions neuves"
+          },
+          {
+            "value": "convenablement isolée"
+          },
+          {
+            "value": "isolée par l'intérieur"
+          },
+          {
+            "value": "probablement isolée par l'intérieur"
+          },
+          {
+            "value": "isolée, conforme aux standards actuels"
+          },
+          {
+            "value": "bien isolée, conforme aux standards actuels"
+          },
+          {
+            "value": "très bien isolée"
+          },
+          {
+            "value": "isolée de manière exemplaire (>= Minergie ou équivalent)"
+          }
+        ]
+      },
+      {
+        "id": "renovation",
+        "nom": "Rénovation?",
+        "position": 3,
+        "options": [
+          {
+            "value": "La façade a fait l'objet de travaux d'amélioration thermique depuis la construction du bâtiment"
+          },
+          {
+            "value": "La façade a été entièrement rénovée récemment, avec une isolation conforme aux exigences actuelles"
+          },
+          {
+            "value": "La façade a fait l'objet de travaux partiels, avec une isolation thermique améliorée sur certains pans"
+          },
+          {
+            "value": "La façade est d'origine et n'a pas fait l'objet de travaux d'amélioration thermique depuis la construction"
+          },
+          {
+            "value": "La façade n'a fait l'objet que de travaux d'entretien, sans amélioration de son pouvoir isolant"
+          },
+          {
+            "value": "La façade est en bon état apparent, mais ne dispose d'aucune isolation thermique performante"
+          },
+          {
+            "value": "La façade présente des signes d'usure (décollement d'enduit, fissures) et une rénovation sera à prévoir à moyen terme"
+          },
+          {
+            "value": "La façade a été isolée par l'extérieur (ITE) lors d'un ravalement récent"
+          },
+          {
+            "value": "La façade a été isolée par l'intérieur (ITI), sans modification de l'aspect extérieur"
+          },
+          {
+            "value": "La façade n'a pas fait l'objet de travaux d'amélioration thermique depuis la construction du bâtiment"
+          }
+        ]
+      },
+      {
+        "id": "u_value_moyenne",
+        "nom": "Valeur U moyenne (W/m²K)",
+        "position": 4,
+        "type": "text"
+      },
+      {
+        "id": "date_renovation",
+        "nom": "Date de rénovation des façades",
+        "position": 5,
+        "options_range": {
+          "min": 1950,
+          "max": 2008
+        }
+      }
+    ],
+    "prompt_ai": "Rôle :\nTu es architecte avec une aisance rédactionnelle et expert en rédaction de rapports CECB\n\nTâche :\nAméliore le texte de la cellule D6\n\nFormat :\nLe texte doit intégrer ces informations de manière fluide, comme dans un rapport d'expertise CECB. Il doit rester concis, factuel, sans interprétation ni recommandations. \nSi la date de construction de l'élément est connu, ou renseigné, tu peux le citer.\n\nTon :\nUtilise un ton neutre et professionnel. \n\nContraintes :\nNe rappelle pas les paramètres transmis. \nLimiter la réponse à 800 caractères. \nN'ajoute pas d'informations supplémentaires. \nNe mentionne pas la date de construction du bâtiment.\nEvite les répétitions."
+  },
+  "ameliorations": {
+    "template": "{hypothese} {delai} Ces travaux sont à planifier {valeur_u}. {note_facade_fixe_1} {note_facade_fixe_2} Les travaux sur les façades doivent être envisagés de manière globale, en intégrant les aspects d'étanchéité, de ventilation et de ponts thermiques.",
+    "template_excel": "=CONCATENATE(\"\", C26, \" \", C27, \" Ces travaux sont à planifier \", C28, \". \", C29, \" \", C30, \" Les travaux sur les façades doivent être envisagés de manière globale, en intégrant les aspects d'étanchéité, de ventilation et de ponts thermiques.\")",
+    "texte_fixe_fin": "Les travaux sur les façades doivent être envisagés de manière globale, en intégrant les aspects d'étanchéité, de ventilation et de ponts thermiques.",
+    "parametres": [
+      {
+        "id": "hypothese",
+        "nom": "Hypothèse",
+        "position": 1,
+        "options": [
+          {
+            "value": "L'amélioration du pouvoir isolant des façades par l'adjonction d'une isolation extérieure crépie est recommandée"
+          },
+          {
+            "value": "La pose d'une isolation thermique par l'extérieur (ITE) est recommandée dans le cadre d'une rénovation des façades"
+          },
+          {
+            "value": "Une isolation thermique complémentaire par l'intérieur (ITI) peut être envisagée en l'absence de possibilité d'intervention extérieure"
+          },
+          {
+            "value": "L'application d'un enduit isolant sur les façades est une alternative intéressante, notamment en cas de contraintes architecturales"
+          },
+          {
+            "value": "Étant donné que le bâtiment appartient à un ensemble architectural protégé (MH ou INV) au titre du patrimoine, la pose d'une isolation périphérique extérieure est difficilement réalisable. Nous recommandons par conséquent d'envisager l'application d'un enduit isolant sur les façades extérieures. Une isolation par l'intérieur demeure également une option possible, bien qu'elle nécessite des études de physique du bâtiment approfondies pour évaluer et limiter les risques de migration d'humidité au sein de la structure"
+          },
+          {
+            "value": "Étant donné que le bâtiment appartient à un ensemble architectural protégé (MH ou INV) au titre du patrimoine, la pose d'une isolation périphérique extérieure est difficilement envisageable. Nous recommandons par conséquent d'étudier la possibilité d'isoler les façades par l'intérieur. Cette solution nécessite des études de physique du bâtiment approfondies pour évaluer et limiter les risques de migration d'humidité au sein de la structure"
+          },
+          {
+            "value": "Étant donné que le bâtiment appartient à un ensemble architectural recensé au titre du patrimoine, la pose d'une isolation périphérique extérieure n'est réalisable qu'avec l'approbation de la commune. Nous recommandons par conséquent d'envisager l'application d'un enduit isolant sur les façades extérieures. Une isolation par l'intérieur demeure également une option possible, bien qu'elle nécessite des études de physique du bâtiment approfondies pour évaluer et limiter les risques de migration d'humidité au sein de la structure"
+          },
+          {
+            "value": "Aucune intervention sur les façades n'est recommandée à ce stade, les performances thermiques étant déjà satisfaisantes"
+          }
+        ]
+      },
+      {
+        "id": "delai",
+        "nom": "Délai",
+        "position": 2,
+        "options": [
+          {
+            "value": "à court terme, au titre de travaux correctifs"
+          },
+          {
+            "value": "à moyen terme"
+          },
+          {
+            "value": "à long terme"
+          },
+          {
+            "value": "à long terme ou selon les besoins d'entretien des façades"
+          }
+        ]
+      },
+      {
+        "id": "valeur_u",
+        "nom": "Valeur U",
+        "position": 3,
+        "options": [
+          {
+            "value": "Une valeur U inférieure à 0,20 W/m²K est requise pour réduire significativement les déperditions thermiques et être éligible aux subventions du Programme Bâtiments"
+          }
+        ]
+      }
+    ],
+    "prompt_ai": {
+      "assembled_prompt": "Rôle : \nTu es architecte avec une aisance rédactionnelle et expert en rédaction de rapports CECB. {etat_initial_text}.\n\nTâche :\nAméliore le texte suivant : {ameliorations_text}.\n\nFormat :\nLe texte doit intégrer ces informations de manière fluide, comme dans un rapport d'expertise CECB. Il doit rester factuel, sans interprétation ni recommandations. \nSi la date de construction de l'élément est connu, ou renseigné, tu peux le citer.\n\nTon :\nUtilise un ton neutre et professionnel. \n\nContraintes :Ne rappelle pas les paramètres transmis. \nLimiter la réponse à 800 caractères.\nN'ajoute pas d'informations supplémentaires. \nNe mentionne pas la date de construction du bâtiment.\nEvite les répétitions, de rephraser les réponses.",
+      "structure": {
+        "D36_role": "Tu es architecte avec une aisance rédactionnelle et expert en rédaction de rapports CECB. {etat_initial_text}.",
+        "D37_tache": "Améliore le texte suivant : {ameliorations_text}.",
+        "D38_format": "Le texte doit intégrer ces informations de manière fluide, comme dans un rapport d'expertise CECB. Il doit rester factuel, sans interprétation ni recommandations. \nSi la date de construction de l'élément est connu, ou renseigné, tu peux le citer.",
+        "D39_ton": "Utilise un ton neutre et professionnel. ",
+        "D40_contraintes": "Ne rappelle pas les paramètres transmis. \nLimiter la réponse à 800 caractères.\nN'ajoute pas d'informations supplémentaires. \nNe mentionne pas la date de construction du bâtiment.\nEvite les répétitions, de rephraser les réponses."
+      }
+    }
+  }
+}

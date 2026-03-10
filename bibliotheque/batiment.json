@@ -1,0 +1,312 @@
+{
+  "id": "batiment",
+  "name": "Bâtiment",
+  "etat_initial": {
+    "template": "Le bâtiment de type {affectation_batiment}, construit en {annee_construction}, est situé au {adresse}, {localite} ({canton}). Il comprend {nombre_etages} étages, {nombre_logements} logements et un espace sous combles {combles}. Le sous-sol est affecté à {affectation_sous_sol}. L'emprise au sol est de {emprise_sol} m² (selon RegBL). La surface de référence énergétique (SRE) est de {surface_reference} m². EGID: {egid}, parcelle {parcelle}. Altitude: {altitude} m. Coordonnées LV95: {coordonnees_e}, {coordonnees_n}.",
+    "parametres": [
+      {
+        "id": "affectation_batiment",
+        "nom": "Affectation du bâtiment",
+        "position": 1,
+        "options": [
+          {
+            "value": "Habitat individuel"
+          },
+          {
+            "value": "Habitat collectif"
+          },
+          {
+            "value": "Bâtiment mixte (habitation et commerce)"
+          },
+          {
+            "value": "Bâtiment administratif"
+          },
+          {
+            "value": "Bureaux"
+          },
+          {
+            "value": "Commerce"
+          },
+          {
+            "value": "École"
+          },
+          {
+            "value": "Établissement médico-social (EMS)"
+          },
+          {
+            "value": "à supprimer",
+            "user_added": true
+          }
+        ]
+      },
+      {
+        "id": "adresse",
+        "nom": "Adresse (rue et numéro)",
+        "position": 2,
+        "type": "text"
+      },
+      {
+        "id": "localite",
+        "nom": "Localité",
+        "position": 3,
+        "type": "text"
+      },
+      {
+        "id": "npa",
+        "nom": "NPA",
+        "position": 4,
+        "type": "text"
+      },
+      {
+        "id": "canton",
+        "nom": "Canton",
+        "position": 5,
+        "type": "text"
+      },
+      {
+        "id": "annee_construction",
+        "nom": "Année de construction",
+        "position": 4,
+        "type": "number"
+      },
+      {
+        "id": "parcelle",
+        "nom": "Parcelle",
+        "position": 5,
+        "type": "text"
+      },
+      {
+        "id": "annee_renovation",
+        "nom": "Année de la dernière rénovation globale",
+        "position": 6,
+        "options_range": {
+          "min": 1950,
+          "max": 2008
+        }
+      },
+      {
+        "id": "type_modernisation",
+        "nom": "Type de modernisation",
+        "position": 7,
+        "options": [
+          {
+            "value": "Ravalement de façade"
+          },
+          {
+            "value": "Rénovation globale"
+          },
+          {
+            "value": "Remplacement de fenêtre"
+          },
+          {
+            "value": "Rénovation énergétique globale"
+          },
+          {
+            "value": "Isolation du toit"
+          },
+          {
+            "value": "Isolation de la façade"
+          }
+        ]
+      },
+      {
+        "id": "egid",
+        "nom": "N°EGID",
+        "position": 8,
+        "type": "text"
+      },
+      {
+        "id": "nombre_etages",
+        "nom": "Nombre d'étages entier",
+        "position": 9,
+        "options": [
+          {
+            "value": "1"
+          },
+          {
+            "value": "2"
+          },
+          {
+            "value": "3"
+          },
+          {
+            "value": "4"
+          },
+          {
+            "value": "5"
+          },
+          {
+            "value": "6"
+          },
+          {
+            "value": "7"
+          },
+          {
+            "value": "8"
+          },
+          {
+            "value": "9"
+          },
+          {
+            "value": "10"
+          },
+          {
+            "value": "11"
+          },
+          {
+            "value": "12"
+          },
+          {
+            "value": "13"
+          },
+          {
+            "value": "14"
+          },
+          {
+            "value": "15"
+          },
+          {
+            "value": "16"
+          },
+          {
+            "value": "17"
+          },
+          {
+            "value": "18"
+          },
+          {
+            "value": "19"
+          },
+          {
+            "value": "20"
+          }
+        ]
+      },
+      {
+        "id": "combles",
+        "nom": "Combles",
+        "position": 10,
+        "options": [
+          {
+            "value": "Existant"
+          },
+          {
+            "value": "Inexistant"
+          }
+        ]
+      },
+      {
+        "id": "sous_sol",
+        "nom": "Sous-sol",
+        "position": 11,
+        "options": [
+          {
+            "value": "1"
+          },
+          {
+            "value": "2"
+          },
+          {
+            "value": "3"
+          }
+        ]
+      },
+      {
+        "id": "affectation_sous_sol",
+        "nom": "Affectation du sous-sol",
+        "position": 12,
+        "options": [
+          {
+            "value": "caves"
+          },
+          {
+            "value": "caves et installation technqiues"
+          },
+          {
+            "value": "parking"
+          },
+          {
+            "value": "Parking, caves et installations techniques"
+          },
+          {
+            "value": "installations techniques"
+          }
+        ]
+      },
+      {
+        "id": "nombre_logements",
+        "nom": "Nombre de logements",
+        "position": 13,
+        "type": "number"
+      },
+      {
+        "id": "nb_studios",
+        "nom": "Nombre de studios",
+        "position": 14,
+        "type": "number"
+      },
+      {
+        "id": "nb_2_pieces",
+        "nom": "Nombre de deux-pièces",
+        "position": 15,
+        "type": "number"
+      },
+      {
+        "id": "nb_3_pieces",
+        "nom": "Nombre de trois-pièces",
+        "position": 16,
+        "type": "number"
+      },
+      {
+        "id": "nb_4_pieces",
+        "nom": "Nombre de quatre-pièces",
+        "position": 17,
+        "type": "number"
+      },
+      {
+        "id": "nb_5_pieces",
+        "nom": "Nombre de cinq-pièces",
+        "position": 18,
+        "type": "number"
+      },
+      {
+        "id": "nb_6_pieces_plus",
+        "nom": "Nombre de logements de plus de 6 pièces",
+        "position": 19,
+        "type": "number"
+      },
+      {
+        "id": "emprise_sol",
+        "nom": "Emprise au sol (m²) — selon RegBL",
+        "position": 20,
+        "type": "number"
+      },
+      {
+        "id": "surface_reference",
+        "nom": "Surface de référence énergétique SRE (m²)",
+        "position": 21,
+        "type": "number",
+        "note": "La SRE n'est pas disponible au RegBL. Saisie manuelle ou depuis le CECB."
+      },
+      {
+        "id": "altitude",
+        "nom": "Altitude (m)",
+        "position": 22,
+        "type": "number"
+      },
+      {
+        "id": "coordonnees_e",
+        "nom": "Coordonnées E (LV95)",
+        "position": 23,
+        "type": "text"
+      },
+      {
+        "id": "coordonnees_n",
+        "nom": "Coordonnées N (LV95)",
+        "position": 24,
+        "type": "text"
+      }
+    ],
+    "prompt_ai": "Tu es architecte de renommée. Donne une description pour un CECB ddu bâtiment selon les paramètres suivants. Ne rappelle pas dans ta réponse les paramètres transmis. Si aucune information n'est transmise, n'en fait pas menstion.  Cite l'année de construction avant de parler des rénovation. Le bâtiment est identifié par son numéro EGID et construit sur un parcelle. Le NPA est le numéro de la commune. Ne fis pas mention du NPA. Limiter la réponse à 1000 caractères."
+  }
+}

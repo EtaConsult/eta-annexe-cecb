@@ -5,34 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CECB Plus — Variantes d'assainissement</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="style.css">
     <style>
-/* ─── Reset & Base ─────────────────────────────────── */
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:Arial,'Segoe UI',Helvetica,sans-serif;background:#f4f5f6;color:#333;line-height:1.5}
-.container{max-width:1300px;margin:0 auto;padding:20px 24px 60px}
-h1{text-align:center;color:#1a6b47;margin:20px 0 8px;font-size:24px}
-h2{color:#1a6b47;font-size:18px;margin:24px 0 12px;padding-bottom:6px;border-bottom:2px solid #189663}
-h3{font-size:15px;color:#444;margin:18px 0 8px}
-button{cursor:pointer;font-family:inherit}
-
-/* ─── Navigation ───────────────────────────────────── */
-.main-nav{background:#1a6b47;display:flex;align-items:center;padding:0 24px;gap:0}
-.main-nav a{color:rgba(255,255,255,.75);text-decoration:none;padding:12px 20px;font-size:14px;font-weight:600;transition:all .2s}
-.main-nav a:hover{color:#fff;background:rgba(255,255,255,.1)}
-.main-nav a.active{color:#fff;background:rgba(255,255,255,.15);border-bottom:3px solid #fff}
-.main-nav .brand{color:#fff;font-weight:700;font-size:16px;margin-right:auto;padding:12px 0}
-
-/* ─── Section nav ──────────────────────────────────── */
-.section-nav{position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid #ddd;display:flex;gap:0;overflow-x:auto;box-shadow:0 1px 3px rgba(0,0,0,.06)}
-.section-nav a{padding:10px 18px;font-size:13px;font-weight:600;color:#666;text-decoration:none;white-space:nowrap;border-bottom:3px solid transparent;transition:all .2s}
-.section-nav a:hover{color:#1a6b47;background:#f0faf5}
-.section-nav a.active{color:#1a6b47;border-bottom-color:#189663}
+/* ─── Reset & Base (inherit from style.css) ───────── */
 
 /* ─── Toolbar ──────────────────────────────────────── */
 .toolbar{display:flex;gap:10px;justify-content:center;margin:12px 0 20px}
 .toolbar button{padding:8px 18px;border:none;border-radius:6px;font-size:13px;font-weight:600;transition:all .2s}
-.btn-example{background:#e8f5e9;color:#1a6b47}
-.btn-example:hover{background:#c8e6c9}
+.btn-example{background:#ECFDF5;color:#059669;border-radius:8px}
+.btn-example:hover{background:#D1FAE5}
 .btn-reset{background:#fce4ec;color:#c62828}
 .btn-reset:hover{background:#f8bbd0}
 
@@ -44,7 +25,7 @@ button{cursor:pointer;font-family:inherit}
 .variant-card{border:1px solid #e0e0e0;border-radius:8px;padding:14px;background:#fafafa}
 .variant-card h4{font-size:13px;color:#666;margin-bottom:6px}
 .variant-card input{width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:6px;font-size:14px}
-.variant-card input:focus{outline:none;border-color:#189663}
+.variant-card input:focus{outline:none;border-color:#10B981}
 .variant-card .cost-input{margin-top:8px}
 
 /* ─── Matrix Table ─────────────────────────────────── */
@@ -56,50 +37,50 @@ button{cursor:pointer;font-family:inherit}
 .matrix-table td{padding:8px;border-bottom:1px solid #E3DAD1;vertical-align:middle}
 .matrix-table td:not(:first-child){text-align:center;width:100px}
 .matrix-table tr.category-row td{font-weight:700;background:#f9fafb;color:#333;padding:10px 8px;border-bottom:1px solid #ccc}
-.matrix-table tr.item-row:hover{background:#f0faf5}
-.matrix-table input[type=checkbox]{width:18px;height:18px;accent-color:#189663;cursor:pointer}
+.matrix-table tr.item-row:hover{background:#ECFDF5}
+.matrix-table input[type=checkbox]{width:18px;height:18px;accent-color:#10B981;cursor:pointer}
 .matrix-table .item-select{width:100%;padding:4px 6px;border:1px solid #ddd;border-radius:4px;font-size:11px;margin-top:5px;background:#fff;color:#555}
-.matrix-table .item-select:focus{outline:none;border-color:#189663}
+.matrix-table .item-select:focus{outline:none;border-color:#10B981}
 .matrix-table .item-custom-ta{width:100%;padding:4px 6px;border:1px solid #ddd;border-radius:4px;font-size:11px;margin-top:3px;resize:vertical;min-height:36px;display:none}
 .matrix-table .item-custom-ta.visible{display:block}
 .matrix-table .v-name-input{width:100%;padding:4px 6px;border:1px solid #ccc;border-radius:4px;font-size:11px;text-align:center;margin-top:4px;background:#fff}
-.matrix-table .v-name-input:focus{outline:none;border-color:#189663}
+.matrix-table .v-name-input:focus{outline:none;border-color:#10B981}
 .matrix-table .cost-input-matrix{width:100%;padding:4px 6px;border:1px solid #ccc;border-radius:4px;font-size:12px;text-align:center;background:#fff}
-.matrix-table .cost-input-matrix:focus{outline:none;border-color:#189663}
+.matrix-table .cost-input-matrix:focus{outline:none;border-color:#10B981}
 .matrix-table tr.cost-row td{border-top:2px solid #333;font-weight:600;background:#fafafa;padding:10px 8px}
 
 /* ─── Framework Texts ──────────────────────────────── */
 .fw-item{margin-bottom:14px}
 .fw-item label{display:block;font-weight:600;font-size:12px;color:#666;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
 .fw-item textarea{width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:13px;min-height:70px;resize:vertical;line-height:1.5}
-.fw-item textarea:focus{outline:none;border-color:#189663}
+.fw-item textarea:focus{outline:none;border-color:#10B981}
 
 /* ─── Preview ──────────────────────────────────────── */
 .bloc-tabs{display:flex;gap:0;margin-bottom:0}
 .bloc-tab{padding:8px 18px;font-size:13px;font-weight:600;border:1px solid #ddd;border-bottom:none;background:#f5f5f5;color:#666;cursor:pointer;border-radius:6px 6px 0 0;transition:all .2s}
-.bloc-tab.active{background:#fff;color:#1a6b47;border-bottom:1px solid #fff;margin-bottom:-1px;z-index:1}
+.bloc-tab.active{background:#fff;color:#059669;border-bottom:1px solid #fff;margin-bottom:-1px;z-index:1}
 .bloc-content{border:1px solid #ddd;border-radius:0 6px 6px 6px;padding:16px;background:#fff;min-height:120px}
 .bloc-category{margin-bottom:12px}
-.bloc-category-title{font-weight:700;font-size:13px;color:#1a6b47;margin-bottom:4px}
+.bloc-category-title{font-weight:700;font-size:13px;color:#059669;margin-bottom:4px}
 .bloc-measure{font-size:13px;color:#444;padding-left:8px;margin-bottom:3px}
 .bloc-empty{color:#999;font-style:italic;font-size:13px}
 .report-box{border:1px solid #ddd;border-radius:8px;padding:16px;background:#fff;white-space:pre-wrap;font-size:13px;line-height:1.7;max-height:500px;overflow-y:auto}
 .copy-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid #ddd;background:#fff;border-radius:6px;font-size:13px;font-weight:500;color:#444;transition:all .2s;margin-top:10px}
-.copy-btn:hover{background:#f0faf5;border-color:#189663;color:#1a6b47}
+.copy-btn:hover{background:#ECFDF5;border-color:#10B981;color:#059669}
 
 /* ─── Summary Table ────────────────────────────────── */
 .export-buttons{display:flex;gap:10px;margin-bottom:14px}
 .export-buttons button{padding:8px 16px;border:1px solid #ddd;background:#fff;border-radius:6px;font-size:13px;font-weight:500;color:#444;transition:all .2s}
-.export-buttons button:hover{background:#f0faf5;border-color:#189663;color:#1a6b47}
+.export-buttons button:hover{background:#ECFDF5;border-color:#10B981;color:#059669}
 #summaryTableContainer{overflow-x:auto}
-.summary-table{width:525px;border-collapse:collapse;font-family:Arial,sans-serif;font-size:9.5pt;background:#fff;table-layout:fixed}
+.summary-table{width:525px;border-collapse:collapse;font-family:'Urbanist',Arial,sans-serif;font-size:9.5pt;background:#fff;table-layout:fixed}
 .summary-table th{padding:6px 8px;font-weight:700;text-align:center;border-bottom:2px solid #333;background:#fff}
 .summary-table th .st-sub{font-weight:400;font-size:8pt;color:#555;display:block}
 .summary-table td{padding:5px 8px;border-bottom:1px solid #E3DAD1;vertical-align:middle;overflow:hidden;text-overflow:ellipsis}
 .summary-table td:first-child{text-align:left}
 .summary-table td:not(:first-child){text-align:center}
 .summary-table tr.st-cat td{font-weight:700;padding:7px 8px;background:#fafafa}
-.summary-table .st-check{color:#189663;font-weight:700;font-size:14px}
+.summary-table .st-check{color:#10B981;font-weight:700;font-size:14px}
 .summary-table tr.st-cost td{border-top:2px solid #333;font-weight:600;background:#fafafa}
 
 /* ─── Notification ─────────────────────────────────── */
@@ -126,6 +107,7 @@ button{cursor:pointer;font-family:inherit}
     <nav class="main-nav">
         <span class="brand">CECB Plus</span>
         <a href="index.html">Annexe Photos</a>
+        <a href="textes.html">Textes CECB</a>
         <a href="variantes.html" class="active">Variantes</a>
     </nav>
 
@@ -838,7 +820,7 @@ function setupExport() {
     document.getElementById('copyTable').addEventListener('click', async function() {
         const tableEl = document.getElementById('summaryTable');
         const tableHTML = tableEl.outerHTML;
-        const styledHTML = '<style>table{border-collapse:collapse;font-family:Arial,sans-serif;font-size:9.5pt}th,td{padding:5px 8px;border-bottom:1px solid #E3DAD1;overflow:hidden}th{font-weight:700;border-bottom:2px solid #333;text-align:center}th:first-child,td:first-child{text-align:left}td:not(:first-child){text-align:center}.st-cat td{font-weight:700}.st-check{color:#189663;font-weight:700}.st-cost td{border-top:2px solid #333;font-weight:600}.st-sub{font-weight:400;font-size:8pt;color:#555}</style>' + tableHTML;
+        const styledHTML = '<style>table{border-collapse:collapse;font-family:'Urbanist',Arial,sans-serif;font-size:9.5pt}th,td{padding:5px 8px;border-bottom:1px solid #E3DAD1;overflow:hidden}th{font-weight:700;border-bottom:2px solid #333;text-align:center}th:first-child,td:first-child{text-align:left}td:not(:first-child){text-align:center}.st-cat td{font-weight:700}.st-check{color:#10B981;font-weight:700}.st-cost td{border-top:2px solid #333;font-weight:600}.st-sub{font-weight:400;font-size:8pt;color:#555}</style>' + tableHTML;
         try {
             await navigator.clipboard.write([
                 new ClipboardItem({
@@ -870,7 +852,7 @@ function setupExport() {
 
     document.getElementById('downloadHTML').addEventListener('click', function() {
         const tableEl = document.getElementById('summaryTable');
-        const htmlContent = '<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Tableau Variantes CECB</title><style>body{margin:20px;font-family:Arial,sans-serif}table{border-collapse:collapse;font-size:9.5pt}th,td{padding:5px 8px;border-bottom:1px solid #E3DAD1;vertical-align:middle;overflow:hidden}th{font-weight:700;border-bottom:2px solid #333;text-align:center}th:first-child{text-align:left}td:not(:first-child){text-align:center}.st-cat td{font-weight:700;background:#fafafa}.st-check{color:#189663;font-weight:700;font-size:14px}.st-cost td{border-top:2px solid #333;font-weight:600;background:#fafafa}.st-sub{font-weight:400;font-size:8pt;color:#555;display:block}</style></head><body>' + tableEl.outerHTML + '</body></html>';
+        const htmlContent = '<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Tableau Variantes CECB</title><style>body{margin:20px;font-family:Arial,sans-serif}table{border-collapse:collapse;font-size:9.5pt}th,td{padding:5px 8px;border-bottom:1px solid #E3DAD1;vertical-align:middle;overflow:hidden}th{font-weight:700;border-bottom:2px solid #333;text-align:center}th:first-child{text-align:left}td:not(:first-child){text-align:center}.st-cat td{font-weight:700;background:#fafafa}.st-check{color:#10B981;font-weight:700;font-size:14px}.st-cost td{border-top:2px solid #333;font-weight:600;background:#fafafa}.st-sub{font-weight:400;font-size:8pt;color:#555;display:block}</style></head><body>' + tableEl.outerHTML + '</body></html>';
         const blob = new Blob([htmlContent], { type: 'text/html' });
         const link = document.createElement('a');
         link.download = 'tableau_variantes.html';

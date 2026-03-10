@@ -1,0 +1,152 @@
+{
+  "id": "fen",
+  "name": "Fenêtres et portes",
+  "etat_initial": {
+    "template": "Le bâtiment est équipé, pour l'essentiel, de fenêtres à cadre  {type_cadre} et à {type_vitrage}, {type_intercalaire} dont le pouvoir isolant {pouvoir_isolant}. {renovation}. Les travaux datent de {date_renovation}. La valeur U moyenne des fenêtres est de {u_value_moyenne} W/m²K.",
+    "template_excel": "=CONCATENATE(\"Le bâtiment est équipé, pour l'essentiel, de fenêtres à cadre  \", C6, \" et à \", C7, \", \", C8, \" dont le pouvoir isolant \",C9, \". \", C10, \". Les travaux datent de \", C11, \".\")",
+    "parametres": [
+      {
+        "id": "type_cadre",
+        "nom": "Type de cadre",
+        "position": 1,
+        "options": [
+          {"value": "PVC", "leso_match": {"frame_type": "PVC"}},
+          {"value": "Bois", "leso_match": {"frame_type": "Wood"}},
+          {"value": "Bois-métal", "leso_match": {"frame_type": "WoodMetal"}},
+          {"value": "Métallique", "leso_match": {"frame_type": "Metal"}},
+          {"value": "Aluminium", "leso_match": {"frame_type": "Aluminium"}},
+          {"value": "PVC renforcé (multi-chambres)", "leso_match": {"frame_type": "PVC"}},
+          {"value": "PVC renforcé (avec âme métallique)", "leso_match": {"frame_type": "PVC"}},
+          {"value": "Bois ancien sans traitement isolant", "leso_match": {"frame_type": "Wood"}},
+          {"value": "Cadres mixtes (bois intérieur / alu extérieur)", "leso_match": {"frame_type": "WoodMetal"}},
+          {"value": "Cadres minces (type verrière, atelier)", "leso_match": {"frame_type": "Metal"}}
+        ]
+      },
+      {
+        "id": "type_vitrage",
+        "nom": "Type de vitrage",
+        "position": 2,
+        "options": [
+          {"value": "simple vitrage", "leso_match": {"glazing_type": "SingleGlazing"}},
+          {"value": "double vitrage", "leso_match": {"glazing_type": "DoubleGlazing"}},
+          {"value": "double vitrage non isolant (ancien, sans traitement)", "leso_match": {"glazing_type": "DoubleGlazing"}},
+          {"value": "double vitrage avec gaz argon", "leso_match": {"glazing_type": "DoubleGlazingArgon"}},
+          {"value": "triple vitrage", "leso_match": {"glazing_type": "TripleGlazing"}},
+          {"value": "triple vitrage à faible émissivité", "leso_match": {"glazing_type": "TripleGlazingLowE"}},
+          {"value": "vitrage simple doublé (fenêtres à double châssis)", "leso_match": {"glazing_type": "DoubleGlazing"}}
+        ]
+      },
+      {
+        "id": "type_intercalaire",
+        "nom": "Type d'intercalaire séparant les vitrages",
+        "position": 3,
+        "options": [
+          {"value": "séparés par un intercalaire en aluminium"},
+          {"value": "séparés par un intercalaire en acier galvanisé"},
+          {"value": "séparés par un intercalaire en inox"}
+        ]
+      },
+      {
+        "id": "pouvoir_isolant",
+        "nom": "Pouvoir isolant fenêtre",
+        "position": 4,
+        "options": [
+          {"value": "est très largement en dessous des recommandations pour les nouvelles constructions"},
+          {"value": "est largement en dessous des recommandations pour les nouvelles constructions"},
+          {"value": "demeure en dessous des recommandations pour les nouvelles constructions"},
+          {"value": "est légèrement inférieur aux recommandations pour les nouvelles constructions"},
+          {"value": "est conforme aux recommandations pour les nouvelles constructions"},
+          {"value": "est supérieur aux recommandations pour les nouvelles constructions"}
+        ]
+      },
+      {
+        "id": "renovation",
+        "nom": "Rénovation?",
+        "position": 5,
+        "options": [
+          {"value": "Les fenêtres ont été remplacées"},
+          {"value": "Les fenêtres ont été partiellement remplacées"},
+          {"value": "Les fenêtres d'origine sont encore en place"},
+          {"value": "Les fenêtres datent de la construction du bâtiment et n'ont pas été remplacées"},
+          {"value": "Les fenêtres ont été remplacées récemment par des modèles à haute performance énergétique"},
+          {"value": "Les fenêtres ont été remplacées, mais ne répondent pas aux standards actuels d'isolation"},
+          {"value": "Certaines fenêtres ont été remplacées, mais les anciennes sont encore présentes sur plusieurs façades"},
+          {"value": "Les fenêtres actuelles présentent un état fonctionnel mais des performances thermiques faibles"}
+        ]
+      },
+      {
+        "id": "u_value_moyenne",
+        "nom": "Valeur U moyenne (W/m²K)",
+        "position": 6,
+        "type": "text"
+      },
+      {
+        "id": "date_renovation",
+        "nom": "Date de rénovation des fenêtres",
+        "position": 7,
+        "options_range": {
+          "min": 1950,
+          "max": 2008
+        }
+      }
+    ],
+    "prompt_ai": "Rôle :\nTu es architecte avec une aisance rédactionnelle et expert en rédaction de rapports CECB\n\nTâche :\nAméliore le texte de la cellule D6.\nCe sont les vitrages qui sont séparés par un intercalaire.\n\nFormat :\nLe texte doit intégrer ces informations de manière fluide, comme dans un rapport d'expertise CECB. Il doit rester concis, factuel, sans interprétation ni recommandations. \nSi la date de construction de l'élément est connu, ou renseigné, tu peux le citer.\n\nTon :\nUtilise un ton neutre et professionnel. \n\nContraintes :\nNe rappelle pas les paramètres transmis. \nLimiter la réponse à 800 caractères. \nN'ajoute pas d'informations supplémentaires. \nNe mentionne pas la date de construction du bâtiment.\nEvite les répétitions."
+  },
+  "ameliorations": {
+    "template": "{remplacement} Ces travaux sont à planifier {delai}. {commerces} {valeur_u}",
+    "template_excel": "=CONCATENATE(\"\", C26, \" Ces travaux sont à planifier \", C27, \". \", C28, \" \", C29, \"\")",
+    "parametres": [
+      {
+        "id": "remplacement",
+        "nom": "Remplacement",
+        "position": 1,
+        "options": [
+          {"value": "Le remplacement des fenêtres en place par des modèles à triple vitrage est une option envisageable et pertinente."},
+          {"value": "Le remplacement des fenêtres en place par des modèles à triple vitrage est une option envisageable bien que non prioritaire."},
+          {"value": "Le remplacement des fenêtres en place par des modèles à triple vitrage est une option envisageable."},
+          {"value": "Le remplacement est recommandé pour atteindre les performances thermiques compatibles avec les standards actuels."},
+          {"value": "Le remplacement est conseillé dans le cadre d'une rénovation globale de l'enveloppe du bâtiment."},
+          {"value": "Le remplacement n'est pas prioritaire, les fenêtres actuelles offrant déjà un bon niveau d'isolation."},
+          {"value": "Aucune intervention n'est recommandée sur les fenêtres à ce stade, compte tenu de leur bon état et de leurs performances."}
+        ]
+      },
+      {
+        "id": "delai",
+        "nom": "Délai",
+        "position": 2,
+        "options": [
+          {"value": "à court terme, au titre de travaux correctifs"},
+          {"value": "à moyen terme"},
+          {"value": "à long terme"},
+          {"value": "peut être planifié selon les besoins de remplacement ou en parallèle de travaux de rénovation de façade"}
+        ]
+      },
+      {
+        "id": "commerces",
+        "nom": "Commerces",
+        "position": 3,
+        "options": [
+          {"value": "Les commerces du bâtiment sont équipés de fenêtres à cadre métallique et à simple vitrage, dont le pouvoir isolant est largement en dessous des recommandations actuelles pour les nouvelles constructions. Elles sont à l'origine d'importantes déperditions de chaleur."}
+        ]
+      },
+      {
+        "id": "valeur_u",
+        "nom": "Valeur U",
+        "position": 4,
+        "options": [
+          {"value": "Une valeur Uw inférieure à 1,30 W/m²K est requise pour réduire significativement les déperditions thermiques. Le remplacement de fen^tres n'est pas subventionné par le Programme Bâtiments."}
+        ]
+      }
+    ],
+    "prompt_ai": {
+      "assembled_prompt": "Rôle : \nTu es architecte avec une aisance rédactionnelle et expert en rédaction de rapports CECB. {etat_initial_text}.\n\nTâche :\nAméliore le texte suivant : {ameliorations_text}.\n\nFormat :\nLe texte doit intégrer ces informations de manière fluide, comme dans un rapport d'expertise CECB. Il doit rester factuel, sans interprétation ni recommandations. \nSi la date de construction de l'élément est connu, ou renseigné, tu peux le citer.\n\nTon :\nUtilise un ton neutre et professionnel. \n\nContraintes :Ne rappelle pas les paramètres transmis. \nLimiter la réponse à 800 caractères.\nN'ajoute pas d'informations supplémentaires. \nNe mentionne pas la date de construction du bâtiment.\nEvite les répétitions, de rephraser les réponses.",
+      "structure": {
+        "D36_role": "Tu es architecte avec une aisance rédactionnelle et expert en rédaction de rapports CECB. {etat_initial_text}.",
+        "D37_tache": "Améliore le texte suivant : {ameliorations_text}.",
+        "D38_format": "Le texte doit intégrer ces informations de manière fluide, comme dans un rapport d'expertise CECB. Il doit rester factuel, sans interprétation ni recommandations. \nSi la date de construction de l'élément est connu, ou renseigné, tu peux le citer.",
+        "D39_ton": "Utilise un ton neutre et professionnel. ",
+        "D40_contraintes": "Ne rappelle pas les paramètres transmis. \nLimiter la réponse à 800 caractères.\nN'ajoute pas d'informations supplémentaires. \nNe mentionne pas la date de construction du bâtiment.\nEvite les répétitions, de rephraser les réponses."
+      }
+    }
+  }
+}

@@ -126,25 +126,25 @@ function injectAuthStyles() {
     style.textContent = `
 .auth-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center}
 .auth-box{background:#fff;border-radius:12px;padding:32px;width:380px;max-width:90vw;box-shadow:0 8px 32px rgba(0,0,0,.2)}
-.auth-box h2{color:#1a6b47;margin:0 0 20px;font-size:20px;text-align:center}
+.auth-box h2{color:#0F172A;margin:0 0 20px;font-size:20px;text-align:center}
 .auth-box .auth-field{margin-bottom:14px}
 .auth-box label{display:block;font-size:13px;font-weight:600;color:#555;margin-bottom:4px}
 .auth-box input{width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:14px}
-.auth-box input:focus{outline:none;border-color:#189663}
-.auth-box .auth-btn{width:100%;padding:12px;background:#189663;color:#fff;border:none;border-radius:6px;font-size:15px;font-weight:600;cursor:pointer;transition:background .2s;margin-top:8px}
-.auth-box .auth-btn:hover{background:#147a54}
+.auth-box input:focus{outline:none;border-color:#10B981}
+.auth-box .auth-btn{width:100%;padding:12px;background:#10B981;color:#fff;border:none;border-radius:6px;font-size:15px;font-weight:600;cursor:pointer;transition:background .2s;margin-top:8px}
+.auth-box .auth-btn:hover{background:#059669}
 .auth-box .auth-error{color:#c62828;font-size:13px;margin-top:8px;text-align:center;display:none}
 .auth-box .auth-error.visible{display:block}
-.auth-user-bar{background:#1a6b47;color:#fff;display:flex;align-items:center;padding:0 24px;font-size:13px;gap:12px;height:32px}
+.auth-user-bar{background:#0F172A;color:#fff;display:flex;align-items:center;padding:0 24px;font-size:13px;gap:12px;height:32px}
 .auth-user-bar span{opacity:.8}
 .auth-user-bar .auth-logout{margin-left:auto;background:none;border:none;color:rgba(255,255,255,.75);cursor:pointer;font-size:13px;font-weight:600;padding:4px 12px;border-radius:4px;transition:all .2s}
 .auth-user-bar .auth-logout:hover{color:#fff;background:rgba(255,255,255,.15)}
 .auth-user-bar .auth-admin-link{background:none;border:none;color:rgba(255,255,255,.75);cursor:pointer;font-size:13px;font-weight:600;padding:4px 12px;border-radius:4px;transition:all .2s}
 .auth-user-bar .auth-admin-link:hover{color:#fff;background:rgba(255,255,255,.15)}
 .admin-panel{background:#fff;border-radius:10px;padding:20px 24px;margin-bottom:20px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
-.admin-panel h3{color:#1a6b47;margin:0 0 16px;font-size:16px}
+.admin-panel h3{color:#059669;margin:0 0 16px;font-size:16px}
 .admin-panel table{width:100%;border-collapse:collapse;font-size:13px}
-.admin-panel th{text-align:left;padding:8px;border-bottom:2px solid #1a6b47;font-weight:600;color:#333}
+.admin-panel th{text-align:left;padding:8px;border-bottom:2px solid #10B981;font-weight:600;color:#333}
 .admin-panel td{padding:8px;border-bottom:1px solid #eee}
 .admin-panel .btn-del{padding:4px 12px;background:#fce4ec;color:#c62828;border:1px solid #f8bbd0;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600}
 .admin-panel .btn-del:hover{background:#f8bbd0}
@@ -152,9 +152,9 @@ function injectAuthStyles() {
 .admin-add-form .field{display:flex;flex-direction:column;gap:4px}
 .admin-add-form .field label{font-size:11px;font-weight:600;color:#666}
 .admin-add-form .field input{padding:6px 10px;border:1px solid #ddd;border-radius:4px;font-size:13px}
-.admin-add-form .field input:focus{outline:none;border-color:#189663}
-.admin-add-form button{padding:8px 16px;background:#189663;color:#fff;border:none;border-radius:4px;font-size:13px;font-weight:600;cursor:pointer;align-self:flex-end}
-.admin-add-form button:hover{background:#147a54}
+.admin-add-form .field input:focus{outline:none;border-color:#10B981}
+.admin-add-form button{padding:8px 16px;background:#10B981;color:#fff;border:none;border-radius:4px;font-size:13px;font-weight:600;cursor:pointer;align-self:flex-end}
+.admin-add-form button:hover{background:#059669}
 `;
     document.head.appendChild(style);
 }

@@ -1,0 +1,174 @@
+{
+  "id": "asols",
+  "name": "Autres sols",
+  "note_hypothese": "En l'absence de détails d'exécution, les hypothèses concernant la constitution du radier demeurent à vérifier.",
+  "etat_initial": {
+    "template": "Le sol du rez-de-chaussée contre les locaux non chauffés du sous-sol est constitué {type_plancher_rdc}. {type_isolation_rdc}. La valeur U moyenne du plancher RdC est de {u_value_rdc} W/m²K.\n Le plancher contre terre est constitué de {type_plancher_soussol}. {type_isolation_soussol}. La valeur U moyenne du radier est de {u_value_soussol} W/m²K.",
+    "template_excel": "=CONCATENATE(\"Le sol du rez-de-chaussée contre les locaux non chauffés du sous-sol est constitué \", C6, \". \", C7, \".\\n Le plancher contre terre est constitué de \", C8, \". \", C9, \".\")",
+    "parametres": [
+      {
+        "id": "type_plancher_rdc",
+        "nom": "Type de plancher RdC",
+        "position": 1,
+        "options": [
+          {"value": "dalle en béton", "leso_match": {"floor_type": "ConcreteSlab"}},
+          {"value": "dalle en béton recouverte d\u2019une chape ciment", "leso_match": {"floor_type": "ConcreteSlab"}},
+          {"value": "dalle en béton armé", "leso_match": {"floor_type": "ConcreteSlab"}},
+          {"value": "dalle en béton non isolée", "leso_match": {"floor_type": "ConcreteSlab"}},
+          {"value": "dalle en béton avec isolation en sous-face", "leso_match": {"floor_type": "InsulatedSlab"}},
+          {"value": "dalle en béton avec isolation, accueillant un chauffage de sol", "leso_match": {"floor_type": "InsulatedSlab"}},
+          {"value": "dalle en maçonnerie hourdie", "leso_match": {"floor_type": "MasonrySlab"}},
+          {"value": "dalle hourdis", "leso_match": {"floor_type": "MasonrySlab"}},
+          {"value": "dalle sur vide sanitaire non ventilé", "leso_match": {"floor_type": "CrawlSpaceSlab"}},
+          {"value": "dalle sur vide sanitaire ventilé", "leso_match": {"floor_type": "CrawlSpaceSlab"}},
+          {"value": "dalle en bois massif", "leso_match": {"floor_type": "WoodSlab"}},
+          {"value": "plancher bois traditionnel", "leso_match": {"floor_type": "WoodSlab"}},
+          {"value": "plancher bois avec remplissage (terre, gravats, etc.)", "leso_match": {"floor_type": "WoodSlab"}},
+          {"value": "plancher sur cave non isolé", "leso_match": {"floor_type": "ConcreteSlab"}},
+          {"value": "plancher sur terre-plein", "leso_match": {"floor_type": "SlabOnGrade"}},
+          {"value": "plancher maçonnée en voute", "leso_match": {"floor_type": "MasonrySlab"}}
+        ]
+      },
+      {
+        "id": "type_isolation_rdc",
+        "nom": "Type d'isolation RdC",
+        "position": 2,
+        "options": [
+          {"value": "Il ne présente pas d'isolation thermique"},
+          {"value": "Il ne présente vraisemblablement pas d'isolation thermique"},
+          {"value": "Il ne présente pas d'isolation thermique en sous-face de dalle"},
+          {"value": "Il présente une faible isolation thermique en sous-face de dalle"},
+          {"value": "Il présente une isolation thermique moyenne en sous-face de dalle"},
+          {"value": "Il présente une bonne isolation thermique en sous-face de dalle"},
+          {"value": "Il présente une excellente isolation thermique, conforme aux standards actuels"},
+          {"value": "Il a récemment été isolé thermiquement"},
+          {"value": "L'isolation thermique est ancienne et peu performante"},
+          {"value": "Il présente une isolation entre la dalle et la chape, destinée à limiter les pertes vers le bas dans le cas d'un plancher chauffant"},
+          {"value": "Il est difficile de déterminer la présence ou l'efficacité de l'isolation thermique du plancher, en l'absence d'accès direct ou de documentation technique"}
+        ]
+      },
+      {
+        "id": "type_plancher_soussol",
+        "nom": "Type de plancher Sous-sol",
+        "position": 3,
+        "options": [
+          {"value": "dalle en béton"},
+          {"value": "dalle en béton recouverte d\u2019une chape ciment"},
+          {"value": "dalle en béton armé"},
+          {"value": "dalle en béton non isolée"},
+          {"value": "dalle en béton avec isolation en sous-face"},
+          {"value": "dalle en béton avec isolation, accueillant un chauffage de sol"},
+          {"value": "dalle en maçonnerie hourdie"},
+          {"value": "dalle hourdis"},
+          {"value": "dalle sur vide sanitaire non ventilé"},
+          {"value": "dalle sur vide sanitaire ventilé"},
+          {"value": "dalle en bois massif"},
+          {"value": "plancher bois traditionnel"},
+          {"value": "plancher bois avec remplissage (terre, gravats, etc.)"},
+          {"value": "plancher sur cave non isolé"},
+          {"value": "plancher sur terre-plein"}
+        ]
+      },
+      {
+        "id": "u_value_rdc",
+        "nom": "Valeur U plancher RdC (W/m²K)",
+        "position": 4,
+        "type": "text"
+      },
+      {
+        "id": "type_isolation_soussol",
+        "nom": "Type d'isolation Sous-sol",
+        "position": 5,
+        "options": [
+          {"value": "Il ne présente pas d'isolation thermique."},
+          {"value": "Il ne présente vraisemblablement pas d'isolation thermique."},
+          {"value": "Il présente une faible isolation thermique en sous-face de dalle"},
+          {"value": "Il présente une isolation thermique moyenne en sous-face de dalle"},
+          {"value": "Il présente une bonne isolation thermique en sous-face de dalle"},
+          {"value": "Il présente une excellente isolation thermique, conforme aux standards actuels"},
+          {"value": "Il a récemment été isolé thermiquement"},
+          {"value": "L'isolation thermique est ancienne et peu performante"},
+          {"value": "Il présente une isolation entre la dalle et la chape, destinée à limiter les pertes vers le bas dans le cas d'un plancher chauffant"},
+          {"value": "Il est difficile de déterminer la présence ou l'efficacité de l'isolation thermique du plancher, en l'absence d'accès direct ou de documentation technique"}
+        ]
+      },
+      {
+        "id": "u_value_soussol",
+        "nom": "Valeur U radier/sous-sol (W/m²K)",
+        "position": 6,
+        "type": "text"
+      }
+    ],
+    "prompt_ai": "Rôle :\nTu es architecte avec une aisance rédactionnelle et expert en rédaction de rapports CECB\n\nTâche :\nAméliore le texte de la cellule D6.\n\nFormat :\nLe texte doit intégrer ces informations de manière fluide, comme dans un rapport d'expertise CECB. Il doit rester concis, factuel, sans interprétation ni recommandations. \nSi la date de construction de l'élément est connu, ou renseigné, tu peux le citer.\n\nTon :\nUtilise un ton neutre et professionnel. \n\nContraintes :\nNe rappelle pas les paramètres transmis. \nLimiter la réponse à 800 caractères. \nN'ajoute pas d'informations supplémentaires. \nNe mentionne pas la date de construction du bâtiment.\nEvite les répétitions."
+  },
+  "ameliorations": {
+    "template": "Il est recommandé, au titre de travaux correctifs, d'isoler la dalle du rez-de-chaussée par {recommandation_rdc}. L'accès aux installations techniques du plafond doit être maintenu. Ces travaux sont à planifier {delai}. {valeur_u}. {recommandation_radier} {cout} {valeur_u_radier}",
+    "template_excel": "=CONCATENATE(\"Il est recommandé, au titre de travaux correctifs, d'isoler la dalle du rez-de-chaussée par \", C26, \". L'accès aux installations techniques du plafond doit être maintenu. Ces travaux sont à planifier \",  C27, \". \", C28, \". \", C29, \" \", C30, \" \", C31, \"\")",
+    "parametres": [
+      {
+        "id": "recommandation_rdc",
+        "nom": "Recommandation RdC",
+        "position": 1,
+        "options": [
+          {"value": "l'adjonction d'une couche d'isolation rapportée en sous-face de dalle"},
+          {"value": "l'adjonction d'une couche d'isolation projetée en sous-face de dalle"}
+        ]
+      },
+      {
+        "id": "delai",
+        "nom": "Délai",
+        "position": 2,
+        "options": [
+          {"value": "à court terme, au titre de travaux correctifs"},
+          {"value": "à moyen terme"},
+          {"value": "à long terme"}
+        ]
+      },
+      {
+        "id": "valeur_u",
+        "nom": "Valeur U",
+        "position": 3,
+        "options": [
+          {"value": "Une valeur U inférieure à 0,25 W/m2K est requise pour limiter significativement les déperditions thermiques. Ces travaux ne sont pas subventionnés par le Programme Bâtiments"}
+        ]
+      },
+      {
+        "id": "recommandation_radier",
+        "nom": "Recommandation Radier",
+        "position": 4,
+        "options": [
+          {"value": " Afin d'améliorer la capacité thermique de l'enveloppe, il est possible d'isoler le plancher du rez-de-chaussée,"},
+          {"value": " Afin d'améliorer la capacité thermique de l'enveloppe, il est possible d'isoler le plancher du sous-sol,"},
+          {"value": " Il est recommandé d'isoler le plancher du rez-de-chaussée,"},
+          {"value": " Il est recommandé d'isoler le plancher du sous-sol,"}
+        ]
+      },
+      {
+        "id": "cout",
+        "nom": "Coût",
+        "position": 5,
+        "options": [
+          {"value": "bien que cela nécessite généralement des travaux dont le coût est disproportionné. "}
+        ]
+      },
+      {
+        "id": "valeur_u_radier",
+        "nom": "Valeur U Radier",
+        "position": 6,
+        "options": [
+          {"value": "Une valeur U inférieure à 0,25 W/m2K est requise pour limiter significativement les déperditions thermiques et pouvoir bénéficier des subventions du Programme Bâtiments"}
+        ]
+      }
+    ],
+    "prompt_ai": {
+      "assembled_prompt": "Rôle : \nTu es architecte avec une aisance rédactionnelle et expert en rédaction de rapports CECB. {etat_initial_text}.\n\nTâche :\nAméliore le texte suivant : {ameliorations_text}.\n\nFormat :\nLe texte doit intégrer ces informations de manière fluide, comme dans un rapport d'expertise CECB. Il doit rester factuel, sans interprétation ni recommandations. \nSi la date de construction de l'élément est connu, ou renseigné, tu peux le citer.\n\nTon :\nUtilise un ton neutre et professionnel. \n\nContraintes :Ne rappelle pas les paramètres transmis. \nLimiter la réponse à 800 caractères.\nN'ajoute pas d'informations supplémentaires. \nNe mentionne pas la date de construction du bâtiment.\nEvite les répétitions, de rephraser les réponses.",
+      "structure": {
+        "D36_role": "Tu es architecte avec une aisance rédactionnelle et expert en rédaction de rapports CECB. {etat_initial_text}.",
+        "D37_tache": "Améliore le texte suivant : {ameliorations_text}.",
+        "D38_format": "Le texte doit intégrer ces informations de manière fluide, comme dans un rapport d'expertise CECB. Il doit rester factuel, sans interprétation ni recommandations. \nSi la date de construction de l'élément est connu, ou renseigné, tu peux le citer.",
+        "D39_ton": "Utilise un ton neutre et professionnel. ",
+        "D40_contraintes": "Ne rappelle pas les paramètres transmis. \nLimiter la réponse à 800 caractères.\nN'ajoute pas d'informations supplémentaires. \nNe mentionne pas la date de construction du bâtiment.\nEvite les répétitions, de rephraser les réponses."
+      }
+    }
+  }
+}

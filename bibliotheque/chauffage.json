@@ -1,0 +1,262 @@
+{
+  "id": "chauffage",
+  "name": "Chauffage",
+  "etat_initial": {
+    "template": "Le bâtiment est équipé d'un {type_chauffage}, de {puissance_kw} kW de puissance installé, et datant de  {annee_installation}, {efficacite}. L'ensemble du système de chauffage (chauffage, conduites, régulation) {etat_systeme}. {electricite}. {co2}. La chaleur est distribuée par {distribution_chaleur}. {consommation_chauffage}. ",
+    "template_excel": "=CONCATENATE(\"Le bâtiment est équipé d'un \", C6, \", de \", C8, \" kW de puissance installé, et datant de  \", C7, \", \", C9, \". L'ensemble du système de chauffage (chauffage, conduites, régulation) \", C10, \". \", C11, \". \", C12, \". La chaleur est distribuée par \", C13, \". \", C14, \". \")",
+    "parametres": [
+      {
+        "id": "type_chauffage",
+        "nom": "Type de chauffage",
+        "position": 1,
+        "options": [
+          {"value": "d'une chaudière à gaz", "leso_match": {"heating_type": "GasBoiler"}},
+          {"value": "de deux chaudières à gaz, fonctionnant en série", "leso_match": {"heating_type": "GasBoiler"}},
+          {"value": "de deux chaudières à gaz, fonctionnant en redondance", "leso_match": {"heating_type": "GasBoiler"}},
+          {"value": "d'une chaudière à gaz à condensation", "leso_match": {"heating_type": "GasCondensingBoiler"}},
+          {"value": "d'une chaudière à mazout", "leso_match": {"heating_type": "OilBoiler"}},
+          {"value": "d'une chaudière à mazout à condensation", "leso_match": {"heating_type": "OilCondensingBoiler"}},
+          {"value": "de deux chaudières à mazout, fonctionnant en série", "leso_match": {"heating_type": "OilBoiler"}},
+          {"value": "de deux chaudières à mazout, fonctionnant en redondance", "leso_match": {"heating_type": "OilBoiler"}},
+          {"value": "d'un poêle à bois principal (chauffage indépendant)", "leso_match": {"heating_type": "WoodStove"}},
+          {"value": "d'un chauffage électrique direct (convecteurs)", "leso_match": {"heating_type": "ElectricDirect"}},
+          {"value": "d'un chauffage par accumulation électrique", "leso_match": {"heating_type": "ElectricStorage"}},
+          {"value": "d'un chauffage électrique", "leso_match": {"heating_type": "ElectricDirect"}},
+          {"value": "d'une chaudière à pellets", "leso_match": {"heating_type": "PelletBoiler"}},
+          {"value": "d'une chaudière à bois déchiqueté", "leso_match": {"heating_type": "WoodChipBoiler"}},
+          {"value": "d'une chaudière à bûches", "leso_match": {"heating_type": "LogBoiler"}},
+          {"value": "d'un système hybride (PAC + chaudière)", "leso_match": {"heating_type": "HybridHeatPump"}},
+          {"value": "d'une pompe à chaleur air-eau", "leso_match": {"heating_type": "AirWaterHeatPump"}},
+          {"value": "d'une pompe à chaleur air-eau réversible", "leso_match": {"heating_type": "AirWaterHeatPump"}},
+          {"value": "d'une pompe à chaleur sol-eau (géothermie horizontale)", "leso_match": {"heating_type": "GroundSourceHeatPump"}},
+          {"value": "d'une pompe à chaleur sol-eau (géothermie verticale)", "leso_match": {"heating_type": "GroundSourceHeatPump"}},
+          {"value": "d'une pompe à chaleur eau-eau (nappe phréatique)", "leso_match": {"heating_type": "WaterWaterHeatPump"}},
+          {"value": "d'une pompe à chaleur double service (chauffage + ECS)", "leso_match": {"heating_type": "DualServiceHeatPump"}},
+          {"value": "d'un chauffage à distance (CAD)", "leso_match": {"heating_type": "DistrictHeating"}},
+          {"value": "d'un chauffage à distance avec sous-station à échangeur", "leso_match": {"heating_type": "DistrictHeating"}}
+        ]
+      },
+      {
+        "id": "annee_installation",
+        "nom": "Année d'installation",
+        "position": 2,
+        "options_range": {
+          "min": 1950,
+          "max": 2008
+        }
+      },
+      {
+        "id": "puissance_kw",
+        "nom": "Puissance installée (en kW)",
+        "position": 3,
+        "type": "number"
+      },
+      {
+        "id": "efficacite",
+        "nom": "Efficacité du producteur de chauffage",
+        "position": 4,
+        "options": [
+          {"value": "dont l'efficacité est insuffisante"},
+          {"value": "dont l'efficacité est faible, entraînant des pertes énergétiques importantes"},
+          {"value": "dont l'efficacité est moyenne"},
+          {"value": "dont l'efficacité est acceptable mais pourrait être améliorée"},
+          {"value": "dont l'efficacité est bonne"},
+          {"value": "dont l'efficacité est très bonne"},
+          {"value": "dont l'efficacité est conforme aux standards actuels"},
+          {"value": "dont l'efficacité est excellente et adaptée aux besoins du bâtiment"},
+          {"value": "qui ne correspond plus à l'état de la technique et aux recommandations actuelles concernant l'utilisation des énergies renouvelables"},
+          {"value": "qui ne correspond plus tout à fait à l'état de la technique et aux recommandations actuelles concernant l'utilisation des énergies renouvelables"},
+          {"value": "qui présente une technologie obsolète, non adaptée aux objectifs de transition énergétique"},
+          {"value": "qui utilise une énergie fossile sans dispositif de régulation performant"}
+        ]
+      },
+      {
+        "id": "etat_systeme",
+        "nom": "Etat du système de chauffage",
+        "position": 5,
+        "options": [
+          {"value": "est en fin de vie"},
+          {"value": "dépassera sa durée de vie dans les prochaines années"},
+          {"value": "a atteint sa durée de vie théorique mais reste fonctionnel"},
+          {"value": "présente des signes d'usure avancée"},
+          {"value": "est obsolète au regard des standards actuels"},
+          {"value": "semble fonctionner correctement mais nécessite un suivi régulier"},
+          {"value": "semble fonctionner normalement et ne présente pas de dysfonctionnement notable"},
+          {"value": "a été récemment remplacé et ne nécessite pas d'intervention"},
+          {"value": "a été remplacé récemment par un système performant et adapté"},
+          {"value": "a été entretenu régulièrement et reste en bon état de fonctionnement"}
+        ]
+      },
+      {
+        "id": "electricite",
+        "nom": "Electricité",
+        "position": 6,
+        "options": [
+          {"value": "L'utilisation d'électricité pour la production de chaleur est onéreuse et à proscrire"}
+        ]
+      },
+      {
+        "id": "co2",
+        "nom": "CO2",
+        "position": 7,
+        "options": [
+          {"value": "De plus, en utilisant des énergies fossiles, ce système génère des émissions de CO\u2082 élevées"},
+          {"value": "Ce système fonctionne avec une énergie fossile dont les émissions de CO\u2082 sont défavorables pour l'environnement et nuisent à l'atteinte des objectifs climatiques cantonaux et fédéraux"},
+          {"value": "Ce système utilise une pompe à chaleur alimentée par de l'électricité, les émissions directes de CO\u2082 du bâtiment sont considérées nulles. Les émissions de CO\u2082 dépendent du mix électrique"},
+          {"value": "Ce système utilise un chauffage à distance, les émissions directes de CO\u2082 du bâtiment sont considérées nulles. L'impact CO\u2082 dépend fortement de la composition du réseau"},
+          {"value": "Ce système ne permet pas d'atteindre les objectifs climatiques visés par la stratégie énergétique 2050"},
+          {"value": "De plus, en utilisant des énergies renouvelables, ce système ne génère pas d'émissions directes de CO\u2082"},
+          {"value": "Ce système est favorable du point de vue climatique et contribue à la décarbonation du bâtiment"},
+          {"value": "Ce système contribue à la réduction des émissions de CO\u2082 grâce à l'usage d'énergies renouvelables"},
+          {"value": "Ce système n'émet pas de CO\u2082 sur site, mais son impact dépend de la source d'énergie primaire"},
+          {"value": "Ce système repose sur un chauffage électrique direct. Il n'émet pas de CO\u2082 sur site, mais sa performance énergétique est limitée"}
+        ]
+      },
+      {
+        "id": "distribution_chaleur",
+        "nom": "Distribution de chaleur",
+        "position": 8,
+        "options": [
+          {"value": "des radiateurs équipés de vannes thermostatiques"},
+          {"value": "des radiateurs équipés pour l'essentiel de vannes thermostatiques"},
+          {"value": "des radiateurs non équipés de vannes thermostatiques"},
+          {"value": "des radiateurs anciens à grand volume d'eau"},
+          {"value": "des radiateurs en fonte sans régulation individuelle"},
+          {"value": "des radiateurs à basse température"},
+          {"value": "un chauffage au sol"},
+          {"value": "un chauffage au sol hydraulique avec régulation par pièce"},
+          {"value": "un chauffage au sol hydraulique sans régulation individuelle"},
+          {"value": "un chauffage de sol électrique"},
+          {"value": "des convecteurs électriques"},
+          {"value": "un système mixte radiateurs / chauffage au sol"},
+          {"value": "un système de distribution à air pulsé"},
+          {"value": "une distribution par plafonds rayonnants"}
+        ]
+      },
+      {
+        "id": "consommation_chauffage",
+        "nom": "Consommation de chauffage",
+        "position": 9,
+        "options": [
+          {"value": "Les consommations de chauffage ont été fournies par le mandant sur 1 année"},
+          {"value": "Les consommations de chauffage ont été fournies par le mandant sur 2 années"},
+          {"value": "Les consommations de chauffage ont été fournies par le mandant sur 3 années"},
+          {"value": "Les consommations de chauffage n'ont pas été fournies par le mandant, ce qui interdit le calcul de plausibité"},
+          {"value": "Les consommations de chauffage sont électriques. Elles ont été fournies par le mandant sur 1 année et sont confondues avec la consommation domestique globale"},
+          {"value": "Les consommations de chauffage sont électriques. Elles ont été fournies par le mandant sur 2 années et sont confondues avec la consommation domestique globale"},
+          {"value": "Les consommations de chauffage sont électriques. Elles ont été fournies par le mandant sur 3 années et sont confondues avec la consommation domestique globale"},
+          {"value": "Les consommations de chauffage sont basées sur les coûts énergétiques déclarés par l'exploitant"}
+        ]
+      }
+    ],
+    "prompt_ai": "Rôle :\nTu es architecte avec une aisance rédactionnelle et expert en rédaction de rapports CECB\n\nTâche :\nAméliore le texte de la cellule D6.\nSi la puissance installée n'est pas fournie, n'en fait pas mention.\n\nFormat :\nLe texte doit intégrer ces informations de manière fluide, comme dans un rapport d'expertise CECB. Il doit rester concis, factuel, sans interprétation ni recommandations. \nSi la date de construction de l'élément est connu, ou renseigné, tu peux le citer.\n\nTon :\nUtilise un ton neutre et professionnel. \n\nContraintes :\nNe rappelle pas les paramètres transmis. \nLimiter la réponse à 800 caractères. \nN'ajoute pas d'informations supplémentaires. \nNe mentionne pas la date de construction du bâtiment.\nEvite les répétitions."
+  },
+  "ameliorations": {
+    "template": "Nous recommandons de remplacer  {recommandation} {nouveau_systeme}. {subvention_producteur}. {vannes_thermostatiques}. Les bâtiments construits avant l'an 2000 doivent justifier une classe CECB\u00ae de l'enveloppe située entre A et E (selon mise à jour 2023). Ces travaux sont à planifier {delai}. {suivi_consommation}. {isolation_conduites}. {subventions}.",
+    "template_excel": "=CONCATENATE(\"Nous recommandons de remplacer  \", C26, \" \",  C27, \". \", C28, \". \", C29, \". Les bâtiments construits avant l'an 2000 doivent justifier une classe CECB\u00ae de l'enveloppe située entre A et E (selon mise à jour 2023). Ces travaux sont à planifier \", C33, \". \", C30, \". \", C31, \". \", C32, \".\")",
+    "texte_fixe": "Les bâtiments construits avant l'an 2000 doivent justifier une classe CECB\u00ae de l'enveloppe située entre A et E (selon mise à jour 2023).",
+    "parametres": [
+      {
+        "id": "recommandation",
+        "nom": "Recommandation",
+        "position": 1,
+        "options": [
+          {"value": "la chaudière existante"},
+          {"value": "les chaudières existantes"},
+          {"value": "les radiateurs électriques"},
+          {"value": "le système existant"},
+          {"value": "le boiler électrique existant"},
+          {"value": "le chauffage électrique direct"},
+          {"value": "le système mixte actuel (chauffage/ECS)"},
+          {"value": "le générateur de chaleur existant"}
+        ]
+      },
+      {
+        "id": "nouveau_systeme",
+        "nom": "Nouveau système",
+        "position": 2,
+        "options": [
+          {"value": "par un système exploitant les énergies renouvelables"},
+          {"value": "par un système exploitant les énergies renouvelables ou de prévoir un raccordement au réseau de chauffage à distance (CAD)"},
+          {"value": "par un raccordement au réseau de chauffage à distance (CAD) déjà disponible dans le quartier"},
+          {"value": "par un raccordement au réseau de chauffage à distance (CAD) selon l'avancement de son déploiement dans le quartier"},
+          {"value": "par une pompe à chaleur air-eau"},
+          {"value": "par une pompe à chaleur eau-eau (nappe phréatique)"},
+          {"value": "par une pompe à chaleur hybride en complément d'un système existant"},
+          {"value": "par une chaudière à pellets"},
+          {"value": "par une chaudière à bois déchiqueté"},
+          {"value": "par une production combinée chauffage + ECS à base d'énergies renouvelables"},
+          {"value": "par une pompe à chaleur géothermique (sondes verticales)"},
+          {"value": "Le système de production de chaleur présente une bonne efficacité. Son remplacement ne s'avère pas nécessaire à ce stade. Les mesures d'amélioration devraient prioritairement concerner l'enveloppe thermique du bâtiment."}
+        ]
+      },
+      {
+        "id": "subvention_producteur",
+        "nom": "Subvention producteur de chaleur",
+        "position": 3,
+        "options": [
+          {"value": "Le remplacement d'un système principal fonctionnant au mazout, au gaz ou à l'électricité directe est subventionné par le Programme Bâtiments, s'il est remplacé par un système utilisant les énergies renouvelables ou un raccordement à un chauffage à distance"}
+        ]
+      },
+      {
+        "id": "vannes_thermostatiques",
+        "nom": "Vannes thermostatiques",
+        "position": 4,
+        "options": [
+          {"value": "Il est également conseillé d'équiper l'ensemble des radiateurs de vannes thermostatiques pour améliorer la régulation du chauffage dans les appartements, voire de moderniser les radiateurs"},
+          {"value": "Il est également conseillé d'équiper le reste des radiateurs de vannes thermostatiques pour améliorer la régulation du chauffage dans les appartements, voire de moderniser les radiateurs"}
+        ]
+      },
+      {
+        "id": "suivi_consommation",
+        "nom": "Suivi de consommation",
+        "position": 5,
+        "options": [
+          {"value": "L'installation d'un système de suivi de la consommation de chauffage ainsi que la mise en place de mesures correctives seraient bénéfiques tant sur le plan économique qu'écologique"}
+        ]
+      },
+      {
+        "id": "isolation_conduites",
+        "nom": "Isolation des conduites",
+        "position": 6,
+        "options": [
+          {"value": "L'isolation des conduites de distribution est à améliorer"}
+        ]
+      },
+      {
+        "id": "subventions",
+        "nom": "Subventions",
+        "position": 7,
+        "options": [
+          {"value": "La première création d'un réseau de distribution hydraulique est subventionnée par le Programme Bâtiments"}
+        ]
+      },
+      {
+        "id": "delai",
+        "nom": "Délai",
+        "position": 8,
+        "options": [
+          {"value": "à court terme, à planifier dans un délai de 2 à 3 ans"},
+          {"value": "à moyen terme, dans les 5 prochaines années"},
+          {"value": "à long terme"},
+          {"value": "à prévoir lors de travaux d'entretien majeurs"},
+          {"value": "lors d'un prochain remplacement du système"},
+          {"value": "selon l'évolution de l'état du système"},
+          {"value": "sans urgence, mais à intégrer dans la planification future"},
+          {"value": "dès que possible en raison de l'état actuel du système"},
+          {"value": "à planifier en coordination avec d'autres rénovations"}
+        ]
+      }
+    ],
+    "prompt_ai": {
+      "assembled_prompt": "Rôle : \nTu es architecte avec une aisance rédactionnelle et expert en rédaction de rapports CECB. {etat_initial_text}.\n\nTâche :\nAméliore le texte suivant : {ameliorations_text}.\n\nFormat :\nLe texte doit intégrer ces informations de manière fluide, comme dans un rapport d'expertise CECB. Il doit rester factuel, sans interprétation ni recommandations. \nSi la date de construction de l'élément est connu, ou renseigné, tu peux le citer.\n\nTon :\nUtilise un ton neutre et professionnel. \n\nContraintes :Ne rappelle pas les paramètres transmis. \nLimiter la réponse à 800 caractères.\nN'ajoute pas d'informations supplémentaires. \nNe mentionne pas la date de construction du bâtiment.\nEvite les répétitions, de rephraser les réponses.",
+      "structure": {
+        "D36_role": "Tu es architecte avec une aisance rédactionnelle et expert en rédaction de rapports CECB. {etat_initial_text}.",
+        "D37_tache": "Améliore le texte suivant : {ameliorations_text}.",
+        "D38_format": "Le texte doit intégrer ces informations de manière fluide, comme dans un rapport d'expertise CECB. Il doit rester factuel, sans interprétation ni recommandations. \nSi la date de construction de l'élément est connu, ou renseigné, tu peux le citer.",
+        "D39_ton": "Utilise un ton neutre et professionnel. ",
+        "D40_contraintes": "Ne rappelle pas les paramètres transmis. \nLimiter la réponse à 800 caractères.\nN'ajoute pas d'informations supplémentaires. \nNe mentionne pas la date de construction du bâtiment.\nEvite les répétitions, de rephraser les réponses."
+      }
+    }
+  }
+}

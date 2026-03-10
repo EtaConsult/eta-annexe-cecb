@@ -1,0 +1,103 @@
+{
+  "id": "elec",
+  "name": "Appareils électriques",
+  "etat_initial": {
+    "template": "Les appareils électriques relevés sur place {appareils_electriques} et {standard}. {ascenseur}.{consommations_electriques}. Toutefois, elle n'influencent pas significativement le bilan énergétique global du bâtiment.",
+    "template_excel": "=CONCATENATE(\"Les appareils électriques relevés sur place \", C6, \" et \", C7, \". \", C8,\".\", C9,\". Toutefois, elle n'influencent pas significativement le bilan énergétique global du bâtiment.\")",
+    "texte_fixe": "Toutefois, elle n'influencent pas significativement le bilan énergétique global du bâtiment.",
+    "parametres": [
+      {
+        "id": "appareils_electriques",
+        "nom": "Appareils électriques",
+        "position": 1,
+        "options": [
+          {"value": "ont quelques années"},
+          {"value": "sont anciens et obsolètes"},
+          {"value": "présentent diverses classes d'efficacité énergétique"},
+          {"value": "ont été remplacés récemment"},
+          {"value": "sont récents et de classe énergétique A ou supérieure"},
+          {"value": "ont été partiellement remplacés ces dernières années"},
+          {"value": "sont vétustes et consomment beaucoup d'énergie"},
+          {"value": "n'ont pas été évalués précisément"},
+          {"value": "sont en bon état mais non optimisés du point de vue énergétique"}
+        ]
+      },
+      {
+        "id": "standard",
+        "nom": "Standard",
+        "position": 2,
+        "options": [
+          {"value": "correspondent aux standards techniques actuels"},
+          {"value": "ne correspondent plus aux standards techniques actuels"},
+          {"value": "sont partiellement conformes aux standards actuels"},
+          {"value": "correspondent aux exigences minimales, sans marge de performance"},
+          {"value": "présentent des écarts significatifs avec les standards actuels"},
+          {"value": "dépassent les standards actuels en termes de performance"},
+          {"value": "ne respectent ni les standards actuels ni les bonnes pratiques énergétiques"}
+        ]
+      },
+      {
+        "id": "ascenseur",
+        "nom": "Ascenseur",
+        "position": 3,
+        "options": [
+          {"value": "Le bâtiment est équipé d'un ascenseur"},
+          {"value": "Le bâtiment est équipé d'un ascenseur par entrée"},
+          {"value": "Le bâtiment n'est pas équipé d'ascenseur"}
+        ]
+      },
+      {
+        "id": "consommations_electriques",
+        "nom": "Consommations électriques",
+        "position": 4,
+        "options": [
+          {"value": "Les consommations d\u2019électricité ont été fournies par le mandant sur 1 année."},
+          {"value": "Les consommations d\u2019électricité ont été fournies par le mandant sur 2 années."},
+          {"value": "Les consommations d\u2019électricité ont été fournies par le mandant sur 3 années."},
+          {"value": "Les consommations d\u2019électricité n\u2019ont pas été fournies par le mandant."},
+          {"value": "Les consommations d\u2019électricité sont confondues avec celles dusystème de chauffage et n\u2019ont pas pu être isolées."},
+          {"value": "Les consommations d\u2019électricité sont issues des factures du fournisseur et comprennent l\u2019ensemble des usages."},
+          {"value": "Les consommations d\u2019électricité transmises sont partielles et ne couvrent pas une année complète."},
+          {"value": "Les consommations d\u2019électricité transmises sont partielles et ne couvrent pas l\u2019ensemble des compteurs du bâtiment."}
+        ]
+      }
+    ],
+    "prompt_ai": "Rôle :\nTu es architecte avec une aisance rédactionnelle et expert en rédaction de rapports CECB\n\nTâche :\nAméliore le texte de la cellule D6.\n\nFormat :\nLe texte doit intégrer ces informations de manière fluide, comme dans un rapport d'expertise CECB. Il doit rester concis, factuel, sans interprétation ni recommandations. \nSi la date de construction de l'élément est connu, ou renseigné, tu peux le citer.\n\nTon :\nUtilise un ton neutre et professionnel. \n\nContraintes :\nNe rappelle pas les paramètres transmis. \nLimiter la réponse à 800 caractères. \nN'ajoute pas d'informations supplémentaires. \nNe mentionne pas la date de construction du bâtiment.\nEvite les répétitions."
+  },
+  "ameliorations": {
+    "template": "{recommandation_appareils_electriques}.",
+    "template_excel": "=CONCATENATE(\"\", C26, \".\")",
+    "parametres": [
+      {
+        "id": "recommandation_appareils_electriques",
+        "nom": "Recommandation appreils électriques",
+        "position": 1,
+        "options": [
+          {"value": "En cas de panne, le remplacement des appareils anciens et peu efficaces par de nouveaux appareils permet d'améliorer l'efficacité énergétique globale du bâtiment. Nous vous invitons à consulter le site www.top-ten.ch pour bénéficier d'informations à ce sujet"}
+        ]
+      }
+    ],
+    "prompt_ai": "Rôle :\nTu es architecte avec une aisance rédactionnelle et expert en rédaction de rapports CECB\n\nTâche :\nAméliore le texte de la cellule D26\n\nFormat :\nLe texte doit intégrer ces informations de manière fluide, comme dans un rapport d'expertise CECB. Il doit rester factuel, sans interprétation ni recommandations. \nSi la date de construction de l'élément est connu, ou renseigné, tu peux le citer.\n\nTon :\nUtilise un ton neutre et professionnel. \n\nContraintes :\nNe rappelle pas les paramètres transmis. \nLimiter la réponse à 800 caractères.\nN'ajoute pas d'informations supplémentaires. \nNe mentionne pas la date de construction du bâtiment.\nEvite les répétitions, de rephraser les réponses."
+  },
+  "references_cecb": [
+    {"code": "0", "label": "Bâtiment"},
+    {"code": "1", "label": "Toits contre extérieur"},
+    {"code": "2", "label": "Autres plafonds"},
+    {"code": "2.1", "label": "Autres plafonds, contre non chauffé"},
+    {"code": "3", "label": "Murs contre extérieur"},
+    {"code": "4", "label": "Autres murs"},
+    {"code": "4.1", "label": "Autres murs, contre non chauffé"},
+    {"code": "4.2", "label": "Autres murs, contre terre"},
+    {"code": "5", "label": "Fenêtre et portes"},
+    {"code": "6", "label": "Sols contre extérieur"},
+    {"code": "7", "label": "Autres sols"},
+    {"code": "7.1", "label": "Autres sols, contre non chauffé"},
+    {"code": "7.2", "label": "Autres sols, contre terre"},
+    {"code": "8", "label": "Ponts thermiques"},
+    {"code": "9", "label": "Chauffage"},
+    {"code": "10", "label": "Eau chaude sanitaire"},
+    {"code": "11", "label": "Ventilation"},
+    {"code": "12", "label": "Photovoltaïque"},
+    {"code": "13", "label": "Appareils et éclairage"}
+  ]
+}
