@@ -95,13 +95,15 @@ button{cursor:pointer;font-family:inherit}
 .export-buttons button{padding:8px 16px;border:1px solid #ddd;background:#fff;border-radius:6px;font-size:13px;font-weight:500;color:#444;transition:all .2s}
 .export-buttons button:hover{background:#f0faf5;border-color:#189663;color:#1a6b47}
 #summaryTableContainer{overflow-x:auto}
-.summary-table{width:100%;border-collapse:collapse;font-family:Arial,sans-serif;font-size:9.5pt;background:#fff}
-.summary-table th{padding:8px 10px;font-weight:700;text-align:center;border-bottom:2px solid #333;background:#fff}
-.summary-table th:first-child{text-align:left;min-width:280px}
-.summary-table th .st-sub{font-weight:400;font-size:8.5pt;color:#555;display:block}
-.summary-table td{padding:7px 10px;border-bottom:1px solid #E3DAD1;vertical-align:middle}
-.summary-table td:not(:first-child){text-align:center;width:110px}
-.summary-table tr.st-cat td{font-weight:700;padding:9px 10px;background:#fafafa}
+.summary-table{max-width:680px;border-collapse:collapse;font-family:Arial,sans-serif;font-size:9.5pt;background:#fff;table-layout:fixed}
+.summary-table th{padding:6px 8px;font-weight:700;text-align:center;border-bottom:2px solid #333;background:#fff}
+.summary-table th:first-child{text-align:left;width:320px}
+.summary-table th:nth-child(2){width:70px}
+.summary-table th:nth-child(n+3){width:80px}
+.summary-table th .st-sub{font-weight:400;font-size:8pt;color:#555;display:block}
+.summary-table td{padding:5px 8px;border-bottom:1px solid #E3DAD1;vertical-align:middle;overflow:hidden;text-overflow:ellipsis}
+.summary-table td:not(:first-child){text-align:center}
+.summary-table tr.st-cat td{font-weight:700;padding:7px 8px;background:#fafafa}
 .summary-table .st-check{color:#189663;font-weight:700;font-size:14px}
 .summary-table .st-ponts{color:#FF0000}
 .summary-table tr.st-cost td{border-top:2px solid #333;font-weight:600;background:#fafafa}
@@ -786,7 +788,7 @@ function setupExport() {
     document.getElementById('copyTable').addEventListener('click', async function() {
         const tableEl = document.getElementById('summaryTable');
         const tableHTML = tableEl.outerHTML;
-        const styledHTML = '<style>table{border-collapse:collapse;font-family:Arial,sans-serif;font-size:9.5pt}th,td{padding:7px 10px;border-bottom:1px solid #E3DAD1}th{font-weight:700;border-bottom:2px solid #333;text-align:center}th:first-child,td:first-child{text-align:left}.st-cat td{font-weight:700}.st-check{color:#189663;font-weight:700}.st-ponts{color:#FF0000}.st-cost td{border-top:2px solid #333;font-weight:600}.st-sub{font-weight:400;font-size:8.5pt;color:#555}</style>' + tableHTML;
+        const styledHTML = '<style>table{max-width:680px;border-collapse:collapse;font-family:Arial,sans-serif;font-size:9.5pt;table-layout:fixed}th,td{padding:5px 8px;border-bottom:1px solid #E3DAD1;overflow:hidden}th{font-weight:700;border-bottom:2px solid #333;text-align:center}th:first-child,td:first-child{text-align:left;width:320px}td:not(:first-child){text-align:center}.st-cat td{font-weight:700}.st-check{color:#189663;font-weight:700}.st-ponts{color:#FF0000}.st-cost td{border-top:2px solid #333;font-weight:600}.st-sub{font-weight:400;font-size:8pt;color:#555}</style>' + tableHTML;
         try {
             await navigator.clipboard.write([
                 new ClipboardItem({
@@ -818,7 +820,7 @@ function setupExport() {
 
     document.getElementById('downloadHTML').addEventListener('click', function() {
         const tableEl = document.getElementById('summaryTable');
-        const htmlContent = '<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Tableau Variantes CECB</title><style>body{margin:20px;font-family:Arial,sans-serif}table{border-collapse:collapse;width:100%;font-size:9.5pt}th,td{padding:7px 10px;border-bottom:1px solid #E3DAD1;vertical-align:middle}th{font-weight:700;border-bottom:2px solid #333;text-align:center}th:first-child,td:first-child{text-align:left}td:not(:first-child){text-align:center}.st-cat td{font-weight:700;background:#fafafa}.st-check{color:#189663;font-weight:700;font-size:14px}.st-ponts{color:#FF0000}.st-cost td{border-top:2px solid #333;font-weight:600;background:#fafafa}.st-sub{font-weight:400;font-size:8.5pt;color:#555;display:block}</style></head><body>' + tableEl.outerHTML + '</body></html>';
+        const htmlContent = '<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Tableau Variantes CECB</title><style>body{margin:20px;font-family:Arial,sans-serif}table{max-width:680px;border-collapse:collapse;font-size:9.5pt;table-layout:fixed}th,td{padding:5px 8px;border-bottom:1px solid #E3DAD1;vertical-align:middle;overflow:hidden}th{font-weight:700;border-bottom:2px solid #333;text-align:center}th:first-child{text-align:left;width:320px}th:nth-child(2){width:70px}th:nth-child(n+3){width:80px}td:not(:first-child){text-align:center}.st-cat td{font-weight:700;background:#fafafa}.st-check{color:#189663;font-weight:700;font-size:14px}.st-ponts{color:#FF0000}.st-cost td{border-top:2px solid #333;font-weight:600;background:#fafafa}.st-sub{font-weight:400;font-size:8pt;color:#555;display:block}</style></head><body>' + tableEl.outerHTML + '</body></html>';
         const blob = new Blob([htmlContent], { type: 'text/html' });
         const link = document.createElement('a');
         link.download = 'tableau_variantes.html';
