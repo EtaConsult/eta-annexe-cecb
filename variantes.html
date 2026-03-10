@@ -340,6 +340,95 @@ const FRAMEWORK_LABELS = {
     conclusion: "Conclusion générale"
 };
 
+const TEXT_SHORT_LABELS = {
+    toits: [
+        "Isolation toiture, U ≤ 0,20 — subv. 50.-/m² (M01)",
+        "Isolation toiture, U ≤ 0,15 — subv. 80.-/m² (M01)",
+        "Aucune mesure (toits)"
+    ],
+    combles: [
+        "Isolation combles, U ≤ 0,25",
+        "Isolation combles, U ≤ 0,20",
+        "Isolation combles, U ≤ 0,15",
+        "Aucune mesure (combles)"
+    ],
+    facades: [
+        "Isolation façade, U ≤ 0,20 — subv. 50.-/m² (M01)",
+        "Isolation façade, U ≤ 0,15 — subv. 80.-/m² (M01)",
+        "Isolation façade, U ≤ 0,40 — non éligible subv.",
+        "Aucune mesure (façade)"
+    ],
+    murs_nc: [
+        "Isolation murs non chauffés, U ≤ 0,20",
+        "Isolation murs non chauffés, U ≤ 0,25",
+        "Aucune mesure (murs non chauffés)"
+    ],
+    fenetres: [
+        "Triple vitrage PVC, Ug=0.7 W/m²K",
+        "Aucune mesure (fenêtres)"
+    ],
+    sols_ext: [
+        "Isolation sols ext., U ≤ 0,15",
+        "Isolation sols ext., U ≤ 0,20",
+        "Aucune mesure (sols ext.)"
+    ],
+    sols_nc: [
+        "Isolation sol non chauffé, U ≤ 0,20",
+        "Isolation sol non chauffé, U ≤ 0,25",
+        "Aucune mesure (sol non chauffé)"
+    ],
+    sols_terrain: [
+        "Isolation sol terrain, U ≤ 0,25 — subv. 50.-/m² (M01)",
+        "Isolation sol terrain, U ≤ 0,15 — subv. 80.-/m² (M01)",
+        "Aucune mesure (sol terrain)"
+    ],
+    ponts: [
+        "Ponts thermiques pris en compte",
+        "Ponts thermiques négligeables"
+    ],
+    chauffage: [
+        "PAC air/eau centralisée",
+        "Raccordement au réseau CAD",
+        "Aucune mesure (recommandation remplacement)"
+    ],
+    ecs: [
+        "ECS couplée au nouveau chauffage",
+        "Aucune mesure (recommandation ECS)",
+        "Remplacement boiler élec. → couplage chauffage",
+        "Boiler PAC indépendant",
+        "Système solaire thermique appoint",
+        "Production ECS décentralisée",
+        "Séparation ECS / chauffage"
+    ],
+    distrib_chaleur: [
+        "Distribution hydraulique par radiateurs",
+        "Distribution hydraulique par chauffage au sol",
+        "Aucune mesure (vérification conduites)"
+    ],
+    distrib_ecs: [
+        "Aucune mesure (contrôle conduites ECS)"
+    ],
+    ventilation: [
+        "Aucune mesure (évaluation ventilation)",
+        "VMC simple flux avec récup. chaleur",
+        "VMC simple flux sans récup. chaleur",
+        "VMC double flux avec récup. chaleur",
+        "VMC double flux sans récup. chaleur",
+        "Ventilation naturelle améliorée (grilles)",
+        "VMC simple flux hygroréglable",
+        "Aération naturelle suffisante",
+        "Ventilation existante performante",
+        "Ventilation contrôlée imposée (étanchéité)"
+    ],
+    appareils_elec: [
+        "Aucune mesure (impact marginal)"
+    ],
+    photovoltaique: [
+        "Installation PV sur toiture rénovée",
+        "Aucune mesure (opportunité PV à envisager)"
+    ]
+};
+
 const ALL_ITEM_IDS = CATEGORIES.flatMap(c => c.items.map(i => i.id));
 
 /* ═══════════════════════════════════════════════════════
@@ -427,9 +516,11 @@ function renderMatrix() {
             html += '<tr class="item-row"><td>' + escapeHtml(item.label);
             html += '<select class="item-select" data-item="' + item.id + '">';
             const options = TEXT_LIBRARY[item.id];
+            const shortLabels = TEXT_SHORT_LABELS[item.id] || [];
             options.forEach(function(text, idx) {
                 const sel = state.selectedTexts[item.id] === idx ? ' selected' : '';
-                html += '<option value="' + idx + '"' + sel + '>' + escapeHtml(truncate(text, 90)) + '</option>';
+                const label = shortLabels[idx] || truncate(text, 90);
+                html += '<option value="' + idx + '"' + sel + '>' + escapeHtml(label) + '</option>';
             });
             const customSel = state.selectedTexts[item.id] === 'custom' ? ' selected' : '';
             html += '<option value="custom"' + customSel + '>Texte personnalisé...</option>';

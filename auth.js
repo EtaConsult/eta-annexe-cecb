@@ -35,8 +35,10 @@ async function initAdmin() {
     const users = getUsers();
     const admin = users.find(u => u.email === ADMIN_EMAIL);
     if (!admin) {
-        // Admin account is created without a password; admin must set it on first login
-        users.push({ email: ADMIN_EMAIL, passwordHash: '', isAdmin: true, name: 'Admin' });
+        users.push({ email: ADMIN_EMAIL, passwordHash: '', isAdmin: true, name: 'Gérard Merminod' });
+        saveUsers(users);
+    } else if (admin.name === 'Admin') {
+        admin.name = 'Gérard Merminod';
         saveUsers(users);
     }
 }
