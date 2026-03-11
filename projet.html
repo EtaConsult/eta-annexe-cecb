@@ -364,6 +364,21 @@
                 </div>
             </div>
 
+            <!-- E3. Ponts thermiques -->
+            <div class="recueil-section">
+                <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> E3. Ponts thermiques</h3></div>
+                <div class="section-body">
+                    <div class="form-row">
+                        <div class="form-group"><label>Ponts thermiques fenêtres</label><select id="pt-fenetres"><option value="">—</option><option value="oui">Oui — embrasures/linteaux/appuis</option><option value="non">Non</option></select></div>
+                    </div>
+                    <div class="btn-group"><button class="btn btn-primary btn-sm" onclick="generateSection('ponts-thermiques')">Générer le texte</button></div>
+                    <div class="section-output" id="output-ponts-thermiques" style="display:none">
+                        <div class="output-field"><label>État initial <span class="char-counter" id="cc-ponts-thermiques-ei"></span></label><textarea id="gen-ponts-thermiques-ei" class="gen-textarea" oninput="onGenTextChange(this)"></textarea><div class="output-field-btns"><button class="btn btn-sm btn-success" onclick="recueilCopyField('gen-ponts-thermiques-ei')">Copier</button><button class="btn btn-sm btn-warning" onclick="enhanceField('gen-ponts-thermiques-ei','Ponts th. — EI')">Enhance</button></div></div>
+                        <div class="output-field"><label>Améliorations <span class="char-counter" id="cc-ponts-thermiques-ap"></span></label><textarea id="gen-ponts-thermiques-ap" class="gen-textarea" oninput="onGenTextChange(this)"></textarea><div class="output-field-btns"><button class="btn btn-sm btn-success" onclick="recueilCopyField('gen-ponts-thermiques-ap')">Copier</button><button class="btn btn-sm btn-warning" onclick="enhanceField('gen-ponts-thermiques-ap','Ponts th. — AP')">Enhance</button></div></div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Save + Export -->
             <div class="btn-group" style="justify-content:center;padding:15px">
                 <button class="btn btn-success" onclick="recueilCopyAll()">Tout copier</button>

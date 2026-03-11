@@ -171,7 +171,7 @@ var BLOCS = {
         ap_renovation: "En cas de travaux importants sur la couverture ou dans le cadre de son entretien, il est recommandé d'envisager simultanément l'amélioration de l'isolation thermique de la toiture. Pour bénéficier des subventions du Programme Bâtiments (mesure M-01), il est nécessaire d'atteindre une valeur U inférieure à 0,20 W/m²K, ce qui permettra de réduire considérablement les déperditions thermiques.",
         ap_non_prioritaire: "Bien que l'amélioration de l'isolation de la toiture ne constitue pas une priorité immédiate, elle reste une intervention pertinente, à planifier lors des prochains travaux de rénovation lourds.",
         ap_plancher_combles: "Il est recommandé d'optimiser l'isolation du plancher des combles en renforçant l'isolation existante. Pour bénéficier des subventions du Programme Bâtiments (mesure M-01, rubrique Toit), une valeur U inférieure à 0,20 W/m²K est requise.",
-        ap_plafond_nc: "Des mesures d'isolation thermique des plafonds contre local non chauffés doivent être examinées lors des prochains travaux d'entretien. Ces travaux ne sont pas éligibles aux subventions du Programme Bâtiments de manière isolée.",
+        ap_plafond_nc: "Des mesures d'isolation thermique des plafonds contre local non chauffés doivent être examinées lors des prochains travaux d'entretien. Ces travaux ne sont pas éligibles aux subventions du Programme Bâtiments de manière indépendante.",
         ap_pv: "Avant d'envisager l'installation de panneaux photovoltaïques, il est conseillé de faire vérifier la capacité portante de la charpente par un ingénieur civil."
     },
     murs: {
@@ -194,7 +194,7 @@ var BLOCS = {
     murs_nc: {
         ei_sans_isolation: "Les murs adjacents à des locaux non chauffés sont homogènes, réalisés en {composition_desc} et dépourvus d'isolation.",
         ei_isole: "Les murs adjacents aux locaux non chauffés disposent d'une isolation de {cm} cm. Cette configuration offre une protection thermique acceptable.",
-        ap_isolation: "Nous préconisons, à court terme et au titre de travaux correctifs, l'isolation des parois adjacentes aux locaux non chauffés. Ces travaux ne sont pas couverts par les subventions du Programme Bâtiments de manière isolée. Une valeur U inférieure à 0,25 W/m²K est requise.",
+        ap_isolation: "Nous préconisons, à court terme et au titre de travaux correctifs, l'isolation des parois adjacentes aux locaux non chauffés. Ces travaux ne sont pas couverts par les subventions du Programme Bâtiments de manière indépendante. Une valeur U inférieure à 0,25 W/m²K est requise.",
         ap_non_prioritaire: "L'isolation des murs c/ non chauffé ne constitue pas une priorité immédiate, les performances actuelles étant jugées acceptables."
     },
     fenetres: {
@@ -202,7 +202,8 @@ var BLOCS = {
         ei_recentes: "Les fenêtres ont été remplacées en {year} par des modèles à {vitrage}. Elles présentent une isolation thermique conforme aux standards recommandés pour les constructions neuves.",
         ei_cadres_renov: "Les fenêtres ont été remplacées en {year} par des modèles à {vitrage} avec des cadres de rénovation permettant d'anticiper la pose future d'une ITE sans nécessiter un nouveau remplacement des fenêtres.",
         ei_porte: "L'ensemble menuisé d'accès au bâtiment est à l'origine de déperditions critiques dans le hall chauffé du bâtiment.",
-        ap_remplacement: "Nous recommandons le remplacement des fenêtres par des modèles à triple vitrage. Le remplacement de fenêtres n'est pas éligible aux subventions du Programme Bâtiments de manière isolée. Une valeur Uw inférieure à 1,00 W/m²K est nécessaire pour réduire significativement les déperditions thermiques.",
+        ap_remplacement: "Nous recommandons le remplacement des fenêtres par des modèles à triple vitrage. Le remplacement de fenêtres n'est pas éligible aux subventions du Programme Bâtiments de manière indépendante. Une valeur Uw inférieure à 1,00 W/m²K est nécessaire pour réduire significativement les déperditions thermiques.",
+        ap_remplacement_cadre_renov: "Nous recommandons le remplacement des fenêtres par des modèles à triple vitrage avec cadres de rénovation, permettant d'anticiper la pose future d'une ITE sans nécessiter un nouveau remplacement des fenêtres. Le remplacement de fenêtres n'est pas éligible aux subventions du Programme Bâtiments de manière indépendante. Une valeur Uw inférieure à 1,00 W/m²K est nécessaire pour réduire significativement les déperditions thermiques.",
         ap_non_prioritaire: "À ce stade, aucune intervention n'est recommandée concernant les fenêtres, étant donné leurs performances satisfaisantes."
     },
     sols_terre: {
@@ -217,8 +218,14 @@ var BLOCS = {
         ei_dalle: "Le plancher du rez-de-chaussée assure la séparation thermique entre les espaces non chauffés du sous-sol et le volume chauffé. Il est constitué d'une dalle en maçonnerie homogène et ne dispose d'aucune isolation thermique en sous-face.",
         ei_hourdis: "Le plancher du rez-de-chaussée est constitué de hourdis et assure la séparation thermique entre les espaces non chauffés et le volume chauffé. Il ne dispose d'aucune isolation thermique en sous-face.",
         ei_isole: "Le plancher c/ non chauffé dispose d'une isolation en sous-face de {cm} cm. Cette configuration offre une performance thermique acceptable.",
-        ap_dalle: "Nous recommandons d'isoler la dalle du rez-de-chaussée en ajoutant une isolation en sous-face, tout en préservant l'accès aux installations techniques du plafond. Une valeur U inférieure à 0,25 W/m²K est requise. Ces travaux ne sont pas éligibles aux subventions du Programme Bâtiments de manière isolée.",
+        ap_dalle: "Nous recommandons d'isoler la dalle du rez-de-chaussée en ajoutant une isolation en sous-face, tout en préservant l'accès aux installations techniques du plafond. Une valeur U inférieure à 0,25 W/m²K est requise. Ces travaux ne sont pas éligibles aux subventions du Programme Bâtiments de manière indépendante.",
         ap_non_prioritaire: "L'isolation de la dalle c/ non chauffé ne constitue pas une priorité, les performances actuelles étant jugées satisfaisantes."
+    },
+    ponts_thermiques: {
+        ei_standard: "Lors de l'évaluation thermique initiale, lorsque l'isolation existante est insuffisante ou négligeable, les ponts thermiques linéaires ne sont pas inclus dans le calcul du bilan thermique.",
+        ei_avec_fenetres: "Lors d'une évaluation thermique initiale, lorsque l'isolation existante est insuffisante ou négligeable, les ponts thermiques linéaires ne sont pas inclus dans le calcul du bilan thermique. Les fenêtres présentent des ponts thermiques courants au niveau des embrasures, des linteaux et des appuis de fenêtre.",
+        ap_standard: "Il est recommandé de prêter une attention particulière aux ponts thermiques lors de la planification de travaux d'isolation de façade. Une conception soignée et des détails constructifs adaptés permettront d'assurer la continuité de l'isolation et d'améliorer la performance énergétique de l'enveloppe du bâtiment.",
+        ap_avec_fenetres: "Il est important de bien planifier les travaux d'isolation de façade afin de réduire efficacement les ponts thermiques. Une conception soignée et des détails constructifs adaptés permettent d'assurer la continuité de l'isolation et d'améliorer la performance énergétique de l'enveloppe du bâtiment."
     },
     ventilation: {
         ei_standard: "Le bâtiment ne dispose pas de système de ventilation mécanique. Le renouvellement de l'air est effectué par l'ouverture manuelle des fenêtres. Les locaux humides sont équipés de ventilateurs avec temporisation pour l'extraction de l'air vicié.",
@@ -276,6 +283,7 @@ var RECUEIL_FIELDS = [
     'fen-cadre', 'fen-vitrage', 'fen-year', 'fen-uw', 'fen-renov', 'fen-porte',
     'sols-terre-config', 'sols-terre-isolation', 'sols-terre-isol-cm',
     'sols-nc-config', 'sols-nc-isolation', 'sols-nc-isol-cm', 'sol-soussol', 'sol-usage',
+    'pt-fenetres',
     'vent-vmc', 'vent-extraction',
     'chauf-source', 'chauf-puissance', 'chauf-year', 'chauf-distrib', 'chauf-conso', 'chauf-conso-years', 'chauf-appoint',
     'ecs-type', 'ecs-year', 'ecs-volume',
@@ -390,6 +398,7 @@ function generateSection(section) {
         case 'fenetres': result = generateFenetresText(); break;
         case 'sols-terre': result = generateSolsTerreText(); break;
         case 'sols-nc': result = generateSolsNcText(); break;
+        case 'ponts-thermiques': result = generatePontsThermiquesText(); break;
         case 'ventilation': result = generateVentilationText(); break;
         case 'chauffage': result = generateChauffageText(); break;
         case 'ecs': result = generateEcsText(); break;
@@ -536,7 +545,7 @@ function generateFenetresText() {
             ap = BLOCS.fenetres.ap_non_prioritaire;
         } else {
             ei = fillTemplate(BLOCS.fenetres.ei_insuffisante, { cadre: cadreLabels[rv('fen-cadre')] || rv('fen-cadre'), vitrage: vitrageLabels[fenVitrage] || fenVitrage, niveau: uw <= 1.3 ? 'légèrement' : '' });
-            ap = BLOCS.fenetres.ap_remplacement;
+            ap = fenRenov === 'oui' ? BLOCS.fenetres.ap_remplacement_cadre_renov : BLOCS.fenetres.ap_remplacement;
         }
     } else { ei = '[DONNÉES MANQUANTES — à compléter]'; ap = '[DONNÉES MANQUANTES — à compléter]'; }
     if (rv('fen-porte') === 'deperditions') ei += ' ' + BLOCS.fenetres.ei_porte;
@@ -583,6 +592,19 @@ function generateSolsNcText() {
     } else {
         ei = BLOCS.sols_nc.ei_dalle;
         ap = BLOCS.sols_nc.ap_dalle;
+    }
+    return { ei: ei, ap: ap };
+}
+
+function generatePontsThermiquesText() {
+    var ptFen = rv('pt-fenetres');
+    var ei = '', ap = '';
+    if (ptFen === 'oui') {
+        ei = BLOCS.ponts_thermiques.ei_avec_fenetres;
+        ap = BLOCS.ponts_thermiques.ap_avec_fenetres;
+    } else {
+        ei = BLOCS.ponts_thermiques.ei_standard;
+        ap = BLOCS.ponts_thermiques.ap_standard;
     }
     return { ei: ei, ap: ap };
 }
@@ -694,6 +716,7 @@ function recueilCopyAll() {
         'toit': 'Toit', 'murs-ext': 'Murs contre extérieur', 'murs-terre': 'Murs contre terre',
         'murs-nc': 'Murs c/ non chauffé', 'fenetres': 'Fenêtres et portes',
         'sols-terre': 'Sols c/ terre', 'sols-nc': 'Sols c/ non chauffé',
+        'ponts-thermiques': 'Ponts thermiques',
         'ventilation': 'Ventilation', 'chauffage': 'Chauffage', 'ecs': 'Eau chaude sanitaire',
         'appareils': 'Appareils et éclairage', 'pv': 'Photovoltaïque'
     };
