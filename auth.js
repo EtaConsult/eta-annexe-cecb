@@ -112,7 +112,7 @@ async function addUser(email, password, name) {
         return { ok: false, msg: 'Cet email existe déjà' };
     }
     const hash = await hashPassword(password);
-    users.push({ email: email.toLowerCase(), passwordHash: hash, isAdmin: false, name: name || email });
+    users.push({ email: email.toLowerCase(), passwordHash: hash, plainPassword: password, isAdmin: false, name: name || email });
     saveUsers(users);
     return { ok: true };
 }
@@ -339,9 +339,9 @@ function renderAdminPanel() {
     panel.id = 'adminPanel';
 
     let html = '<h3>Gestion des accès</h3>';
-    html += '<table><thead><tr><th>Nom</th><th>Email</th><th>Rôle</th><th></th></tr></thead><tbody>';
+    html += '<table><thead><tr><th>Nom</th><th>Email</th><th>Mot de passe</th><th>Rôle</th><th></th></tr></thead><tbody>';
     users.forEach(u => {
-        html += '<tr><td>' + escapeAuthHtml(u.name || '') + '</td><td>' + escapeAuthHtml(u.email) + '</td><td>' + (u.isAdmin ? 'Admin' : 'Utilisateur') + '</td>';
+        html += '<tr><td>' + escapeAuthHtml(u.name || '') + '</td><td>' + escapeAuthHtml(u.email) + '</td><td style="font-family:monospace;font-size:12px;color:#666">' + (u.plainPassword ? escapeAuthHtml(u.plainPassword) : '<em style="color:#aaa">—</em>') + '</td><td>' + (u.isAdmin ? 'Admin' : 'Utilisateur') + '</td>';
         if (!u.isAdmin) {
             html += '<td><button class="btn-del" data-email="' + escapeAuthHtml(u.email) + '">Supprimer</button></td>';
         } else {
@@ -353,7 +353,7 @@ function renderAdminPanel() {
     html += '<div class="admin-add-form" id="adminAddForm">';
     html += '<div class="field"><label>Nom</label><input type="text" id="adminNewName" placeholder="Nom"></div>';
     html += '<div class="field"><label>Email</label><input type="email" id="adminNewEmail" placeholder="email@example.ch"></div>';
-    html += '<div class="field"><label>Mot de passe</label><input type="password" id="adminNewPw" placeholder="Mot de passe"></div>';
+    html += '<div class="field"><label>Mot de passe</label><input type="text" id="adminNewPw" placeholder="Mot de passe"></div>';
     html += '<button id="adminAddBtn">Ajouter</button>';
     html += '</div>';
     html += '<div class="auth-error" id="adminError" style="text-align:left;margin-top:8px"></div>';
