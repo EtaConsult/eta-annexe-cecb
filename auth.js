@@ -176,7 +176,7 @@ function showLoginModal() {
     overlay.id = 'authOverlay';
     overlay.innerHTML = `
         <div class="auth-box">
-            <h2>CECB Plus — Connexion</h2>
+            <h2>Assistant CECB — Connexion</h2>
             <div id="authLoginForm">
                 <div class="auth-field">
                     <label>Email</label>
