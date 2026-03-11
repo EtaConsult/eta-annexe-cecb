@@ -1,43 +1,128 @@
 ================================================================================
-  CECB PLUS — Assistant CECB (202603_Assistant CECB)
+  CECB PLUS — Assistant CECB (Architecture projet-centree)
 ================================================================================
 
 OBJECTIF
 --------
-Application web multi-pages pour l'assistance a la redaction de rapports CECB
-(Certificat Energetique Cantonal des Batiments). L'application regroupe trois
-outils complementaires : generation d'annexes photos PDF, generation automatique
-de textes descriptifs, et configuration de variantes d'assainissement.
+Application web projet-centree pour l'assistance a la redaction de rapports CECB
+(Certificat Energetique Cantonal des Batiments). L'application regroupe quatre
+outils complementaires dans un espace de travail unifie par projet :
+texte CECB, annexe photos, variantes d'assainissement, et textes CECB (ancienne version).
+
+ARCHITECTURE
+------------
+Deux pages principales :
+  accueil.html — Creation/gestion de projets par adresse (recherche Swisstopo)
+  projet.html  — Espace de travail par projet avec 4 onglets
+
+Flux utilisateur :
+  1. Connexion (auth.js) — option "Rester connecte" (localStorage persistent)
+  2. Accueil : rechercher une adresse -> creer un projet
+  3. Projet : naviguer entre les 4 onglets (Texte CECB, Photos, Variantes, Textes)
+  4. Donnees sauvegardees automatiquement par projet
 
 PAGES
 -----
-1. Annexe Photos (index.html)
-   - Import de photos par glisser-deposer ou selection de fichiers
-   - Reorganisation des photos par glisser-deposer
-   - Ajout de legendes sous chaque photo
-   - Suppression individuelle de photos
-   - Generation d'un PDF A4 avec mise en page automatique (2 colonnes x 3 lignes)
-   - Sauvegarde de projets en local (IndexedDB) pour modifications ulterieures
-   - Le PDF produit affiche "D.1 Photo : [Nom du projet]"
+1. Accueil (accueil.html)
+   - Barre auth avec gestion utilisateurs
+   - Recherche adresse via API Swisstopo (SearchServer, Height, RegBL find)
+   - Auto-remplissage depuis RegBL : EGID, annee, commune, canton, type SIA,
+     etages (gastw), logements (ganzwhg), altitude
+   - Types SIA : 1020 (individuel), 1025 (collectif), 1030-1120 (autres)
+   - Stockage des coordonnees LV95 (easting/northing) depuis Swisstopo
+   - Creation de projet avec toutes les metadonnees adresse
+   - Liste des projets par utilisateur avec options ouvrir/supprimer
+   - Parametres API Claude (cle + modele) — visible uniquement pour les admins
 
-2. Textes CECB (textes.html)
-   - Generation automatique de textes descriptifs pour les rapports CECB
-   - Charge des bibliotheques JSON par categorie CECB (batiment, toiture,
-     facade, fenetres, sols, chauffage, ECS, electricite, photos)
-   - Onglets groupes : "Enveloppe du batiment" et "Technique du batiment"
-   - Pour chaque categorie : formulaire parametres (select/text/number)
-     avec sections "Etat initial" (vert) et "Ameliorations" (bleu)
-   - Assemblage automatique de texte via templates JSON avec placeholders
-   - Bouton copier + editeur libre pour modifications manuelles
-   - Port HTML/JS du generateur Streamlit Python (202602_Textes CECB Claude)
+2. Espace projet (projet.html)
+   - Barre navigation avec lien retour accueil
+   - Barre info projet (nom, canton)
+   - 4 onglets avec initialisation paresseuse (lazy init)
 
-3. Variantes (variantes.html)
-   - Matrice de selection pour 3 variantes d'assainissement energetique
-   - Textes-cadre editables pour le rapport (introduction, conclusions)
-   - Bibliotheque de textes pour chaque poste (toiture, facade, etc.)
-   - Apercu en temps reel par variante et rapport complet
-   - Tableau recapitulatif exportable (copie Word, PNG, HTML)
-   - Sauvegarde automatique en localStorage
+   Onglet 1 : Texte CECB (recueil.js)
+     - 3 sous-onglets : Enveloppe / Technique / Subventions PB
+     - Sous-onglet Enveloppe :
+       A. Donnees du batiment (adresse, canton, commune, EGID, annee,
+          type SIA, SRE, altitude, etages, logements, coordonnees E/N LV95)
+       Donnees RegBL — Logements (visible uniquement pour SIA 1020/1025,
+          fetch async depuis Swisstopo RegBL API, affiche ganzwhg + wazim1-6)
+       B. Toit (config, type, annee, isolation avec epaisseur+materiau, etat, PV)
+       C. Murs contre exterieur (composition, revetement, annee, isolation, etat)
+       C2. Murs contre terre (type, isolation, etat)
+       C3. Murs c/ non chauffe (type, isolation, etat)
+       D. Fenetres (type, vitrage, annee, etat, store)
+       E. Sols c/ terre (config, isolation, etat)
+       E2. Sols c/ non chauffe (config, isolation, etat)
+     - Sous-onglet Technique :
+       F. Ventilation (type, recup chaleur)
+       G. Chauffage (source, distribution, regulation, appoint, conso)
+       H. Eau chaude sanitaire (source, type, solaire)
+       I. Appareils electriques (electromenager, eclairage)
+       J. Photovoltaique (existant, puissance, batterie)
+     - Sous-onglet Subventions PB :
+       Lien vers francsenergie.ch/fr
+       Recapitulatif des subventions Programme Batiments (calcul auto)
+     - Bouton "Importer transcript Plaud" (toggle panel)
+     - Generation de texte par section : bouton "Generer le texte" par section
+     - Sortie inline avec deux textareas : Etat Initial + Ameliorations
+     - Compteur de caracteres par textarea
+     - Bouton "Copier" + "Enhance" (API Claude) + "Annuler" par textarea
+     - Bouton "Sauvegarder le projet" sur chaque sous-onglet
+     - Moteur BLOCS avec templates et placeholders {year}, {isolation_desc}, etc.
+     - 12 generateurs de section : generateToitText, generateMursExtText,
+       generateMursTerreText, generateMursNcText, generateFenetresText,
+       generateSolsTerreText, generateSolsNcText, generateVentilationText,
+       generateChauffageText, generateEcsText, generateAppareilsText, generatePvText
+     - enhanceField() : reecriture factuelle (Claude API), supprime les marqueurs
+       [a completer], bouton Annuler pour revenir au texte initial
+     - enrichField() : enrichissement IA avec instruction custom (Claude API)
+     - Export PDF du recueil
+
+   Onglet 2 : Annexe Photos (photos.js)
+     - Import de photos par glisser-deposer ou selection de fichiers
+     - Reorganisation des photos par glisser-deposer
+     - Ajout de legendes sous chaque photo
+     - Suppression individuelle de photos
+     - Generation d'un PDF A4 (2 colonnes x 3 lignes)
+     - Nom du projet automatique depuis ProjectStore
+     - Bouton "Sauvegarder le projet"
+
+   Onglet 3 : Variantes (variantes.js)
+     - Matrice de selection pour 3 variantes d'assainissement energetique
+     - Textes-cadre editables (introduction, conclusions, description)
+     - Bibliotheque de textes pour chaque poste (toiture, facade, fenetres, etc.)
+     - Apercu en temps reel par variante et rapport complet
+     - Tableau recapitulatif exportable (copie Word, PNG, HTML)
+
+   Onglet 4 : Textes (ancienne version) (textes.js)
+     - Charge des bibliotheques JSON par categorie CECB
+     - Onglets groupes : "Enveloppe du batiment" et "Technique du batiment"
+     - Pour chaque categorie : formulaire parametres avec sections EI et AM
+     - Assemblage automatique de texte via templates JSON avec placeholders
+     - Bouton copier + editeur libre
+
+MODELE DE DONNEES
+-----------------
+localStorage key: "cecb-projects"
+Chaque projet contient :
+  - id, name, userId, created, updated
+  - address: { label, egid, year, altitude, commune, canton, type, floors,
+    dwellings, coords: {easting, northing} }
+  - recueil: { formData, generatedTexts, transcript }
+  - variantes: { variantNames, variantCosts, checks, selectedTexts, customTexts, frameworkTexts }
+  - textes: { valeurs, textesGeneres }
+
+IndexedDB: "cecb-photos-db" / store "photos"
+  - Cle: projectId -> tableau de photos [{src, caption}]
+
+PERSISTANCE
+-----------
+- Auto-save debounce (2-3s) sur chaque onglet via ProjectStore
+- Photos en IndexedDB (trop volumineuses pour localStorage)
+- Cle API Anthropic en localStorage separement (pas par projet)
+- Bibliotheques JSON chargees a la demande
+- Textes generes sauvegardes par ID de textarea (gen-toit-ei, gen-toit-ap, etc.)
+- Session auth : sessionStorage (defaut) ou localStorage ("Rester connecte")
 
 DESIGN SYSTEM
 -------------
@@ -45,24 +130,29 @@ DESIGN SYSTEM
 - Palette : Slate (#0F172A, #1E293B, #334155) / Emerald (#059669, #10B981)
 - Navigation sombre avec accent vert emeraude
 - Cards avec border-radius 10-12px et shadows subtiles
-- Texte assemble EI : fond vert gradient (ECFDF5 -> D1FAE5)
-- Texte assemble AM : fond bleu gradient (EFF6FF -> DBEAFE)
-- Editeur manuel : fond jaune pale (FEFCE8) avec bordure dashed
+- Recueil / Texte CECB : palette verte foret (#2c5f2d / #4a8b4c / #97bc62)
+- Section-output : fond blanc avec bordure verte gauche
+- Textareas generees (.gen-textarea) : min-height 120px, resize vertical
+- Char counters (.char-counter) : affichage "X car." en gris
 
 AUTHENTIFICATION
 ----------------
 Systeme d'authentification par token GitHub (auth.js) :
 - Connexion via GitHub API avec gestion de tokens
+- Mots de passe hashes en SHA-256
+- Option "Rester connecte" : session persistante via localStorage
 - Panel admin pour gestion des utilisateurs autorises
+- Bouton "Parametres API Claude" visible uniquement pour les admins
 - Barre utilisateur dans la navigation
+- Bypass test : sessionStorage.setItem('cecb-user', JSON.stringify({username:'test@eta.ch',role:'admin',isAdmin:true}))
 
 COMPRESSION DES IMAGES (Photos)
 ---------------------------------
 - Stockage (IndexedDB) : redimensionnement max 800px, qualite JPEG 65%
 - Export PDF : redimensionnement max 600px, qualite JPEG 50%
 
-BIBLIOTHEQUE JSON (Textes)
----------------------------
+BIBLIOTHEQUE JSON (Textes ancienne version)
+--------------------------------------------
 Dossier bibliotheque/ contenant les fichiers JSON par categorie :
   batiment.json, tcext.json, mcext.json, fen.json, asols.json,
   chauffage.json, ecs.json, elec.json, photo.json, variantes.json
@@ -73,29 +163,92 @@ Chaque fichier JSON contient :
   - ameliorations : { template, parametres[], prompt_ai }
   - Chaque parametre : { id, nom, type, options[], position }
 
+BLOCS TEXTE (recueil.js — Texte CECB)
+---------------------------------------
+Templates de texte integres dans recueil.js via l'objet BLOCS :
+  toit: ei_inclinee (avec {isolation_detail} pour materiau+epaisseur),
+        ei_plate_renovee, ei_vieillissante, ei_plancher_combles,
+        ei_plafond_nc, ap_renovation, ap_plancher_combles, ap_plafond_nc,
+        ap_non_prioritaire, ap_pv
+  murs: ei_sans_isolation, ei_double_paroi, ei_ite, ei_ossature, ei_moellons,
+        ei_mitoyen, ap_ite, ap_sondage
+  murs_terre: ei_sans_isolation, ei_isole_interieur, ei_isole_perimetrique,
+              ap_isolation, ap_non_prioritaire
+  murs_nc: ei_sans_isolation, ei_isole, ap_isolation, ap_non_prioritaire
+  fenetres: ei_insuffisante, ei_recentes, ei_cadres_renov, ei_porte,
+            ap_remplacement, ap_non_prioritaire
+  sols_terre: ei_radier, ei_terre_plein, ei_isole, ap_radier, ap_terre_plein,
+              ap_non_prioritaire
+  sols_nc: ei_dalle, ei_hourdis, ei_isole, ap_dalle, ap_non_prioritaire
+  ventilation: ei_naturelle, ei_mecanique, ei_double_flux, ap_double_flux,
+               ap_non_prioritaire
+  chauffage: ei_mazout, ei_gaz, ei_pac, ei_bois, ei_elec_direct, ap_pac,
+             ap_bois, ap_reseau, ap_non_prioritaire
+  ecs: ei_combinee, ei_electrique, ei_solaire, ap_pac, ap_solaire, ap_non_prioritaire
+  appareils: ei_standard, ei_recent, ap_led, ap_classe_a, ap_non_prioritaire
+  pv: ei_existant, ei_absent, ap_installation, ap_extension, ap_non_prioritaire
+
+LOGIQUE DE GENERATION
+---------------------
+- Annee par defaut : chaque section enveloppe utilise l'annee de renovation du
+  composant si renseignee, sinon l'annee de construction du batiment (meta-year)
+  provenant du RegBL ou saisie manuellement.
+  Ex: toitYear = rv('toit-year') || rv('meta-year')
+  Ex: fenYear = rv('fen-year') || rv('meta-year')
+  Ex: mursYear = rv('murs-year') || rv('meta-year')
+- Enhance (enhanceField) : correction grammaticale/orthographique + fluidite legere
+  Prompt : "Corrige uniquement grammaire, orthographe, ponctuation. Ameliore legerement
+  la fluidite mais ne reformule PAS et n'ajoute AUCUN mot/expression.
+  Interdit : 'nous constatons', 'nous observons', 'il est a noter', etc.
+  Supprime les passages [a completer]. Texte doit rester proche de l'original."
+  Apres enhance : bouton "Annuler" pour restaurer le texte initial.
+
+API EXTERNES
+------------
+- Swisstopo SearchServer : recherche d'adresses suisses
+  URL: api3.geo.admin.ch/rest/services/api/SearchServer
+- Swisstopo Height API : altitude a partir de coordonnees
+  URL: api3.geo.admin.ch/rest/services/height
+- Swisstopo RegBL (find) : donnees batiment (EGID, annee, type, etages, logements)
+  URL: api3.geo.admin.ch/rest/services/api/MapServer/find
+  Parametres: layer=ch.bfs.gebaeude_wohnungs_register&searchField=strname_deinr
+  Filtrage par NPA (dplz4) et nom de rue exact
+  Champs: egid, gbauj, gastw, ganzwhg, ggdename, gdekt, gkat
+  Note: attrs.y = easting (E), attrs.x = northing (N) dans SearchServer
+- Anthropic Claude API : reecriture de textes et analyse de transcripts
+  Header requis: anthropic-dangerous-direct-browser-access: true
+
 TECHNOLOGIES
 ------------
 - HTML5 / CSS3 / JavaScript (vanilla, aucun framework)
 - jsPDF 2.5.1 (via CDN) pour la generation PDF
 - html2canvas (via CDN) pour l'export PNG du tableau
 - IndexedDB pour la persistance locale (photos)
-- localStorage pour la persistance locale (variantes)
+- localStorage pour la persistance locale (projets, variantes, textes)
 - Google Fonts (Urbanist)
-- GitHub Pages pour l'hebergement en ligne
 
 STRUCTURE DES FICHIERS
 ----------------------
-index.html       — Page Annexe Photos
-textes.html      — Page Textes CECB
-textes.js        — Moteur de generation de textes CECB
-variantes.html   — Page Variantes d'assainissement
-style.css        — Styles partages (design system Urbanist)
-app.js           — Logique photos (import, gestion, PDF, persistance)
-auth.js          — Authentification GitHub
+accueil.html     — Page d'accueil (creation/gestion projets)
+projet.html      — Espace de travail projet (4 onglets)
+style.css        — Design system partage (Urbanist, Slate/Emerald)
+project-store.js — Couche de persistance unifiee (CRUD projets + IndexedDB photos)
+auth.js          — Authentification GitHub + session persistante
+recueil.js       — Logique Texte CECB (12 sections, generation, IA, subventions)
+photos.js        — Logique annexe photos (import, gestion, PDF)
+variantes.js     — Logique variantes (matrice, textes-cadre, apercu, tableau)
+textes.js        — Moteur de generation de textes CECB par categorie (ancienne version)
 bibliotheque/    — Fichiers JSON des categories CECB
 prompt.txt       — Ce fichier (documentation)
 
-HEBERGEMENT
------------
-- Local : ouvrir index.html dans Chrome ou lancer un serveur local
-- En ligne : GitHub Pages via https://etaconsult.github.io/eta-annexe-cecb/
+Fichiers anciens (standalone, remplaces par projet.html) :
+  index.html       — Ancienne page Annexe Photos standalone
+  app.js           — Ancienne logique photos standalone
+  textes.html      — Ancienne page Textes CECB standalone
+  variantes.html   — Ancienne page Variantes standalone
+
+SERVEUR LOCAL
+-------------
+Lancement : python -m http.server 8080 --directory "202601_Annexe photo CECB final"
+URL : http://localhost:8080/accueil.html
+Raccourci Bureau : "CECB Plus.bat" (tue les anciens serveurs, lance, ouvre navigateur)

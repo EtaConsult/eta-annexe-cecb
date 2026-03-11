@@ -47,18 +47,26 @@ async function initAdmin() {
 
 function getSession() {
     try {
-        return JSON.parse(sessionStorage.getItem(AUTH_SESSION_KEY));
+        // Check sessionStorage first, then localStorage (rester connecté)
+        var s = sessionStorage.getItem(AUTH_SESSION_KEY);
+        if (!s) s = localStorage.getItem(AUTH_SESSION_KEY);
+        return s ? JSON.parse(s) : null;
     } catch (e) {
         return null;
     }
 }
 
-function setSession(user) {
-    sessionStorage.setItem(AUTH_SESSION_KEY, JSON.stringify({ email: user.email, isAdmin: user.isAdmin, name: user.name }));
+function setSession(user, persistent) {
+    var data = JSON.stringify({ email: user.email, isAdmin: user.isAdmin, name: user.name });
+    sessionStorage.setItem(AUTH_SESSION_KEY, data);
+    if (persistent) {
+        localStorage.setItem(AUTH_SESSION_KEY, data);
+    }
 }
 
 function clearSession() {
     sessionStorage.removeItem(AUTH_SESSION_KEY);
+    localStorage.removeItem(AUTH_SESSION_KEY);
 }
 
 function isLoggedIn() {
@@ -72,7 +80,7 @@ function isAdmin() {
 
 /* ─── Auth Actions ────────────────────────────────────── */
 
-async function login(email, password) {
+async function login(email, password, persistent) {
     const users = getUsers();
     const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
     if (!user) return { ok: false, msg: 'Compte introuvable' };
@@ -85,7 +93,7 @@ async function login(email, password) {
     const hash = await hashPassword(password);
     if (hash !== user.passwordHash) return { ok: false, msg: 'Mot de passe incorrect' };
 
-    setSession(user);
+    setSession(user, persistent);
     return { ok: true };
 }
 
@@ -176,6 +184,10 @@ function showLoginModal() {
                     <label>Mot de passe</label>
                     <input type="password" id="authPassword" placeholder="Mot de passe" autocomplete="current-password">
                 </div>
+                <div style="display:flex;align-items:center;gap:6px;margin:8px 0 12px">
+                    <input type="checkbox" id="authRemember" style="margin:0;width:16px;height:16px;accent-color:#10B981">
+                    <label for="authRemember" style="font-size:13px;color:#64748B;cursor:pointer;user-select:none">Rester connecté</label>
+                </div>
                 <button class="auth-btn" id="authLoginBtn">Se connecter</button>
                 <div class="auth-error" id="authError"></div>
             </div>
@@ -228,7 +240,8 @@ async function handleLogin() {
         return;
     }
 
-    const result = await login(email, password);
+    const persistent = document.getElementById('authRemember').checked;
+    const result = await login(email, password, persistent);
     if (result.ok) {
         document.getElementById('authOverlay').remove();
         onAuthSuccess();

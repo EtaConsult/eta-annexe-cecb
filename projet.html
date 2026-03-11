@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CECB Plus — Projet</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+/* ─── Recueil-specific styles (from cecb_generator) ───── */
+:root{--r-primary:#2c5f2d;--r-primary-light:#4a8b4c;--r-secondary:#97bc62;--r-border:#ddd;--r-grey:#888;--r-danger:#c0392b;--r-warning:#e67e22;--r-success:#27ae60;--r-info:#2980b9;--r-radius:8px}
+.recueil-section{background:#fff;border:1px solid var(--r-border);border-radius:var(--r-radius);margin-bottom:12px;overflow:hidden}
+.recueil-section .section-header{display:flex;justify-content:space-between;align-items:center;padding:12px 15px;background:linear-gradient(135deg,var(--r-primary),var(--r-primary-light));color:#fff;cursor:pointer;user-select:none}
+.recueil-section .section-header h3{font-size:1em;display:flex;align-items:center;gap:8px;color:#fff;margin:0;border:none;padding:0}
+.recueil-section .section-header .toggle{transition:transform .3s;font-size:.8em}
+.recueil-section .section-header .toggle.collapsed{transform:rotate(-90deg)}
+.recueil-section .section-body{padding:15px;display:block}
+.recueil-section .section-body.collapsed{display:none}
+.form-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:12px}
+.form-group{display:flex;flex-direction:column;gap:4px}
+.form-group label{font-weight:600;font-size:.85em;color:var(--r-primary)}
+.form-group input,.form-group select,.form-group textarea{padding:8px 10px;border:1px solid var(--r-border);border-radius:4px;font-size:.9em;font-family:inherit;transition:border-color .2s}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--r-primary);box-shadow:0 0 0 2px rgba(44,95,45,.15)}
+.form-group textarea{resize:vertical;min-height:80px}
+.form-group .hint{font-size:.75em;color:var(--r-grey);font-style:italic}
+.life-indicator{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.75em;font-weight:600;margin-left:5px}
+.life-ok{background:#d4edda;color:#155724}.life-warn{background:#fff3cd;color:#856404}.life-expired{background:#f8d7da;color:#721c24}
+.btn{padding:8px 16px;border:none;border-radius:4px;cursor:pointer;font-weight:600;font-size:.85em;transition:.2s;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:var(--r-primary);color:#fff}.btn-primary:hover{background:var(--r-primary-light)}
+.btn-secondary{background:#6c757d;color:#fff}.btn-secondary:hover{background:#5a6268}
+.btn-success{background:var(--r-success);color:#fff}.btn-warning{background:var(--r-warning);color:#fff}
+.btn-info{background:var(--r-info);color:#fff}.btn-danger{background:var(--r-danger);color:#fff}
+.btn-sm{padding:5px 10px;font-size:.8em}
+.btn-group{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.output-section{background:#fff;border:1px solid var(--r-border);border-radius:var(--r-radius);padding:15px;margin-bottom:12px}
+.output-section h4{color:var(--r-primary);margin-bottom:8px;font-size:.95em}
+.output-field{position:relative;margin-bottom:10px}
+.output-field label{display:block;font-weight:600;font-size:.82em;color:#555;margin-bottom:3px}
+.output-field textarea{width:100%;min-height:100px;padding:10px;border:1px solid var(--r-border);border-radius:4px;font-family:inherit;font-size:.9em;line-height:1.5;resize:vertical}
+.output-field-btns{display:flex;gap:6px;margin-top:4px;justify-content:flex-end}
+.subsidy-panel{background:#f0f8f0;border:2px solid var(--r-success);border-radius:var(--r-radius);padding:15px;margin-top:15px}
+.subsidy-panel h4{color:var(--r-success);margin-bottom:10px}
+.subsidy-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px dotted #ccc}
+.subsidy-row:last-child{border-bottom:none}
+.transcript-area{width:100%;min-height:150px;padding:10px;border:2px dashed var(--r-border);border-radius:var(--r-radius);font-family:inherit;font-size:.9em;resize:vertical}
+.transcript-area:focus{border-color:var(--r-primary)}
+.toast{position:fixed;bottom:20px;right:20px;padding:12px 20px;border-radius:var(--r-radius);color:#fff;font-weight:500;z-index:2000;animation:slideIn .3s ease}
+.toast-success{background:var(--r-success)}.toast-error{background:var(--r-danger)}.toast-info{background:var(--r-info)}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* ─── Projet tabs ───────────────────────────────────── */
+#projet-tabs{display:flex;gap:0;background:linear-gradient(135deg,#1E293B 0%,#334155 100%);padding:0 24px}
+#projet-tabs .projet-tab{padding:12px 22px;font-size:14px;font-weight:600;color:rgba(255,255,255,.6);background:transparent;border:none;border-bottom:3px solid transparent;cursor:pointer;transition:all .2s;white-space:nowrap}
+#projet-tabs .projet-tab:hover{color:#fff;background:rgba(255,255,255,.06)}
+#projet-tabs .projet-tab.active{color:#fff;background:rgba(255,255,255,.08);border-bottom-color:#10B981}
+.projet-panel{display:none;padding:20px 24px 60px;max-width:1300px;margin:0 auto}
+.projet-panel.active{display:block}
+
+/* ─── Project info bar ─────────────────────────────── */
+.project-info-bar{background:#fff;border-bottom:1px solid #E2E8F0;padding:10px 24px;display:flex;align-items:center;gap:16px;font-size:13px;color:#64748B}
+.project-info-bar .project-title{font-weight:700;color:#1E293B;font-size:15px}
+.project-info-bar .project-meta-item{display:flex;align-items:center;gap:4px}
+
+/* ─── Recueil sub-tabs ─────────────────────────────── */
+#recueil-tabs{display:flex;gap:5px;margin-bottom:15px;border-bottom:2px solid var(--r-primary)}
+#recueil-tabs .tab{padding:10px 20px;cursor:pointer;border:1px solid var(--r-border);border-bottom:none;border-radius:var(--r-radius) var(--r-radius) 0 0;background:#e8e8e3;font-weight:500;transition:.2s}
+#recueil-tabs .tab.active{background:var(--r-primary);color:#fff}
+.recueil-tab-content{display:none}.recueil-tab-content.active{display:block}
+
+/* ─── Variantes in-projet overrides ────────────────── */
+.variantes-section{background:#fff;border-radius:10px;padding:20px 24px;margin-bottom:20px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.variant-config{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:8px}
+.variant-card{border:1px solid #e0e0e0;border-radius:8px;padding:14px;background:#fafafa}
+.variant-card h4{font-size:13px;color:#666;margin-bottom:6px}
+.variant-card input{width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:6px;font-size:14px}
+.variant-card input:focus{outline:none;border-color:#10B981}
+.matrix-wrap{overflow-x:auto}
+.matrix-table{width:100%;border-collapse:collapse;font-size:13px}
+.matrix-table th{background:#f5f5f5;padding:10px 8px;text-align:center;font-weight:700;border-bottom:2px solid #333;font-size:12px}
+.matrix-table th:first-child{text-align:left;min-width:300px}
+.matrix-table td{padding:8px;border-bottom:1px solid #E3DAD1;vertical-align:middle}
+.matrix-table td:not(:first-child){text-align:center;width:100px}
+.matrix-table tr.category-row td{font-weight:700;background:#f9fafb;color:#333;padding:10px 8px;border-bottom:1px solid #ccc}
+.matrix-table tr.item-row:hover{background:#ECFDF5}
+.matrix-table input[type=checkbox]{width:18px;height:18px;accent-color:#10B981;cursor:pointer}
+.matrix-table .item-select{width:100%;padding:4px 6px;border:1px solid #ddd;border-radius:4px;font-size:11px;margin-top:5px;background:#fff;color:#555}
+.matrix-table .item-custom-ta{width:100%;padding:4px 6px;border:1px solid #ddd;border-radius:4px;font-size:11px;margin-top:3px;resize:vertical;min-height:36px;display:none}
+.matrix-table .item-custom-ta.visible{display:block}
+.matrix-table .v-name-input{width:100%;padding:4px 6px;border:1px solid #ccc;border-radius:4px;font-size:11px;text-align:center;margin-top:4px;background:#fff}
+.matrix-table .cost-input-matrix{width:100%;padding:4px 6px;border:1px solid #ccc;border-radius:4px;font-size:12px;text-align:center;background:#fff}
+.matrix-table tr.cost-row td{border-top:2px solid #333;font-weight:600;background:#fafafa;padding:10px 8px}
+.fw-item{margin-bottom:14px}.fw-item label{display:block;font-weight:600;font-size:12px;color:#666;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+.fw-item textarea{width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:13px;min-height:70px;resize:vertical;line-height:1.5}
+.fw-item textarea:focus{outline:none;border-color:#10B981}
+.bloc-tabs{display:flex;gap:0;margin-bottom:0}
+.bloc-tab{padding:8px 18px;font-size:13px;font-weight:600;border:1px solid #ddd;border-bottom:none;background:#f5f5f5;color:#666;cursor:pointer;border-radius:6px 6px 0 0;transition:all .2s}
+.bloc-tab.active{background:#fff;color:#059669;border-bottom:1px solid #fff;margin-bottom:-1px;z-index:1}
+.bloc-content{border:1px solid #ddd;border-radius:0 6px 6px 6px;padding:16px;background:#fff;min-height:120px}
+.bloc-category{margin-bottom:12px}.bloc-category-title{font-weight:700;font-size:13px;color:#059669;margin-bottom:4px}
+.bloc-measure{font-size:13px;color:#444;padding-left:8px;margin-bottom:3px}.bloc-empty{color:#999;font-style:italic;font-size:13px}
+.report-box{border:1px solid #ddd;border-radius:8px;padding:16px;background:#fff;white-space:pre-wrap;font-size:13px;line-height:1.7;max-height:500px;overflow-y:auto}
+.copy-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid #ddd;background:#fff;border-radius:6px;font-size:13px;font-weight:500;color:#444;transition:all .2s;margin-top:10px}
+.copy-btn:hover{background:#ECFDF5;border-color:#10B981;color:#059669}
+.summary-table{width:525px;border-collapse:collapse;font-family:Urbanist,Arial,sans-serif;font-size:9.5pt;background:#fff;table-layout:fixed}
+.summary-table th{padding:6px 8px;font-weight:700;text-align:center;border-bottom:2px solid #333;background:#fff}
+.summary-table th .st-sub{font-weight:400;font-size:8pt;color:#555;display:block}
+.summary-table td{padding:5px 8px;border-bottom:1px solid #E3DAD1;vertical-align:middle;overflow:hidden;text-overflow:ellipsis}
+.summary-table td:first-child{text-align:left}
+.summary-table td:not(:first-child){text-align:center}
+.summary-table tr.st-cat td{font-weight:700;padding:7px 8px;background:#fafafa}
+.summary-table .st-check{color:#10B981;font-weight:700;font-size:14px}
+.summary-table tr.st-cost td{border-top:2px solid #333;font-weight:600;background:#fafafa}
+.export-buttons{display:flex;gap:10px;margin-bottom:14px}
+.export-buttons button{padding:8px 16px;border:1px solid #ddd;background:#fff;border-radius:6px;font-size:13px;font-weight:500;color:#444;transition:all .2s}
+.export-buttons button:hover{background:#ECFDF5;border-color:#10B981;color:#059669}
+.toolbar{display:flex;gap:10px;justify-content:center;margin:12px 0 20px}
+.toolbar button{padding:8px 18px;border:none;border-radius:6px;font-size:13px;font-weight:600;transition:all .2s}
+.btn-example{background:#ECFDF5;color:#059669;border-radius:8px}.btn-example:hover{background:#D1FAE5}
+.btn-reset{background:#fce4ec;color:#c62828}.btn-reset:hover{background:#f8bbd0}
+/* ─── Inline section output ─────────────────────────── */
+.section-output{background:#f8faf8;border:1px solid #e0e0d8;border-radius:6px;padding:12px;margin-top:12px}
+.gen-textarea{width:100%;min-height:100px;padding:10px;border:1px solid var(--r-border);border-radius:4px;font-family:inherit;font-size:.9em;line-height:1.5;resize:vertical}
+.gen-textarea:focus{outline:none;border-color:var(--r-primary);box-shadow:0 0 0 2px rgba(44,95,45,.15)}
+.char-counter{font-size:.75em;color:#888;margin-left:8px}
+#projectEGID{font-weight:700;color:#059669}
+@media(max-width:768px){.form-row{grid-template-columns:1fr}.variant-config{grid-template-columns:1fr}}
+    </style>
+</head>
+<body>
+    <!-- MAIN NAV -->
+    <nav class="main-nav">
+        <span class="brand">CECB Plus</span>
+        <a href="accueil.html">Accueil</a>
+    </nav>
+
+    <!-- PROJECT INFO BAR -->
+    <div class="project-info-bar" id="projectInfoBar">
+        <span class="project-title" id="projectTitle">Chargement...</span>
+        <span class="project-meta-item" id="projectEGID"></span>
+        <span class="project-meta-item" id="projectCanton"></span>
+        <span class="project-meta-item" id="projectYear"></span>
+    </div>
+
+    <!-- PROJECT TABS -->
+    <div id="projet-tabs">
+        <button class="projet-tab active" data-tab="recueil" onclick="switchProjetTab('recueil')">Texte CECB</button>
+        <button class="projet-tab" data-tab="photos" onclick="switchProjetTab('photos')">Annexe Photos</button>
+        <button class="projet-tab" data-tab="variantes" onclick="switchProjetTab('variantes')">Variantes</button>
+        <button class="projet-tab" data-tab="textes" onclick="switchProjetTab('textes')">Textes (ancienne version)</button>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════
+         TAB 1: RECUEIL CECB
+         ═══════════════════════════════════════════════════ -->
+    <div id="tab-recueil" class="projet-panel active">
+        <h1>Texte CECB</h1>
+        <p class="subtitle">Rédaction assistée des textes du rapport CECB</p>
+
+        <!-- Sub-tabs -->
+        <div id="recueil-tabs">
+            <div class="tab active" data-tab="enveloppe" onclick="switchRecueilTab('enveloppe')">Enveloppe</div>
+            <div class="tab" data-tab="technique" onclick="switchRecueilTab('technique')">Technique</div>
+            <div class="tab" data-tab="subsidies" onclick="switchRecueilTab('subsidies')">Subventions PB</div>
+        </div>
+
+        <!-- Sub-tab: Enveloppe -->
+        <div id="recueil-tab-enveloppe" class="recueil-tab-content active">
+
+            <!-- A. Données -->
+            <div class="recueil-section">
+                <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> A. Données du bâtiment</h3></div>
+                <div class="section-body">
+                    <div class="form-row"><div class="form-group" style="grid-column:1/-1"><label>Adresse</label><input type="text" id="meta-address" placeholder="Pré-rempli depuis l'accueil" readonly></div></div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Canton</label><select id="meta-canton"><option value="">—</option><option value="VD">VD</option><option value="GE">GE</option></select></div>
+                        <div class="form-group"><label>Commune</label><input type="text" id="meta-commune" placeholder="Rolle"></div>
+                        <div class="form-group"><label>EGID</label><input type="text" id="meta-egid" placeholder="Automatique" readonly></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Année de construction</label><input type="number" id="meta-year" placeholder="1964" min="1800" max="2030"></div>
+                        <div class="form-group"><label>Type de bâtiment</label><select id="meta-type" onchange="onBuildingTypeChange()"><option value="">—</option><option value="1020">Habitat individuel (SIA 1020)</option><option value="1025">Habitat collectif (SIA 1025)</option><option value="1030">Administration / Bureaux (SIA 1030)</option><option value="1040">Écoles (SIA 1040)</option><option value="1060">Commerce (SIA 1060)</option><option value="1070">Restauration (SIA 1070)</option><option value="1080">Lieux de rassemblement (SIA 1080)</option><option value="1081">Hôpitaux (SIA 1081)</option><option value="1090">Industrie (SIA 1090)</option><option value="1100">Dépôts (SIA 1100)</option><option value="1110">Installations sportives (SIA 1110)</option><option value="1120">Piscines couvertes (SIA 1120)</option></select></div>
+                        <div class="form-group"><label>SRE (m²)</label><input type="number" id="meta-sre" placeholder="150" min="1"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Altitude (m)</label><input type="number" id="meta-altitude" placeholder="Automatique" min="0"><span class="hint" id="altitude-hint"></span></div>
+                        <div class="form-group"><label>Nombre d'étages</label><input type="number" id="meta-floors" placeholder="2" min="1" max="20"></div>
+                        <div class="form-group"><label>Nombre de logements</label><input type="number" id="meta-apartments" placeholder="1" min="1"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Coordonnée E (LV95)</label><input type="text" id="meta-coord-e" placeholder="Automatique" readonly></div>
+                        <div class="form-group"><label>Coordonnée N (LV95)</label><input type="text" id="meta-coord-n" placeholder="Automatique" readonly></div>
+                    </div>
+                    <!-- Transcript import (discret) -->
+                    <div class="form-row">
+                        <div class="form-group" style="grid-column:1/-1">
+                            <button class="btn btn-sm btn-secondary" onclick="toggleTranscriptPanel()">Importer transcript Plaud</button>
+                            <div id="transcript-panel" style="display:none;margin-top:10px">
+                                <textarea class="transcript-area" id="transcript-input" placeholder="Collez ici la transcription Plaud de la visite..."></textarea>
+                                <div class="btn-group">
+                                    <button class="btn btn-warning btn-sm" onclick="analyzeTranscript()">Analyser</button>
+                                    <span id="transcript-status" style="font-size:.85em;color:var(--r-grey)"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RegBL Housing Data (conditional) -->
+            <div class="recueil-section" id="regbl-housing-section" style="display:none">
+                <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> Données RegBL — Logements</h3></div>
+                <div class="section-body">
+                    <div id="regbl-housing-content"><p style="color:#888">Chargement des données RegBL...</p></div>
+                </div>
+            </div>
+
+            <!-- B. Toit -->
+            <div class="recueil-section">
+                <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> B. Toit</h3><span id="life-toit"></span></div>
+                <div class="section-body">
+                    <div class="form-row">
+                        <div class="form-group"><label>Configuration</label><select id="toit-config" onchange="updateToitFields()"><option value="">—</option><option value="toiture_isolee">Cas A : Toiture isolée</option><option value="plancher_combles">Cas B : Plancher des combles</option><option value="plafond_non_chauffe">Cas C : Plafond c/ non-chauffé</option></select></div>
+                        <div class="form-group"><label>Type de toiture</label><select id="toit-type"><option value="">—</option><option value="inclinee">Inclinée</option><option value="plate">Plate</option></select></div>
+                        <div class="form-group"><label>Année (rénovation/construction)</label><input type="number" id="toit-year" placeholder="Année" min="1800" max="2030" onchange="updateLifeIndicator('toit',40)"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Isolation</label><select id="toit-isolation"><option value="">—</option><option value="aucune">Aucune</option><option value="partielle">Partielle / insuffisante</option><option value="conforme">Conforme / bonne</option></select></div>
+                        <div class="form-group"><label>Épaisseur isolation (cm)</label><input type="number" id="toit-isol-cm" placeholder="Ex: 12" min="0"></div>
+                        <div class="form-group"><label>Matériau isolation</label><input type="text" id="toit-isol-mat" placeholder="Laine de verre, XPS..."></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>État</label><select id="toit-etat"><option value="">—</option><option value="intact">Intact / bon état</option><option value="use">Légèrement usé</option><option value="vetuste">Vétuste / fin de vie</option></select></div>
+                        <div class="form-group" id="toit-combles-group" style="display:none"><label>Composition plancher combles</label><select id="toit-combles-comp"><option value="">—</option><option value="ossature_bois">Ossature bois</option><option value="dalle_beton">Dalle béton</option></select></div>
+                        <div class="form-group"><label>PV envisageable</label><select id="toit-pv"><option value="">—</option><option value="oui">Oui</option><option value="non">Non</option></select></div>
+                    </div>
+                    <div class="btn-group"><button class="btn btn-primary btn-sm" onclick="generateSection('toit')">Générer le texte</button></div>
+                    <div class="section-output" id="output-toit" style="display:none">
+                        <div class="output-field"><label>État initial <span class="char-counter" id="cc-toit-ei"></span></label><textarea id="gen-toit-ei" class="gen-textarea" oninput="onGenTextChange(this)"></textarea><div class="output-field-btns"><button class="btn btn-sm btn-success" onclick="recueilCopyField('gen-toit-ei')">Copier</button><button class="btn btn-sm btn-warning" onclick="enhanceField('gen-toit-ei','Toit — EI')">Enhance</button></div></div>
+                        <div class="output-field"><label>Améliorations <span class="char-counter" id="cc-toit-ap"></span></label><textarea id="gen-toit-ap" class="gen-textarea" oninput="onGenTextChange(this)"></textarea><div class="output-field-btns"><button class="btn btn-sm btn-success" onclick="recueilCopyField('gen-toit-ap')">Copier</button><button class="btn btn-sm btn-warning" onclick="enhanceField('gen-toit-ap','Toit — AP')">Enhance</button></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- C. Murs contre extérieur -->
+            <div class="recueil-section">
+                <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> C. Murs contre extérieur</h3><span id="life-murs"></span></div>
+                <div class="section-body">
+                    <div class="form-row">
+                        <div class="form-group"><label>Composition façades</label><select id="murs-composition"><option value="">—</option><option value="maconnerie">Maçonnerie homogène</option><option value="double_paroi">Double paroi</option><option value="ossature_bois">Ossature bois</option><option value="moellons">Maçonnerie de moellons</option></select></div>
+                        <div class="form-group"><label>Revêtement</label><select id="murs-revetement"><option value="">—</option><option value="crepi">Crépi</option><option value="eternit">Eternit</option><option value="bardage">Bardage bois</option><option value="pierre">Pierre</option></select></div>
+                        <div class="form-group"><label>Année rénovation murs</label><input type="number" id="murs-year" placeholder="Année" min="1800" max="2030" onchange="updateLifeIndicator('murs',50)"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Isolation façades</label><select id="murs-isolation"><option value="">—</option><option value="aucune">Aucune</option><option value="ite">ITE</option><option value="intermediaire">Intermédiaire (double paroi)</option></select></div>
+                        <div class="form-group"><label>Épaisseur isolation (cm)</label><input type="number" id="murs-isol-cm" placeholder="Ex: 8" min="0"></div>
+                        <div class="form-group"><label>Mitoyen</label><select id="murs-mitoyen"><option value="non">Non</option><option value="1">Oui — 1 côté</option><option value="2">Oui — 2 côtés</option></select></div>
+                    </div>
+                    <div class="btn-group"><button class="btn btn-primary btn-sm" onclick="generateSection('murs-ext')">Générer le texte</button></div>
+                    <div class="section-output" id="output-murs-ext" style="display:none">
+                        <div class="output-field"><label>État initial <span class="char-counter" id="cc-murs-ext-ei"></span></label><textarea id="gen-murs-ext-ei" class="gen-textarea" oninput="onGenTextChange(this)"></textarea><div class="output-field-btns"><button class="btn btn-sm btn-success" onclick="recueilCopyField('gen-murs-ext-ei')">Copier</button><button class="btn btn-sm btn-warning" onclick="enhanceField('gen-murs-ext-ei','Murs ext. — EI')">Enhance</button></div></div>
+                        <div class="output-field"><label>Améliorations <span class="char-counter" id="cc-murs-ext-ap"></span></label><textarea id="gen-murs-ext-ap" class="gen-textarea" oninput="onGenTextChange(this)"></textarea><div class="output-field-btns"><button class="btn btn-sm btn-success" onclick="recueilCopyField('gen-murs-ext-ap')">Copier</button><button class="btn btn-sm btn-warning" onclick="enhanceField('gen-murs-ext-ap','Murs ext. — AP')">Enhance</button></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- C2. Murs contre terre -->
+            <div class="recueil-section">
+                <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> C2. Murs contre terre</h3></div>
+                <div class="section-body">
+                    <div class="form-row">
+                        <div class="form-group"><label>Composition</label><select id="murs-terre-composition"><option value="">—</option><option value="beton">Béton armé</option><option value="maconnerie">Maçonnerie</option><option value="moellons">Moellons</option></select></div>
+                        <div class="form-group"><label>Isolation</label><select id="murs-terre-isolation"><option value="">—</option><option value="aucune">Aucune</option><option value="interieur">Par l'intérieur</option><option value="perimetrique">Périmétrique (extérieur)</option></select></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Épaisseur isolation (cm)</label><input type="number" id="murs-terre-isol-cm" placeholder="Ex: 6" min="0"></div>
+                        <div class="form-group"><label>État</label><select id="murs-terre-etat"><option value="">—</option><option value="intact">Intact</option><option value="use">Usé</option><option value="vetuste">Vétuste</option></select></div>
+                    </div>
+                    <div class="btn-group"><button class="btn btn-primary btn-sm" onclick="generateSection('murs-terre')">Générer le texte</button></div>
+                    <div class="section-output" id="output-murs-terre" style="display:none">
+                        <div class="output-field"><label>État initial <span class="char-counter" id="cc-murs-terre-ei"></span></label><textarea id="gen-murs-terre-ei" class="gen-textarea" oninput="onGenTextChange(this)"></textarea><div class="output-field-btns"><button class="btn btn-sm btn-success" onclick="recueilCopyField('gen-murs-terre-ei')">Copier</button><button class="btn btn-sm btn-warning" onclick="enhanceField('gen-murs-terre-ei','Murs terre — EI')">Enhance</button></div></div>
+                        <div class="output-field"><label>Améliorations <span class="char-counter" id="cc-murs-terre-ap"></span></label><textarea id="gen-murs-terre-ap" class="gen-textarea" oninput="onGenTextChange(this)"></textarea><div class="output-field-btns"><button class="btn btn-sm btn-success" onclick="recueilCopyField('gen-murs-terre-ap')">Copier</button><button class="btn btn-sm btn-warning" onclick="enhanceField('gen-murs-terre-ap','Murs terre — AP')">Enhance</button></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- C3. Murs c/ non chauffé -->
+            <div class="recueil-section">
+                <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> C3. Murs c/ non chauffé</h3></div>
+                <div class="section-body">
+                    <div class="form-row">
+                        <div class="form-group"><label>Composition</label><select id="murs-nc-composition"><option value="">—</option><option value="maconnerie">Maçonnerie</option><option value="beton">Béton</option><option value="ossature_bois">Ossature bois</option></select></div>
+                        <div class="form-group"><label>Isolation</label><select id="murs-nc-isolation"><option value="">—</option><option value="aucune">Aucune</option><option value="interieur">Par l'intérieur</option><option value="oui">Oui / conforme</option></select></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Épaisseur isolation (cm)</label><input type="number" id="murs-nc-isol-cm" placeholder="Ex: 6" min="0"></div>
+                        <div class="form-group"><label>État</label><select id="murs-nc-etat"><option value="">—</option><option value="intact">Intact</option><option value="use">Usé</option><option value="vetuste">Vétuste</option></select></div>
+                    </div>
+                    <div class="btn-group"><button class="btn btn-primary btn-sm" onclick="generateSection('murs-nc')">Générer le texte</button></div>
+                    <div class="section-output" id="output-murs-nc" style="display:none">
+                        <div class="output-field"><label>État initial <span class="char-counter" id="cc-murs-nc-ei"></span></label><textarea id="gen-murs-nc-ei" class="gen-textarea" oninput="onGenTextChange(this)"></textarea><div class="output-field-btns"><button class="btn btn-sm btn-success" onclick="recueilCopyField('gen-murs-nc-ei')">Copier</button><button class="btn btn-sm btn-warning" onclick="enhanceField('gen-murs-nc-ei','Murs nc — EI')">Enhance</button></div></div>
+                        <div class="output-field"><label>Améliorations <span class="char-counter" id="cc-murs-nc-ap"></span></label><textarea id="gen-murs-nc-ap" class="gen-textarea" oninput="onGenTextChange(this)"></textarea><div class="output-field-btns"><button class="btn btn-sm btn-success" onclick="recueilCopyField('gen-murs-nc-ap')">Copier</button><button class="btn btn-sm btn-warning" onclick="enhanceField('gen-murs-nc-ap','Murs nc — AP')">Enhance</button></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- D. Fenêtres -->
+            <div class="recueil-section">
+                <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> D. Fenêtres et portes</h3><span id="life-fenetres"></span></div>
+                <div class="section-body">
+                    <div class="form-row">
+                        <div class="form-group"><label>Type de cadre</label><select id="fen-cadre" onchange="estimateUw()"><option value="">—</option><option value="bois">Bois</option><option value="pvc">PVC</option><option value="alu">Aluminium</option><option value="mixte">Mixte bois-alu</option></select></div>
+                        <div class="form-group"><label>Type de vitrage</label><select id="fen-vitrage" onchange="estimateUw()"><option value="">—</option><option value="simple">Simple vitrage</option><option value="double_ancien">Double ancien</option><option value="double_isolant">Double isolant argon</option><option value="double_selectif">Double sélectif argon</option><option value="triple">Triple vitrage</option></select></div>
+                        <div class="form-group"><label>Année remplacement</label><input type="number" id="fen-year" placeholder="Année" min="1800" max="2030" onchange="estimateUw();updateLifeIndicator('fenetres',30)"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Uw estimé (W/m²K)</label><input type="number" id="fen-uw" step="0.1" placeholder="Automatique"><span class="hint" id="uw-hint"></span></div>
+                        <div class="form-group"><label>Cadres de rénovation</label><select id="fen-renov"><option value="">—</option><option value="oui">Oui</option><option value="non">Non</option></select></div>
+                        <div class="form-group"><label>Porte d'entrée</label><select id="fen-porte"><option value="">—</option><option value="deperditions">Déperditions critiques</option><option value="correct">État correct</option></select></div>
+                    </div>
+                    <div class="btn-group"><button class="btn btn-primary btn-sm" onclick="generateSection('fenetres')">Générer le texte</button></div>
+                    <div class="section-output" id="output-fenetres" style="display:none">
+                        <div class="output-field"><label>État initial <span class="char-counter" id="cc-fenetres-ei"></span></label><textarea id="gen-fenetres-ei" class="gen-textarea" oninput="onGenTextChange(this)"></textarea><div class="output-field-btns"><button class="btn btn-sm btn-success" onclick="recueilCopyField('gen-fenetres-ei')">Copier</button><button class="btn btn-sm btn-warning" onclick="enhanceField('gen-fenetres-ei','Fenêtres — EI')">Enhance</button></div></div>
+                        <div class="output-field"><label>Améliorations <span class="char-counter" id="cc-fenetres-ap"></span></label><textarea id="gen-fenetres-ap" class="gen-textarea" oninput="onGenTextChange(this)"></textarea><div class="output-field-btns"><button class="btn btn-sm btn-success" onclick="recueilCopyField('gen-fenetres-ap')">Copier</button><button class="btn btn-sm btn-warning" onclick="enhanceField('gen-fenetres-ap','Fenêtres — AP')">Enhance</button></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- E. Sols c/ terre -->
+            <div class="recueil-section">
+                <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> E. Sols c/ terre</h3></div>
+                <div class="section-body">
+                    <div class="form-row">
+                        <div class="form-group"><label>Composition</label><select id="sols-terre-config"><option value="">—</option><option value="radier">Radier béton</option><option value="terre_plein">Terre-plein direct</option></select></div>
+                        <div class="form-group"><label>Isolation</label><select id="sols-terre-isolation"><option value="">—</option><option value="aucune">Aucune</option><option value="partielle">Partielle</option><option value="oui">Oui / conforme</option><option value="inconnue">Inconnue</option></select></div>
+                        <div class="form-group"><label>Épaisseur isolation (cm)</label><input type="number" id="sols-terre-isol-cm" placeholder="Ex: 6" min="0"></div>
+                    </div>
+                    <div class="btn-group"><button class="btn btn-primary btn-sm" onclick="generateSection('sols-terre')">Générer le texte</button></div>
+                    <div class="section-output" id="output-sols-terre" style="display:none">
+                        <div class="output-field"><label>État initial <span class="char-counter" id="cc-sols-terre-ei"></span></label><textarea id="gen-sols-terre-ei" class="gen-textarea" oninput="onGenTextChange(this)"></textarea><div class="output-field-btns"><button class="btn btn-sm btn-success" onclick="recueilCopyField('gen-sols-terre-ei')">Copier</button><button class="btn btn-sm btn-warning" onclick="enhanceField('gen-sols-terre-ei','Sols terre — EI')">Enhance</button></div></div>
+                        <div class="output-field"><label>Améliorations <span class="char-counter" id="cc-sols-terre-ap"></span></label><textarea id="gen-sols-terre-ap" class="gen-textarea" oninput="onGenTextChange(this)"></textarea><div class="output-field-btns"><button class="btn btn-sm btn-success" onclick="recueilCopyField('gen-sols-terre-ap')">Copier</button><button class="btn btn-sm btn-warning" onclick="enhanceField('gen-sols-terre-ap','Sols terre — AP')">Enhance</button></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- E2. Sols c/ non chauffé -->
+            <div class="recueil-section">
+                <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> E2. Sols c/ non chauffé</h3></div>
+                <div class="section-body">
+                    <div class="form-row">
+                        <div class="form-group"><label>Composition</label><select id="sols-nc-config"><option value="">—</option><option value="dalle_beton">Dalle béton</option><option value="hourdis">Hourdis</option></select></div>
+                        <div class="form-group"><label>Isolation sous-face</label><select id="sols-nc-isolation"><option value="">—</option><option value="aucune">Aucune</option><option value="partielle">Partielle</option><option value="oui">Oui / conforme</option><option value="inconnue">Inconnue</option></select></div>
+                        <div class="form-group"><label>Épaisseur isolation (cm)</label><input type="number" id="sols-nc-isol-cm" placeholder="Ex: 6" min="0"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Sous-sol</label><select id="sol-soussol"><option value="">—</option><option value="oui">Oui</option><option value="non">Non</option></select></div>
+                        <div class="form-group"><label>Usage sous-sol</label><input type="text" id="sol-usage" placeholder="Cave, buanderie, technique..."></div>
+                    </div>
+                    <div class="btn-group"><button class="btn btn-primary btn-sm" onclick="generateSection('sols-nc')">Générer le texte</button></div>
+                    <div class="section-output" id="output-sols-nc" style="display:none">
+                        <div class="output-field"><label>État initial <span class="char-counter" id="cc-sols-nc-ei"></span></label><textarea id="gen-sols-nc-ei" class="gen-textarea" oninput="onGenTextChange(this)"></textarea><div class="output-field-btns"><button class="btn btn-sm btn-success" onclick="recueilCopyField('gen-sols-nc-ei')">Copier</button><button class="btn btn-sm btn-warning" onclick="enhanceField('gen-sols-nc-ei','Sols nc — EI')">Enhance</button></div></div>
+                        <div class="output-field"><label>Améliorations <span class="char-counter" id="cc-sols-nc-ap"></span></label><textarea id="gen-sols-nc-ap" class="gen-textarea" oninput="onGenTextChange(this)"></textarea><div class="output-field-btns"><button class="btn btn-sm btn-success" onclick="recueilCopyField('gen-sols-nc-ap')">Copier</button><button class="btn btn-sm btn-warning" onclick="enhanceField('gen-sols-nc-ap','Sols nc — AP')">Enhance</button></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Save + Export -->
+            <div class="btn-group" style="justify-content:center;padding:15px">
+                <button class="btn btn-success" onclick="recueilCopyAll()">Tout copier</button>
+                <button class="btn btn-info" onclick="recueilExportPDF()">Export PDF</button>
+                <button class="btn btn-primary" onclick="manualSave()">Sauvegarder</button>
+            </div>
+        </div>
+
+        <!-- Sub-tab: Technique -->
+        <div id="recueil-tab-technique" class="recueil-tab-content">
+
+            <!-- F. Ventilation -->
+            <div class="recueil-section">
+                <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> F. Ventilation</h3></div>
+                <div class="section-body">
+                    <div class="form-row">
+                        <div class="form-group"><label>VMC existante</label><select id="vent-vmc"><option value="">—</option><option value="non">Non</option><option value="simple_flux">Oui — simple flux</option><option value="double_flux">Oui — double flux</option></select></div>
+                        <div class="form-group"><label>Extraction locaux humides</label><select id="vent-extraction"><option value="">—</option><option value="oui">Oui</option><option value="non">Non</option></select></div>
+                    </div>
+                    <div class="btn-group"><button class="btn btn-primary btn-sm" onclick="generateSection('ventilation')">Générer le texte</button></div>
+                    <div class="section-output" id="output-ventilation" style="display:none">
+                        <div class="output-field"><label>État initial <span class="char-counter" id="cc-ventilation-ei"></span></label><textarea id="gen-ventilation-ei" class="gen-textarea" oninput="onGenTextChange(this)"></textarea><div class="output-field-btns"><button class="btn btn-sm btn-success" onclick="recueilCopyField('gen-ventilation-ei')">Copier</button><button class="btn btn-sm btn-warning" onclick="enhanceField('gen-ventilation-ei','Ventilation — EI')">Enhance</button></div></div>
+                        <div class="output-field"><label>Améliorations <span class="char-counter" id="cc-ventilation-ap"></span></label><textarea id="gen-ventilation-ap" class="gen-textarea" oninput="onGenTextChange(this)"></textarea><div class="output-field-btns"><button class="btn btn-sm btn-success" onclick="recueilCopyField('gen-ventilation-ap')">Copier</button><button class="btn btn-sm btn-warning" onclick="enhanceField('gen-ventilation-ap','Ventilation — AP')">Enhance</button></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- G. Chauffage -->
+            <div class="recueil-section">
+                <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> G. Chauffage</h3><span id="life-chauffage"></span></div>
+                <div class="section-body">
+                    <div class="form-row">
+                        <div class="form-group"><label>Source d'énergie</label><select id="chauf-source" onchange="updateChauffageFields()"><option value="">—</option><option value="mazout">Mazout</option><option value="gaz">Gaz naturel</option><option value="elec_central">Électrique centralisé</option><option value="elec_decentral">Électrique décentralisé</option><option value="pac_air">PAC air-eau</option><option value="pac_sol">PAC sol-eau</option><option value="pac_eau">PAC eau-eau</option><option value="cad">CAD</option><option value="bois_buches">Bois (bûches)</option><option value="bois_pellets">Bois (pellets)</option></select></div>
+                        <div class="form-group"><label>Puissance (kW)</label><input type="number" id="chauf-puissance" placeholder="Ex: 25" min="0"></div>
+                        <div class="form-group"><label>Année installation</label><input type="number" id="chauf-year" placeholder="Année" min="1950" max="2030" onchange="updateLifeIndicator('chauffage',20)"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Distribution</label><select id="chauf-distrib"><option value="">—</option><option value="radiateurs">Radiateurs</option><option value="plancher">Plancher chauffant</option><option value="convecteurs">Convecteurs</option><option value="radiateurs_elec">Radiateurs électriques</option></select></div>
+                        <div class="form-group"><label>Consommations fournies</label><select id="chauf-conso"><option value="">—</option><option value="oui">Oui</option><option value="non">Non</option></select></div>
+                        <div class="form-group" id="chauf-conso-years-group" style="display:none"><label>Nb années de données</label><input type="number" id="chauf-conso-years" placeholder="3" min="1" max="10"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Appoint (cheminée, etc.)</label><select id="chauf-appoint"><option value="">—</option><option value="aucun">Aucun</option><option value="insert">Cheminée à insert</option><option value="foyer_ouvert">Foyer ouvert</option></select></div>
+                    </div>
+                    <div class="btn-group"><button class="btn btn-primary btn-sm" onclick="generateSection('chauffage')">Générer le texte</button></div>
+                    <div class="section-output" id="output-chauffage" style="display:none">
+                        <div class="output-field"><label>État initial <span class="char-counter" id="cc-chauffage-ei"></span></label><textarea id="gen-chauffage-ei" class="gen-textarea" oninput="onGenTextChange(this)"></textarea><div class="output-field-btns"><button class="btn btn-sm btn-success" onclick="recueilCopyField('gen-chauffage-ei')">Copier</button><button class="btn btn-sm btn-warning" onclick="enhanceField('gen-chauffage-ei','Chauffage — EI')">Enhance</button></div></div>
+                        <div class="output-field"><label>Améliorations <span class="char-counter" id="cc-chauffage-ap"></span></label><textarea id="gen-chauffage-ap" class="gen-textarea" oninput="onGenTextChange(this)"></textarea><div class="output-field-btns"><button class="btn btn-sm btn-success" onclick="recueilCopyField('gen-chauffage-ap')">Copier</button><button class="btn btn-sm btn-warning" onclick="enhanceField('gen-chauffage-ap','Chauffage — AP')">Enhance</button></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- H. ECS -->
+            <div class="recueil-section">
+                <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> H. Eau chaude sanitaire</h3><span id="life-ecs"></span></div>
+                <div class="section-body">
+                    <div class="form-row">
+                        <div class="form-group"><label>Type de production ECS</label><select id="ecs-type"><option value="">—</option><option value="chaudiere">Par la chaudière (fossile)</option><option value="ce_elec_central">CE électrique centralisé</option><option value="ce_elec_decentral">CE électrique décentralisé</option><option value="thermodynamique">Chauffe-eau thermodynamique</option><option value="pac">Par la PAC</option><option value="cad">Par le CAD</option><option value="solaire">Solaire thermique</option></select></div>
+                        <div class="form-group"><label>Année installation ECS</label><input type="number" id="ecs-year" placeholder="Année" min="1950" max="2030" onchange="updateLifeIndicator('ecs',20)"></div>
+                        <div class="form-group"><label>Volume (litres)</label><input type="number" id="ecs-volume" placeholder="Ex: 300" min="0"></div>
+                    </div>
+                    <div class="btn-group"><button class="btn btn-primary btn-sm" onclick="generateSection('ecs')">Générer le texte</button></div>
+                    <div class="section-output" id="output-ecs" style="display:none">
+                        <div class="output-field"><label>État initial <span class="char-counter" id="cc-ecs-ei"></span></label><textarea id="gen-ecs-ei" class="gen-textarea" oninput="onGenTextChange(this)"></textarea><div class="output-field-btns"><button class="btn btn-sm btn-success" onclick="recueilCopyField('gen-ecs-ei')">Copier</button><button class="btn btn-sm btn-warning" onclick="enhanceField('gen-ecs-ei','ECS — EI')">Enhance</button></div></div>
+                        <div class="output-field"><label>Améliorations <span class="char-counter" id="cc-ecs-ap"></span></label><textarea id="gen-ecs-ap" class="gen-textarea" oninput="onGenTextChange(this)"></textarea><div class="output-field-btns"><button class="btn btn-sm btn-success" onclick="recueilCopyField('gen-ecs-ap')">Copier</button><button class="btn btn-sm btn-warning" onclick="enhanceField('gen-ecs-ap','ECS — AP')">Enhance</button></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- I. Appareils -->
+            <div class="recueil-section">
+                <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> I. Appareils et éclairage</h3></div>
+                <div class="section-body">
+                    <div class="form-row"><div class="form-group"><label>Consommations électricité fournies</label><select id="app-conso"><option value="">—</option><option value="oui">Oui</option><option value="non">Non</option></select></div></div>
+                    <div class="btn-group"><button class="btn btn-primary btn-sm" onclick="generateSection('appareils')">Générer le texte</button></div>
+                    <div class="section-output" id="output-appareils" style="display:none">
+                        <div class="output-field"><label>État initial <span class="char-counter" id="cc-appareils-ei"></span></label><textarea id="gen-appareils-ei" class="gen-textarea" oninput="onGenTextChange(this)"></textarea><div class="output-field-btns"><button class="btn btn-sm btn-success" onclick="recueilCopyField('gen-appareils-ei')">Copier</button><button class="btn btn-sm btn-warning" onclick="enhanceField('gen-appareils-ei','Appareils — EI')">Enhance</button></div></div>
+                        <div class="output-field"><label>Améliorations <span class="char-counter" id="cc-appareils-ap"></span></label><textarea id="gen-appareils-ap" class="gen-textarea" oninput="onGenTextChange(this)"></textarea><div class="output-field-btns"><button class="btn btn-sm btn-success" onclick="recueilCopyField('gen-appareils-ap')">Copier</button><button class="btn btn-sm btn-warning" onclick="enhanceField('gen-appareils-ap','Appareils — AP')">Enhance</button></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- J. PV -->
+            <div class="recueil-section">
+                <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> J. Photovoltaïque</h3></div>
+                <div class="section-body">
+                    <div class="form-row">
+                        <div class="form-group"><label>Installation PV existante</label><select id="pv-existant" onchange="updatePVFields()"><option value="">—</option><option value="oui">Oui</option><option value="non">Non</option></select></div>
+                        <div class="form-group" id="pv-puissance-group" style="display:none"><label>Puissance (kWc)</label><input type="number" id="pv-puissance" placeholder="Ex: 10" min="0" step="0.1"></div>
+                        <div class="form-group" id="pv-batterie-group" style="display:none"><label>Batterie</label><select id="pv-batterie"><option value="non">Non</option><option value="oui">Oui</option></select></div>
+                    </div>
+                    <div class="btn-group"><button class="btn btn-primary btn-sm" onclick="generateSection('pv')">Générer le texte</button></div>
+                    <div class="section-output" id="output-pv" style="display:none">
+                        <div class="output-field"><label>État initial <span class="char-counter" id="cc-pv-ei"></span></label><textarea id="gen-pv-ei" class="gen-textarea" oninput="onGenTextChange(this)"></textarea><div class="output-field-btns"><button class="btn btn-sm btn-success" onclick="recueilCopyField('gen-pv-ei')">Copier</button><button class="btn btn-sm btn-warning" onclick="enhanceField('gen-pv-ei','PV — EI')">Enhance</button></div></div>
+                        <div class="output-field"><label>Améliorations <span class="char-counter" id="cc-pv-ap"></span></label><textarea id="gen-pv-ap" class="gen-textarea" oninput="onGenTextChange(this)"></textarea><div class="output-field-btns"><button class="btn btn-sm btn-success" onclick="recueilCopyField('gen-pv-ap')">Copier</button><button class="btn btn-sm btn-warning" onclick="enhanceField('gen-pv-ap','PV — AP')">Enhance</button></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Save -->
+            <div class="btn-group" style="justify-content:center;padding:15px">
+                <button class="btn btn-primary" onclick="manualSave()">Sauvegarder</button>
+            </div>
+        </div>
+
+        <!-- Sub-tab: Subsidies -->
+        <div id="recueil-tab-subsidies" class="recueil-tab-content">
+            <div id="recueil-subsidies-container">
+                <p style="color:#888;text-align:center;padding:40px">Générez d'abord les textes par section pour voir le récapitulatif des subventions.</p>
+            </div>
+            <div style="margin-top:15px;text-align:center">
+                <a href="https://www.francsenergie.ch/fr" target="_blank" rel="noopener" style="color:var(--r-success);font-weight:600;font-size:14px">francsenergie.ch — Informations subventions cantonales</a>
+            </div>
+        </div>
+
+        <!-- Hidden output container for PDF export compatibility -->
+        <div id="recueil-output-container" style="display:none"></div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════
+         TAB 2: ANNEXE PHOTOS
+         ═══════════════════════════════════════════════════ -->
+    <div id="tab-photos" class="projet-panel">
+        <h1>Annexe Photos</h1>
+        <p class="subtitle">Importez, réorganisez et générez un PDF de vos photos</p>
+
+        <div class="dropzone" id="photoDropzone">
+            <div class="dropzone-content">
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <p>Glissez vos photos ici ou cliquez pour sélectionner</p>
+            </div>
+        </div>
+        <input type="file" id="photoFileInput" multiple accept="image/*" style="display:none">
+
+        <div class="photos-grid" id="photosGrid"></div>
+
+        <button class="generate-btn" id="photoGenerateBtn" disabled>Générer le PDF</button>
+        <div style="text-align:center;padding:15px"><button class="btn btn-success" onclick="manualSave()">Sauvegarder le projet</button></div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════
+         TAB 3: VARIANTES
+         ═══════════════════════════════════════════════════ -->
+    <div id="tab-variantes" class="projet-panel">
+        <h1>Variantes d'assainissement énergétique</h1>
+        <div class="toolbar">
+            <button class="btn-example" id="varLoadExample">Charger l'exemple</button>
+            <button class="btn-reset" id="varResetAll">Réinitialiser</button>
+        </div>
+
+        <section class="variantes-section">
+            <h2>Matrice de sélection</h2>
+            <div class="matrix-wrap"><table class="matrix-table" id="varMatrixTable"></table></div>
+        </section>
+
+        <section class="variantes-section">
+            <h2>Textes-cadre du rapport</h2>
+            <div id="varFrameworkTexts"></div>
+        </section>
+
+        <section class="variantes-section">
+            <h2>Aperçu en temps réel</h2>
+            <h3>Blocs par variante</h3>
+            <div class="bloc-tabs" id="varBlocTabs"></div>
+            <div class="bloc-content" id="varBlocContent"></div>
+            <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+                <button class="copy-btn copy-bloc-btn" data-v="0">Copier Variante 1</button>
+                <button class="copy-btn copy-bloc-btn" data-v="1">Copier Variante 2</button>
+                <button class="copy-btn copy-bloc-btn" data-v="2">Copier Variante 3</button>
+            </div>
+            <h3>Rapport final</h3>
+            <div class="report-box" id="varReportPreview"></div>
+            <button class="copy-btn" id="varCopyReport">Copier le texte du rapport</button>
+        </section>
+
+        <section class="variantes-section">
+            <h2>Tableau récapitulatif</h2>
+            <div class="export-buttons">
+                <button id="varCopyTable">Copier le tableau</button>
+                <button id="varDownloadPNG">Télécharger PNG</button>
+                <button id="varDownloadHTML">Télécharger HTML</button>
+            </div>
+            <div id="varSummaryTableContainer"></div>
+        </section>
+        <div style="text-align:center;padding:15px"><button class="btn btn-success" onclick="manualSave()">Sauvegarder le projet</button></div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════
+         TAB 4: TEXTES CECB
+         ═══════════════════════════════════════════════════ -->
+    <div id="tab-textes" class="projet-panel">
+        <h1>Textes CECB</h1>
+        <p class="subtitle">Génération automatique de textes descriptifs par catégorie CECB</p>
+
+        <div class="tab-group">
+            <h2>Enveloppe du bâtiment</h2>
+            <div class="tabs" id="tabsEnveloppe"></div>
+            <div class="tab-content" id="contentEnveloppe"></div>
+        </div>
+
+        <div class="tab-group">
+            <h2>Technique du bâtiment</h2>
+            <div class="tabs" id="tabsTechnique"></div>
+            <div class="tab-content" id="contentTechnique"></div>
+        </div>
+    </div>
+
+    <!-- NOTIFICATION -->
+    <div class="notification" id="notification"></div>
+
+    <!-- SCRIPTS -->
+    <script src="project-store.js"></script>
+    <script src="auth.js"></script>
+    <script src="recueil.js"></script>
+    <script src="photos.js"></script>
+    <script src="variantes.js"></script>
+    <script src="textes.js"></script>
+    <script>
+    /* ═══════ PROJECT PAGE CONTROLLER ═══════ */
+
+    var _tabsInitialized = { recueil: false, photos: false, variantes: false, textes: false };
+
+    function switchProjetTab(tab) {
+        document.querySelectorAll('#projet-tabs .projet-tab').forEach(function (t) { t.classList.toggle('active', t.dataset.tab === tab); });
+        document.querySelectorAll('.projet-panel').forEach(function (p) { p.classList.remove('active'); });
+        document.getElementById('tab-' + tab).classList.add('active');
+
+        // Lazy init tabs
+        if (!_tabsInitialized[tab]) {
+            _tabsInitialized[tab] = true;
+            if (tab === 'recueil') initRecueil();
+            else if (tab === 'photos') initPhotos();
+            else if (tab === 'variantes') initVariantes();
+            else if (tab === 'textes') initTextes();
+        }
+    }
+
+    function initProjetPage() {
+        var pid = ProjectStore.getCurrentId();
+        if (!pid) { window.location.href = 'accueil.html'; return; }
+        var project = ProjectStore.get(pid);
+        if (!project) { window.location.href = 'accueil.html'; return; }
+
+        // Display project info
+        document.getElementById('projectTitle').textContent = project.name;
+        var addr = project.address || {};
+        if (addr.egid) document.getElementById('projectEGID').textContent = 'EGID: ' + addr.egid;
+        if (addr.canton) document.getElementById('projectCanton').textContent = 'Canton: ' + addr.canton;
+        if (addr.year) document.getElementById('projectYear').textContent = 'Année: ' + addr.year;
+
+        document.title = 'CECB Plus — ' + project.name;
+
+        // Init first tab
+        _tabsInitialized.recueil = true;
+        initRecueil();
+    }
+
+    function manualSave() {
+        var pid = ProjectStore.getCurrentId();
+        if (!pid) return;
+        if (typeof recueilAutoSave === 'function') recueilAutoSave();
+        if (typeof autoSavePhotos === 'function') autoSavePhotos();
+        if (typeof varSaveState === 'function') varSaveState();
+        if (typeof textesAutoSave === 'function') textesAutoSave();
+        var el = document.getElementById('notification');
+        el.textContent = 'Projet sauvegardé';
+        el.classList.add('show');
+        setTimeout(function () { el.classList.remove('show'); }, 2500);
+    }
+
+    // Start
+    document.addEventListener('DOMContentLoaded', function () {
+        ProjectStore.initDB().then(function () {
+            initProjetPage();
+        });
+    });
+    </script>
+</body>
+</html>

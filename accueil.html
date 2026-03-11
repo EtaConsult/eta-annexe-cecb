@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CECB Plus — Accueil</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+/* ─── Accueil-specific styles ────────────────────── */
+.hero{text-align:center;padding:40px 0 20px}
+.hero h1{font-size:2rem;margin-bottom:4px}
+.hero .subtitle{font-size:15px;color:#64748B;margin-bottom:0}
+
+.new-project-card{background:#fff;border-radius:12px;padding:28px;margin-bottom:24px;box-shadow:0 1px 4px rgba(0,0,0,.06);border:1px solid #E2E8F0}
+.new-project-card h2{margin-top:0;font-size:1.1rem}
+.address-row{display:flex;gap:10px;margin-bottom:8px}
+.address-row input{flex:1;padding:10px 14px;border:1px solid #CBD5E1;border-radius:8px;font-size:14px}
+.address-row input:focus{outline:none;border-color:#10B981;box-shadow:0 0 0 3px rgba(16,185,129,.1)}
+.address-row button{padding:10px 18px;background:#10B981;color:#fff;border:none;border-radius:8px;font-weight:600;font-size:14px;white-space:nowrap}
+.address-row button:hover{background:#059669}
+#addressSuggestions{border:1px solid #E2E8F0;border-radius:8px;max-height:200px;overflow-y:auto;display:none;margin-bottom:8px}
+#addressSuggestions .sug-item{padding:10px 14px;cursor:pointer;font-size:14px;border-bottom:1px solid #F1F5F9;transition:background .15s}
+#addressSuggestions .sug-item:hover{background:#ECFDF5}
+#addressSuggestions .sug-item:last-child{border-bottom:none}
+
+.address-meta{display:none;background:#F8FAFC;border-radius:8px;padding:14px 18px;margin-top:12px;font-size:13px;color:#475569}
+.address-meta .meta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px 16px;margin-bottom:12px}
+.address-meta .meta-item{display:flex;flex-direction:column;gap:2px}
+.address-meta .meta-label{font-weight:600;font-size:11px;text-transform:uppercase;color:#94A3B8;letter-spacing:.5px}
+.address-meta .meta-value{font-size:14px;color:#1E293B;font-weight:500}
+.btn-create{padding:10px 24px;background:#10B981;color:#fff;border:none;border-radius:8px;font-weight:600;font-size:15px;transition:all .2s}
+.btn-create:hover{background:#059669;transform:translateY(-1px);box-shadow:0 2px 8px rgba(16,185,129,.2)}
+.btn-create:disabled{background:#CBD5E1;cursor:not-allowed;transform:none;box-shadow:none}
+
+.projects-section{background:#fff;border-radius:12px;padding:0;box-shadow:0 1px 4px rgba(0,0,0,.06);border:1px solid #E2E8F0;overflow:hidden}
+.projects-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid #E2E8F0}
+.projects-header h2{margin:0;font-size:1rem;border:none;padding:0}
+.projects-header .count{background:#10B981;color:#fff;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600}
+.project-row{display:flex;align-items:center;padding:14px 20px;border-bottom:1px solid #F1F5F9;transition:background .15s}
+.project-row:last-child{border-bottom:none}
+.project-row:hover{background:#F8FAFC}
+.project-row .pinfo{flex:1}
+.project-row .pname{font-weight:600;font-size:14px;color:#1E293B}
+.project-row .pdate{font-size:12px;color:#94A3B8;margin-top:2px}
+.project-row .pactions{display:flex;gap:8px}
+.project-row .pactions button{padding:6px 14px;border-radius:6px;font-size:13px;font-weight:600;border:none;transition:all .2s}
+.btn-open{background:#10B981;color:#fff}
+.btn-open:hover{background:#059669}
+.btn-del{background:rgba(239,68,68,.1);color:#DC2626}
+.btn-del:hover{background:rgba(239,68,68,.2)}
+.no-projects{padding:40px;text-align:center;color:#94A3B8;font-size:14px}
+
+.settings-link{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid #E2E8F0;background:#fff;border-radius:8px;font-size:13px;font-weight:500;color:#64748B;transition:all .2s;margin-top:16px}
+.settings-link:hover{border-color:#10B981;color:#059669}
+    </style>
+</head>
+<body>
+    <nav class="main-nav">
+        <span class="brand">CECB Plus</span>
+        <a href="accueil.html" class="active">Projets</a>
+    </nav>
+
+    <div class="container">
+        <div class="hero">
+            <h1>CECB Plus</h1>
+            <p class="subtitle">Assistant CECB — Gestion de projets par adresse</p>
+        </div>
+
+        <!-- New Project -->
+        <div class="new-project-card">
+            <h2>Nouveau projet</h2>
+            <div class="address-row">
+                <input type="text" id="addressInput" placeholder="Rechercher une adresse (ex: Rue du Lac 15, 1180 Rolle)" autocomplete="off">
+                <button onclick="searchAddress()">Rechercher</button>
+            </div>
+            <div id="addressSuggestions"></div>
+            <div class="address-meta" id="addressMeta">
+                <div class="meta-grid">
+                    <div class="meta-item"><span class="meta-label">EGID</span><span class="meta-value" id="metaEgid">—</span></div>
+                    <div class="meta-item"><span class="meta-label">Annee</span><span class="meta-value" id="metaYear">—</span></div>
+                    <div class="meta-item"><span class="meta-label">Altitude</span><span class="meta-value" id="metaAltitude">—</span></div>
+                    <div class="meta-item"><span class="meta-label">Commune</span><span class="meta-value" id="metaCommune">—</span></div>
+                    <div class="meta-item"><span class="meta-label">Canton</span><span class="meta-value" id="metaCanton">—</span></div>
+                    <div class="meta-item"><span class="meta-label">Type</span><span class="meta-value" id="metaType">—</span></div>
+                    <div class="meta-item"><span class="meta-label">Etages</span><span class="meta-value" id="metaFloors">—</span></div>
+                    <div class="meta-item"><span class="meta-label">Logements</span><span class="meta-value" id="metaDwellings">—</span></div>
+                </div>
+                <button class="btn-create" id="btnCreate" onclick="createProject()">Creer le projet</button>
+            </div>
+        </div>
+
+        <!-- Projects List -->
+        <div class="projects-section">
+            <div class="projects-header">
+                <h2>Mes projets</h2>
+                <span class="count" id="projectCount">0</span>
+            </div>
+            <div id="projectsList"></div>
+        </div>
+
+        <button class="settings-link" id="settingsBtn" style="display:none" onclick="openApiSettings()">Parametres API Claude</button>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settingsModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center">
+        <div style="background:#fff;border-radius:12px;padding:28px;width:400px;max-width:90vw">
+            <h2 style="margin-top:0">Parametres API</h2>
+            <div style="margin-bottom:14px">
+                <label style="display:block;font-size:13px;font-weight:600;color:#475569;margin-bottom:4px">Cle API Claude (Anthropic)</label>
+                <input type="password" id="apiKeyInput" placeholder="sk-ant-..." style="width:100%;padding:8px 12px;border:1px solid #CBD5E1;border-radius:6px;font-size:14px">
+            </div>
+            <div style="margin-bottom:14px">
+                <label style="display:block;font-size:13px;font-weight:600;color:#475569;margin-bottom:4px">Modele</label>
+                <select id="apiModelInput" style="width:100%;padding:8px 12px;border:1px solid #CBD5E1;border-radius:6px;font-size:14px">
+                    <option value="claude-sonnet-4-20250514">Claude Sonnet 4</option>
+                    <option value="claude-opus-4-20250514">Claude Opus 4</option>
+                </select>
+            </div>
+            <div style="display:flex;gap:8px">
+                <button onclick="saveApiSettings()" style="padding:8px 18px;background:#10B981;color:#fff;border:none;border-radius:6px;font-weight:600">Enregistrer</button>
+                <button onclick="closeSettings()" style="padding:8px 18px;background:#64748B;color:#fff;border:none;border-radius:6px;font-weight:600">Fermer</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script src="project-store.js"></script>
+    <script>
+/* ═══════════════════════════════════════════════════════
+   ACCUEIL — Logique
+   ═══════════════════════════════════════════════════════ */
+
+let selectedAddress = null;
+let addressTimeout;
+
+function getUserEmail() {
+    const s = getSession();
+    return s ? s.email : null;
+}
+
+/* ─── Address Search (Swisstopo) ─────────────────── */
+document.getElementById('addressInput').addEventListener('input', function () {
+    clearTimeout(addressTimeout);
+    addressTimeout = setTimeout(searchAddress, 500);
+});
+
+async function searchAddress() {
+    const q = document.getElementById('addressInput').value.trim();
+    if (q.length < 5) return;
+    const sugDiv = document.getElementById('addressSuggestions');
+    try {
+        const resp = await fetch('https://api3.geo.admin.ch/rest/services/api/SearchServer?type=locations&origins=address&searchText=' + encodeURIComponent(q) + '&limit=5&sr=2056');
+        const data = await resp.json();
+        if (data.results && data.results.length > 0) {
+            sugDiv.innerHTML = '';
+            sugDiv.style.display = 'block';
+            data.results.forEach(function (r) {
+                const div = document.createElement('div');
+                div.className = 'sug-item';
+                div.textContent = (r.attrs?.label || '').replace(/<[^>]*>/g, '');
+                div.addEventListener('click', function () { selectAddress(r); });
+                sugDiv.appendChild(div);
+            });
+        } else {
+            sugDiv.style.display = 'none';
+        }
+    } catch (e) {
+        console.error('SearchServer error:', e);
+    }
+}
+
+async function selectAddress(result) {
+    document.getElementById('addressSuggestions').style.display = 'none';
+    const attrs = result.attrs || {};
+    const rawLabel = attrs.label || '';
+    const label = rawLabel.replace(/<[^>]*>/g, '');
+    document.getElementById('addressInput').value = label;
+
+    selectedAddress = {
+        label: label,
+        egid: '',
+        year: null,
+        altitude: null,
+        commune: '',
+        canton: '',
+        type: '',
+        floors: null,
+        dwellings: null,
+        coords: { easting: attrs.y, northing: attrs.x }
+    };
+
+    const E = attrs.y;
+    const N = attrs.x;
+    if (!E || !N) return;
+
+    // Parse street+number and NPA from label
+    // Swisstopo format: "Rue Nom Num <b>NPA Commune</b>"
+    var streetNum = '';
+    var npa = null;
+    var communeFromLabel = '';
+    const boldMatch = rawLabel.match(/^(.+?)\s*<b>(\d{4})\s+(.+?)<\/b>/);
+    if (boldMatch) {
+        streetNum = boldMatch[1].trim();
+        npa = parseInt(boldMatch[2]);
+        communeFromLabel = boldMatch[3].trim();
+    } else {
+        // Fallback: parse from clean label
+        const npaMatch = label.match(/^(.+?)\s+(\d{4})\s+(.+)$/);
+        if (npaMatch) {
+            streetNum = npaMatch[1].trim();
+            npa = parseInt(npaMatch[2]);
+            communeFromLabel = npaMatch[3].trim();
+        }
+    }
+
+    // Fetch altitude
+    try {
+        const hResp = await fetch('https://api3.geo.admin.ch/rest/services/height?easting=' + E + '&northing=' + N);
+        const hData = await hResp.json();
+        if (hData.height) selectedAddress.altitude = Math.round(hData.height);
+    } catch (e) { /* ignore */ }
+
+    // Fetch RegBL via find (by street+number, filtered by NPA)
+    if (streetNum) {
+        try {
+            const bResp = await fetch('https://api3.geo.admin.ch/rest/services/api/MapServer/find?layer=ch.bfs.gebaeude_wohnungs_register&searchField=strname_deinr&searchText=' + encodeURIComponent(streetNum) + '&returnGeometry=false');
+            const bData = await bResp.json();
+            if (bData.results && bData.results.length > 0) {
+                // Filter by NPA and exact street match
+                var match = bData.results.find(function(r) {
+                    return r.attributes.dplz4 === npa && r.attributes.strname_deinr === streetNum;
+                });
+                // Fallback: just match by NPA
+                if (!match) {
+                    match = bData.results.find(function(r) { return r.attributes.dplz4 === npa; });
+                }
+                // Fallback: take first result
+                if (!match && bData.results.length === 1) {
+                    match = bData.results[0];
+                }
+                if (match) {
+                    const b = match.attributes;
+                    if (b.egid) selectedAddress.egid = String(b.egid);
+                    if (b.gbauj) selectedAddress.year = b.gbauj;
+                    if (b.gastw) selectedAddress.floors = b.gastw;
+                    if (b.ganzwhg) selectedAddress.dwellings = b.ganzwhg;
+                    if (b.ggdename) selectedAddress.commune = b.ggdename;
+                    if (b.gdekt) selectedAddress.canton = b.gdekt;
+                    if (b.gkat) {
+                        selectedAddress.type = String(b.gkat);
+                    }
+                }
+            }
+        } catch (e) { /* ignore */ }
+    }
+
+    // Fallback commune/canton from label if RegBL didn't provide them
+    if (!selectedAddress.commune && communeFromLabel) {
+        selectedAddress.commune = communeFromLabel;
+    }
+    if (!selectedAddress.canton && npa) {
+        if (npa >= 1000 && npa <= 1347) selectedAddress.canton = 'VD';
+        else if (npa >= 1400 && npa <= 1450) selectedAddress.canton = 'VD';
+        else if (npa >= 1500 && npa <= 1599) selectedAddress.canton = 'VD';
+        else if (npa >= 1600 && npa <= 1699) selectedAddress.canton = 'VD';
+        else if (npa >= 1800 && npa <= 1899) selectedAddress.canton = 'VD';
+        else if (npa >= 1200 && npa <= 1299) selectedAddress.canton = 'GE';
+        else if (npa >= 1700 && npa <= 1799) selectedAddress.canton = 'FR';
+        else if (npa >= 2000 && npa <= 2350) selectedAddress.canton = 'NE';
+        else if (npa >= 2800 && npa <= 2900) selectedAddress.canton = 'JU';
+    }
+
+    // SIA type labels
+    var typeLabels = {
+        '1020': 'Habitat individuel', '1025': 'Habitat collectif',
+        '1030': 'Bureau/Administration', '1040': 'Ecole',
+        '1060': 'Commerce', '1080': 'Restauration',
+        '1100': 'Lieu de rassemblement', '1110': 'Hopital',
+        '1120': 'Industrie', '1130': 'Depot', '1140': 'Sport'
+    };
+
+    // Display meta
+    document.getElementById('metaEgid').textContent = selectedAddress.egid || '—';
+    document.getElementById('metaYear').textContent = selectedAddress.year || '—';
+    document.getElementById('metaAltitude').textContent = selectedAddress.altitude ? selectedAddress.altitude + ' m' : '—';
+    document.getElementById('metaCommune').textContent = selectedAddress.commune || '—';
+    document.getElementById('metaCanton').textContent = selectedAddress.canton || '—';
+    document.getElementById('metaType').textContent = typeLabels[selectedAddress.type] || '—';
+    document.getElementById('metaFloors').textContent = selectedAddress.floors || '—';
+    document.getElementById('metaDwellings').textContent = selectedAddress.dwellings || '—';
+    document.getElementById('addressMeta').style.display = 'block';
+}
+
+/* ─── Create Project ─────────────────────────────── */
+function createProject() {
+    if (!selectedAddress) { showNotification('Recherchez d\'abord une adresse'); return; }
+    const userId = getUserEmail();
+    const project = ProjectStore.create(selectedAddress, userId);
+    ProjectStore.setCurrentId(project.id);
+    window.location.href = 'projet.html?id=' + project.id;
+}
+
+/* ─── Projects List ──────────────────────────────── */
+function renderProjectsList() {
+    const userId = getUserEmail();
+    const projects = ProjectStore.list(userId);
+    const container = document.getElementById('projectsList');
+    document.getElementById('projectCount').textContent = projects.length;
+
+    if (projects.length === 0) {
+        container.innerHTML = '<div class="no-projects">Aucun projet. Creez-en un ci-dessus.</div>';
+        return;
+    }
+
+    container.innerHTML = '';
+    projects.forEach(function (p) {
+        const date = new Date(p.updated || p.created).toLocaleDateString('fr-CH');
+        const row = document.createElement('div');
+        row.className = 'project-row';
+        row.innerHTML =
+            '<div class="pinfo">' +
+            '<div class="pname">' + escapeHtml(p.name) + '</div>' +
+            '<div class="pdate">' + date + (p.address?.egid ? ' — EGID ' + p.address.egid : '') + '</div>' +
+            '</div>' +
+            '<div class="pactions">' +
+            '<button class="btn-open" data-id="' + p.id + '">Ouvrir</button>' +
+            '<button class="btn-del" data-id="' + p.id + '">Supprimer</button>' +
+            '</div>';
+        container.appendChild(row);
+    });
+
+    container.querySelectorAll('.btn-open').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            ProjectStore.setCurrentId(this.dataset.id);
+            window.location.href = 'projet.html?id=' + this.dataset.id;
+        });
+    });
+    container.querySelectorAll('.btn-del').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            if (confirm('Supprimer ce projet ?')) {
+                ProjectStore.remove(this.dataset.id);
+                renderProjectsList();
+                showNotification('Projet supprime');
+            }
+        });
+    });
+}
+
+/* ─── API Settings ────────────────────────────────── */
+function openApiSettings() {
+    document.getElementById('apiKeyInput').value = localStorage.getItem('cecb_api_key') || '';
+    document.getElementById('apiModelInput').value = localStorage.getItem('cecb_api_model') || 'claude-sonnet-4-20250514';
+    document.getElementById('settingsModal').style.display = 'flex';
+}
+function saveApiSettings() {
+    localStorage.setItem('cecb_api_key', document.getElementById('apiKeyInput').value);
+    localStorage.setItem('cecb_api_model', document.getElementById('apiModelInput').value);
+    closeSettings();
+    showNotification('Parametres enregistres');
+}
+function closeSettings() {
+    document.getElementById('settingsModal').style.display = 'none';
+}
+
+/* ─── Utils ───────────────────────────────────────── */
+function escapeHtml(str) {
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+}
+function showNotification(msg) {
+    const el = document.getElementById('notification');
+    el.textContent = msg;
+    el.classList.add('show');
+    setTimeout(function () { el.classList.remove('show'); }, 2500);
+}
+
+/* ─── Auth override ───────────────────────────────── */
+function onAuthSuccess() {
+    showUserBar();
+    document.querySelectorAll('.container').forEach(function (el) { el.style.display = ''; });
+    if (isAdmin()) {
+        document.getElementById('settingsBtn').style.display = '';
+    }
+    renderProjectsList();
+}
+    </script>
+</body>
+</html>

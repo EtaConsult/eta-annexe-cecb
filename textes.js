@@ -23,10 +23,20 @@ const textesGeneres = {};
 
 // ─── Init ───────────────────────────────────────────────
 
-document.addEventListener('DOMContentLoaded', async () => {
-    // Attendre que l'auth soit prête (checkAuth dans auth.js)
+// Called from projet.html when the Textes tab is shown
+async function initTextes() {
     await chargerToutesLesBibliotheques();
     renderTabs();
+    textesLoadFromProject();
+}
+
+// Standalone init (for textes.html used alone)
+document.addEventListener('DOMContentLoaded', async () => {
+    // Only auto-init if NOT in projet.html (standalone mode)
+    if (!document.getElementById('projet-tabs')) {
+        await chargerToutesLesBibliotheques();
+        renderTabs();
+    }
 });
 
 // ─── Chargement des bibliothèques JSON ──────────────────
@@ -250,6 +260,8 @@ function onParamChange(catId) {
     }
     textesGeneres[`${catId}_ei`] = texteEI;
 
+    textesAutoSave();
+
     // Collect AM values if applicable
     if (biblio.ameliorations) {
         const amParams = (biblio.ameliorations || {}).parametres || [];
@@ -400,4 +412,43 @@ function escapeHtml(str) {
     const div = document.createElement('div');
     div.textContent = str;
     return div.innerHTML;
+}
+
+// ─── Project Integration ────────────────────────────────
+
+var _textesSaveTimeout = null;
+function textesAutoSave() {
+    if (typeof ProjectStore === 'undefined') return;
+    clearTimeout(_textesSaveTimeout);
+    _textesSaveTimeout = setTimeout(function () {
+        var pid = ProjectStore.getCurrentId();
+        if (!pid) return;
+        ProjectStore.update(pid, 'textes', { valeurs: valeurs, textesGeneres: textesGeneres });
+    }, 2000);
+}
+
+function textesLoadFromProject() {
+    if (typeof ProjectStore === 'undefined') return;
+    var pid = ProjectStore.getCurrentId();
+    if (!pid) return;
+    var project = ProjectStore.get(pid);
+    if (project && project.textes && project.textes.valeurs) {
+        Object.assign(valeurs, project.textes.valeurs);
+        // Re-apply saved values to form controls
+        Object.entries(valeurs).forEach(function (entry) {
+            var key = entry[0]; // e.g. "batiment_ei"
+            var vals = entry[1];
+            if (typeof vals === 'object') {
+                Object.entries(vals).forEach(function (ve) {
+                    var parts = key.split('_');
+                    var catId = parts[0];
+                    var suffix = parts[1];
+                    var el = document.getElementById(catId + '_' + suffix + '_' + ve[0]);
+                    if (el && ve[1]) el.value = ve[1];
+                });
+            }
+        });
+        // Re-trigger text assembly
+        ORDRE_CECB.forEach(function (catId) { onParamChange(catId); });
+    }
 }

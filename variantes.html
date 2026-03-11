@@ -820,7 +820,7 @@ function setupExport() {
     document.getElementById('copyTable').addEventListener('click', async function() {
         const tableEl = document.getElementById('summaryTable');
         const tableHTML = tableEl.outerHTML;
-        const styledHTML = '<style>table{border-collapse:collapse;font-family:'Urbanist',Arial,sans-serif;font-size:9.5pt}th,td{padding:5px 8px;border-bottom:1px solid #E3DAD1;overflow:hidden}th{font-weight:700;border-bottom:2px solid #333;text-align:center}th:first-child,td:first-child{text-align:left}td:not(:first-child){text-align:center}.st-cat td{font-weight:700}.st-check{color:#10B981;font-weight:700}.st-cost td{border-top:2px solid #333;font-weight:600}.st-sub{font-weight:400;font-size:8pt;color:#555}</style>' + tableHTML;
+        const styledHTML = '<style>table{border-collapse:collapse;font-family:Urbanist,Arial,sans-serif;font-size:9.5pt}th,td{padding:5px 8px;border-bottom:1px solid #E3DAD1;overflow:hidden}th{font-weight:700;border-bottom:2px solid #333;text-align:center}th:first-child,td:first-child{text-align:left}td:not(:first-child){text-align:center}.st-cat td{font-weight:700}.st-check{color:#10B981;font-weight:700}.st-cost td{border-top:2px solid #333;font-weight:600}.st-sub{font-weight:400;font-size:8pt;color:#555}</style>' + tableHTML;
         try {
             await navigator.clipboard.write([
                 new ClipboardItem({
