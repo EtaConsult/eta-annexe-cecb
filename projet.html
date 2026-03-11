@@ -190,6 +190,32 @@
                         <div class="form-group"><label>Coordonnée E (LV95)</label><input type="text" id="meta-coord-e" placeholder="Automatique" readonly></div>
                         <div class="form-group"><label>Coordonnée N (LV95)</label><input type="text" id="meta-coord-n" placeholder="Automatique" readonly></div>
                     </div>
+                    <!-- Affectations du bâtiment -->
+                    <div style="border-top:1px solid #e2e8f0;margin:12px 0 8px;padding-top:12px">
+                        <h4 style="font-size:.9em;color:#2c5f2d;margin-bottom:10px">Affectations du bâtiment</h4>
+                        <div class="form-row">
+                            <div class="form-group"><label>Nombre d'habitants</label><input type="number" id="meta-habitants" placeholder="4" min="1"></div>
+                            <div class="form-group"><label>Nombre de studios</label><input type="number" id="meta-studios" placeholder="0" min="0"></div>
+                            <div class="form-group"><label>Nombre de 2-pièces</label><input type="number" id="meta-2p" placeholder="0" min="0"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Nombre de 3-pièces</label><input type="number" id="meta-3p" placeholder="0" min="0"></div>
+                            <div class="form-group"><label>Nombre de 4-pièces</label><input type="number" id="meta-4p" placeholder="0" min="0"></div>
+                            <div class="form-group"><label>Nombre de 5-pièces</label><input type="number" id="meta-5p" placeholder="0" min="0"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Nombre de 6-pièces</label><input type="number" id="meta-6p" placeholder="0" min="0"></div>
+                            <div class="form-group"><label>Logements > 6 pièces</label><input type="number" id="meta-6p-plus" placeholder="0" min="0"></div>
+                        </div>
+                    </div>
+                    <!-- Conditions d'utilisation standard -->
+                    <div style="border-top:1px solid #e2e8f0;margin:12px 0 8px;padding-top:12px">
+                        <h4 style="font-size:.9em;color:#2c5f2d;margin-bottom:10px">Conditions d'utilisation standard</h4>
+                        <div class="form-row">
+                            <div class="form-group"><label>Température de local (°C)</label><input type="number" id="meta-temp" value="20" min="15" max="25" step="0.5"></div>
+                            <div class="form-group"><label>Supplément régulation (K)</label><input type="number" id="meta-suppl-reg" value="0" min="0" max="5" step="0.5"><span class="hint">0 K si régulation individuelle par pièce</span></div>
+                        </div>
+                    </div>
                     <!-- Transcript import (discret) -->
                     <div class="form-row">
                         <div class="form-group" style="grid-column:1/-1">

@@ -294,6 +294,8 @@ var BLOCS = {
 var RECUEIL_FIELDS = [
     'meta-address', 'meta-canton', 'meta-commune', 'meta-egid', 'meta-year', 'meta-type', 'meta-sre', 'meta-altitude', 'meta-floors', 'meta-apartments',
     'meta-coord-e', 'meta-coord-n',
+    'meta-habitants', 'meta-studios', 'meta-2p', 'meta-3p', 'meta-4p', 'meta-5p', 'meta-6p', 'meta-6p-plus',
+    'meta-temp', 'meta-suppl-reg',
     'toit-config', 'toit-type', 'toit-year', 'toit-isolation', 'toit-isol-cm', 'toit-isol-mat', 'toit-etat', 'toit-combles-comp', 'toit-pv',
     'murs-composition', 'murs-revetement', 'murs-year', 'murs-isolation', 'murs-isol-cm', 'murs-mitoyen',
     'murs-terre-composition', 'murs-terre-isolation', 'murs-terre-isol-cm', 'murs-terre-etat',
