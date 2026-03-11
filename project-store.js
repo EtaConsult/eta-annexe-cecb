@@ -28,7 +28,7 @@ const ProjectStore = (function () {
     function create(address, userId) {
         const project = {
             id: uuid(),
-            name: address.label || 'Nouveau projet',
+            name: address.projectName || address.label || 'Nouveau projet',
             userId: userId,
             created: new Date().toISOString(),
             updated: new Date().toISOString(),

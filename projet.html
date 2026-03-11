@@ -137,7 +137,7 @@
 
     <!-- PROJECT TABS -->
     <div id="projet-tabs">
-        <button class="projet-tab active" data-tab="recueil" onclick="switchProjetTab('recueil')">Texte CECB</button>
+        <button class="projet-tab active" data-tab="recueil" onclick="switchProjetTab('recueil')">Editeur de texte</button>
         <a href="classes.html" class="projet-tab" style="text-decoration:none;text-align:center">Classes CECB</a>
         <button class="projet-tab" data-tab="variantes" onclick="switchProjetTab('variantes')">Variantes</button>
         <button class="projet-tab" data-tab="photos" onclick="switchProjetTab('photos')">Annexe Photos</button>
@@ -148,21 +148,22 @@
          TAB 1: RECUEIL CECB
          ═══════════════════════════════════════════════════ -->
     <div id="tab-recueil" class="projet-panel active">
-        <h1>Texte CECB</h1>
+        <h1>Editeur de texte</h1>
         <p class="subtitle">Rédaction assistée des textes du rapport CECB</p>
 
         <!-- Sub-tabs -->
         <div id="recueil-tabs">
-            <div class="tab active" data-tab="enveloppe" onclick="switchRecueilTab('enveloppe')">Enveloppe</div>
+            <div class="tab active" data-tab="batiment" onclick="switchRecueilTab('batiment')">Bâtiment</div>
+            <div class="tab" data-tab="enveloppe" onclick="switchRecueilTab('enveloppe')">Enveloppe</div>
             <div class="tab" data-tab="technique" onclick="switchRecueilTab('technique')">Technique</div>
         </div>
 
-        <!-- Sub-tab: Enveloppe -->
-        <div id="recueil-tab-enveloppe" class="recueil-tab-content active">
+        <!-- Sub-tab: Bâtiment -->
+        <div id="recueil-tab-batiment" class="recueil-tab-content active">
 
-            <!-- A. Données -->
+            <!-- Données du bâtiment -->
             <div class="recueil-section">
-                <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> A. Données du bâtiment</h3></div>
+                <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> Données du bâtiment</h3></div>
                 <div class="section-body">
                     <div class="form-row"><div class="form-group" style="grid-column:1/-1"><label>Adresse</label><input type="text" id="meta-address" placeholder="Pré-rempli depuis l'accueil" readonly></div></div>
                     <div class="form-row">
@@ -224,17 +225,19 @@
                 </div>
             </div>
 
-            <!-- RegBL Housing Data (conditional) -->
-            <div class="recueil-section" id="regbl-housing-section" style="display:none">
-                <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> Données RegBL — Logements</h3></div>
-                <div class="section-body">
-                    <div id="regbl-housing-content"><p style="color:#888">Chargement des données RegBL...</p></div>
-                </div>
+            <!-- Save -->
+            <div class="btn-group" style="justify-content:center;padding:15px">
+                <button class="btn btn-primary" onclick="manualSave()">Sauvegarder</button>
+                <button class="btn" style="background:#3B82F6;color:#fff" onclick="ouvrirRegbl()" id="btnRegbl">Voir fiche RegBL</button>
             </div>
+        </div>
 
-            <!-- B. Toit -->
+        <!-- Sub-tab: Enveloppe -->
+        <div id="recueil-tab-enveloppe" class="recueil-tab-content">
+
+            <!-- Toit -->
             <div class="recueil-section">
-                <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> B. Toit</h3><span id="life-toit"></span></div>
+                <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> Toit</h3><span id="life-toit"></span></div>
                 <div class="section-body">
                     <div class="form-row">
                         <div class="form-group"><label>Configuration</label><select id="toit-config" onchange="updateToitFields()"><option value="">—</option><option value="toiture_isolee">Cas A : Toiture isolée</option><option value="plancher_combles">Cas B : Plancher des combles</option><option value="plafond_non_chauffe">Cas C : Plafond c/ non-chauffé</option></select></div>
@@ -259,9 +262,9 @@
                 </div>
             </div>
 
-            <!-- C. Murs contre extérieur -->
+            <!-- Murs contre extérieur -->
             <div class="recueil-section">
-                <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> C. Murs contre extérieur</h3><span id="life-murs"></span></div>
+                <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> Murs contre extérieur</h3><span id="life-murs"></span></div>
                 <div class="section-body">
                     <div class="form-row">
                         <div class="form-group"><label>Composition façades</label><select id="murs-composition"><option value="">—</option><option value="maconnerie">Maçonnerie homogène</option><option value="double_paroi">Double paroi</option><option value="ossature_bois">Ossature bois</option><option value="moellons">Maçonnerie de moellons</option></select></div>
@@ -281,9 +284,9 @@
                 </div>
             </div>
 
-            <!-- C2. Murs contre terre -->
+            <!-- Murs contre terre -->
             <div class="recueil-section">
-                <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> C2. Murs contre terre</h3></div>
+                <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> Murs contre terre</h3></div>
                 <div class="section-body">
                     <div class="form-row">
                         <div class="form-group"><label>Composition</label><select id="murs-terre-composition"><option value="">—</option><option value="beton">Béton armé</option><option value="maconnerie">Maçonnerie</option><option value="moellons">Moellons</option></select></div>
@@ -301,9 +304,9 @@
                 </div>
             </div>
 
-            <!-- C3. Murs c/ non chauffé -->
+            <!-- Murs c/ non chauffé -->
             <div class="recueil-section">
-                <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> C3. Murs c/ non chauffé</h3></div>
+                <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> Murs c/ non chauffé</h3></div>
                 <div class="section-body">
                     <div class="form-row">
                         <div class="form-group"><label>Composition</label><select id="murs-nc-composition"><option value="">—</option><option value="maconnerie">Maçonnerie</option><option value="beton">Béton</option><option value="ossature_bois">Ossature bois</option></select></div>
@@ -323,7 +326,7 @@
 
             <!-- D. Fenêtres -->
             <div class="recueil-section">
-                <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> D. Fenêtres et portes</h3><span id="life-fenetres"></span></div>
+                <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> Fenêtres et portes</h3><span id="life-fenetres"></span></div>
                 <div class="section-body">
                     <div class="form-row">
                         <div class="form-group"><label>Type de cadre</label><select id="fen-cadre" onchange="estimateUw()"><option value="">—</option><option value="bois">Bois</option><option value="pvc">PVC</option><option value="alu">Aluminium</option><option value="mixte">Mixte bois-alu</option></select></div>
@@ -343,9 +346,9 @@
                 </div>
             </div>
 
-            <!-- E. Sols c/ terre -->
+            <!-- Sols c/ terre -->
             <div class="recueil-section">
-                <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> E. Sols c/ terre</h3></div>
+                <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> Sols c/ terre</h3></div>
                 <div class="section-body">
                     <div class="form-row">
                         <div class="form-group"><label>Composition</label><select id="sols-terre-config"><option value="">—</option><option value="radier">Radier béton</option><option value="terre_plein">Terre-plein direct</option></select></div>
@@ -360,9 +363,9 @@
                 </div>
             </div>
 
-            <!-- E2. Sols c/ non chauffé -->
+            <!-- Sols c/ non chauffé -->
             <div class="recueil-section">
-                <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> E2. Sols c/ non chauffé</h3></div>
+                <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> Sols c/ non chauffé</h3></div>
                 <div class="section-body">
                     <div class="form-row">
                         <div class="form-group"><label>Composition</label><select id="sols-nc-config"><option value="">—</option><option value="dalle_beton">Dalle béton</option><option value="hourdis">Hourdis</option></select></div>
@@ -381,9 +384,9 @@
                 </div>
             </div>
 
-            <!-- E3. Ponts thermiques -->
+            <!-- Ponts thermiques -->
             <div class="recueil-section">
-                <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> E3. Ponts thermiques</h3></div>
+                <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> Ponts thermiques</h3></div>
                 <div class="section-body">
                     <div class="form-row">
                         <div class="form-group"><label>Ponts thermiques fenêtres</label><select id="pt-fenetres"><option value="">—</option><option value="oui">Oui — embrasures/linteaux/appuis</option><option value="non">Non</option></select></div>
@@ -401,16 +404,15 @@
                 <button class="btn btn-success" onclick="recueilCopyAll()">Tout copier</button>
                 <button class="btn btn-info" onclick="recueilExportPDF()">Export PDF</button>
                 <button class="btn btn-primary" onclick="manualSave()">Sauvegarder</button>
-                <button class="btn" style="background:#3B82F6;color:#fff" onclick="ouvrirRegbl()" id="btnRegbl">Voir fiche RegBL</button>
             </div>
         </div>
 
         <!-- Sub-tab: Technique -->
         <div id="recueil-tab-technique" class="recueil-tab-content">
 
-            <!-- F. Ventilation -->
+            <!-- Ventilation -->
             <div class="recueil-section">
-                <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> F. Ventilation</h3></div>
+                <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> Ventilation</h3></div>
                 <div class="section-body">
                     <div class="form-row">
                         <div class="form-group"><label>VMC existante</label><select id="vent-vmc"><option value="">—</option><option value="non">Non</option><option value="simple_flux">Oui — simple flux</option><option value="double_flux">Oui — double flux</option></select></div>
@@ -424,9 +426,9 @@
                 </div>
             </div>
 
-            <!-- G. Chauffage -->
+            <!-- Chauffage -->
             <div class="recueil-section">
-                <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> G. Chauffage</h3><span id="life-chauffage"></span></div>
+                <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> Chauffage</h3><span id="life-chauffage"></span></div>
                 <div class="section-body">
                     <div class="form-row">
                         <div class="form-group"><label>Source d'énergie</label><select id="chauf-source" onchange="updateChauffageFields()"><option value="">—</option><option value="mazout">Mazout</option><option value="gaz">Gaz naturel</option><option value="elec_central">Électrique centralisé</option><option value="elec_decentral">Électrique décentralisé</option><option value="pac_air">PAC air-eau</option><option value="pac_sol">PAC sol-eau</option><option value="pac_eau">PAC eau-eau</option><option value="cad">CAD</option><option value="bois_buches">Bois (bûches)</option><option value="bois_pellets">Bois (pellets)</option></select></div>
@@ -451,7 +453,7 @@
 
             <!-- H. ECS -->
             <div class="recueil-section">
-                <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> H. Eau chaude sanitaire</h3><span id="life-ecs"></span></div>
+                <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> Eau chaude sanitaire</h3><span id="life-ecs"></span></div>
                 <div class="section-body">
                     <div class="form-row">
                         <div class="form-group"><label>Type de production ECS</label><select id="ecs-type"><option value="">—</option><option value="chaudiere">Par la chaudière (fossile)</option><option value="ce_elec_central">CE électrique centralisé</option><option value="ce_elec_decentral">CE électrique décentralisé</option><option value="boiler_elec">Boiler électrique (ancien)</option><option value="thermodynamique">Chauffe-eau thermodynamique</option><option value="pac">Par la PAC</option><option value="cad">Par le CAD</option><option value="solaire_pac">Solaire thermique + PAC</option></select></div>
@@ -468,7 +470,7 @@
 
             <!-- I. Appareils -->
             <div class="recueil-section">
-                <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> I. Appareils et éclairage</h3></div>
+                <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> Appareils et éclairage</h3></div>
                 <div class="section-body">
                     <div class="form-row"><div class="form-group"><label>Consommations électricité fournies</label><select id="app-conso"><option value="">—</option><option value="oui">Oui</option><option value="non">Non</option></select></div></div>
                     <div class="btn-group"><button class="btn btn-primary btn-sm" onclick="generateSection('appareils')">Générer le texte</button></div>
@@ -481,7 +483,7 @@
 
             <!-- J. PV -->
             <div class="recueil-section">
-                <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> J. Photovoltaïque</h3></div>
+                <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> Photovoltaïque</h3></div>
                 <div class="section-body">
                     <div class="form-row">
                         <div class="form-group"><label>Installation PV existante</label><select id="pv-existant" onchange="updatePVFields()"><option value="">—</option><option value="oui">Oui</option><option value="non">Non</option></select></div>

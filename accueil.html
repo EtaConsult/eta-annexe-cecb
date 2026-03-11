@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CECB Plus — Accueil</title>
+    <title>Assistant CECB — Accueil</title>
     <link rel="stylesheet" href="style.css">
     <style>
 /* ─── Accueil-specific styles ────────────────────── */
@@ -63,7 +63,7 @@
 
     <div class="container">
         <div class="hero">
-            <h1>CECB Plus</h1>
+            <h1>Assistant CECB</h1>
             <p class="subtitle">Assistant CECB — Gestion de projets par adresse</p>
         </div>
 
@@ -85,6 +85,10 @@
                     <div class="meta-item"><span class="meta-label">Type</span><span class="meta-value" id="metaType">—</span></div>
                     <div class="meta-item"><span class="meta-label">Etages</span><span class="meta-value" id="metaFloors">—</span></div>
                     <div class="meta-item"><span class="meta-label">Logements</span><span class="meta-value" id="metaDwellings">—</span></div>
+                </div>
+                <div style="margin:12px 0 8px">
+                    <label style="font-weight:600;font-size:12px;text-transform:uppercase;color:#94A3B8;letter-spacing:.5px">Nom du projet</label>
+                    <input type="text" id="projectNameInput" style="width:100%;padding:8px 12px;border:1px solid #CBD5E1;border-radius:8px;font-size:14px;margin-top:4px" placeholder="Nom du projet">
                 </div>
                 <button class="btn-create" id="btnCreate" onclick="createProject()">Creer le projet</button>
             </div>
@@ -292,11 +296,17 @@ async function selectAddress(result) {
     document.getElementById('metaFloors').textContent = selectedAddress.floors || '—';
     document.getElementById('metaDwellings').textContent = selectedAddress.dwellings || '—';
     document.getElementById('addressMeta').style.display = 'block';
+
+    // Default project name: Rue_N° (street name with spaces replaced by _)
+    var defaultName = streetNum ? streetNum.replace(/\s+/g, '_') : label.split(/\s+\d{4}\s+/)[0].replace(/\s+/g, '_');
+    document.getElementById('projectNameInput').value = defaultName;
 }
 
 /* ─── Create Project ─────────────────────────────── */
 function createProject() {
     if (!selectedAddress) { showNotification('Recherchez d\'abord une adresse'); return; }
+    var customName = document.getElementById('projectNameInput').value.trim();
+    if (customName) selectedAddress.projectName = customName;
     const userId = getUserEmail();
     const project = ProjectStore.create(selectedAddress, userId);
     ProjectStore.setCurrentId(project.id);

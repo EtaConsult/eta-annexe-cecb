@@ -56,30 +56,18 @@ function updatePVFields() {
 
 function onBuildingTypeChange() {
     var typeVal = rv('meta-type');
-    var section = document.getElementById('regbl-housing-section');
     if (typeVal === '1020' || typeVal === '1025') {
-        section.style.display = 'block';
         fetchRegblHousing();
-    } else {
-        section.style.display = 'none';
     }
 }
 
 async function fetchRegblHousing() {
     var egid = rv('meta-egid');
-    var container = document.getElementById('regbl-housing-content');
-    if (!egid) {
-        container.innerHTML = '<p style="color:#888">EGID non disponible — impossible de charger les données RegBL.</p>';
-        return;
-    }
-    container.innerHTML = '<p style="color:#888">Chargement des données RegBL...</p>';
+    if (!egid) return;
     try {
         var resp = await fetch('https://api3.geo.admin.ch/rest/services/api/MapServer/find?layer=ch.bfs.gebaeude_wohnungs_register&searchField=egid&searchText=' + egid + '&returnGeometry=false');
         var data = await resp.json();
-        if (!data.results || data.results.length === 0) {
-            container.innerHTML = '<p style="color:#888">Aucune donnée RegBL trouvée pour EGID ' + egid + '.</p>';
-            return;
-        }
+        if (!data.results || data.results.length === 0) return;
         var b = data.results[0].attributes || {};
         var totalWhg = b.ganzwhg || 0;
         // wazim is an array of room counts per dwelling
@@ -107,30 +95,8 @@ async function fetchRegblHousing() {
         sv('meta-5p', counts[5]);
         sv('meta-6p', counts[6]);
         sv('meta-6p-plus', counts['7+']);
-        // Display summary table
-        var html = '<table style="width:100%;border-collapse:collapse;font-size:.9em">';
-        html += '<tr><td style="padding:6px;font-weight:600">Total logements</td><td style="padding:6px">' + totalWhg + '</td></tr>';
-        var roomLabels = [
-            { count: counts[1], label: 'Studios (1 pièce)' },
-            { count: counts[2], label: '2 pièces' },
-            { count: counts[3], label: '3 pièces' },
-            { count: counts[4], label: '4 pièces' },
-            { count: counts[5], label: '5 pièces' },
-            { count: counts[6], label: '6 pièces' },
-            { count: counts['7+'], label: '> 6 pièces' }
-        ];
-        roomLabels.forEach(function(r) {
-            if (r.count > 0) {
-                html += '<tr><td style="padding:6px;border-top:1px solid #eee">' + r.label + '</td><td style="padding:6px;border-top:1px solid #eee">' + r.count + '</td></tr>';
-            }
-        });
-        html += '</table>';
-        container.innerHTML = html;
-        // Trigger auto-save
         if (typeof recueilAutoSave === 'function') recueilAutoSave();
-    } catch (e) {
-        container.innerHTML = '<p style="color:var(--r-danger)">Erreur lors du chargement: ' + e.message + '</p>';
-    }
+    } catch (e) { /* silent */ }
 }
 
 /* ===== UW ESTIMATION ===== */
