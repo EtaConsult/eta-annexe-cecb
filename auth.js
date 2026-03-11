@@ -35,14 +35,12 @@ async function initAdmin() {
     const users = getUsers();
     const admin = users.find(u => u.email === ADMIN_EMAIL);
     if (!admin) {
-        users.push({ email: ADMIN_EMAIL, passwordHash: '', isAdmin: true, firstName: 'Gérard', lastName: 'Merminod' });
+        users.push({ email: ADMIN_EMAIL, passwordHash: '', isAdmin: true, firstName: 'Gérard', lastName: 'Merminod', name: 'Gérard Merminod' });
         saveUsers(users);
     } else if (!admin.firstName) {
-        // Migrate old name field to firstName/lastName
         var parts = (admin.name || 'Gérard Merminod').split(' ');
         admin.firstName = parts[0] || '';
         admin.lastName = parts.slice(1).join(' ') || '';
-        delete admin.name;
         saveUsers(users);
     }
 }
@@ -116,7 +114,7 @@ async function addUser(email, password, firstName, lastName) {
         return { ok: false, msg: 'Cet email existe déjà' };
     }
     const hash = await hashPassword(password);
-    users.push({ email: email.toLowerCase(), passwordHash: hash, plainPassword: password, isAdmin: false, firstName: firstName || '', lastName: lastName || '' });
+    users.push({ email: email.toLowerCase(), passwordHash: hash, plainPassword: password, isAdmin: false, firstName: firstName || '', lastName: lastName || '', name: ((firstName || '') + ' ' + (lastName || '')).trim() || email });
     saveUsers(users);
     return { ok: true };
 }
