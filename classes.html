@@ -6,6 +6,10 @@
     <title>CECB Plus — Classes CECB</title>
     <link rel="stylesheet" href="style.css">
     <style>
+        #projet-tabs{display:flex;gap:0;background:linear-gradient(135deg,#1E293B 0%,#334155 100%);padding:0 24px}
+        #projet-tabs .projet-tab{padding:12px 22px;font-size:14px;font-weight:600;color:rgba(255,255,255,.6);background:transparent;border:none;border-bottom:3px solid transparent;cursor:pointer;transition:all .2s;white-space:nowrap}
+        #projet-tabs .projet-tab:hover{color:#fff;background:rgba(255,255,255,.06)}
+        #projet-tabs .projet-tab.active{color:#fff;background:rgba(255,255,255,.08);border-bottom-color:#10B981}
         .classes-container { max-width: 900px; margin: 0 auto; padding: 20px 24px 60px; }
         .classes-container h1 { color: #1E293B; font-size: 1.6em; margin-bottom: 4px; }
         .classes-container .subtitle { color: #64748B; margin-bottom: 24px; }
@@ -66,9 +70,17 @@
 <body>
     <nav class="main-nav">
         <span class="brand">CECB Plus</span>
-        <a href="accueil.html">Projets</a>
-        <a href="classes.html" class="active">Classes CECB</a>
+        <a href="accueil.html">Accueil</a>
     </nav>
+
+    <!-- PROJECT TABS -->
+    <div id="projet-tabs">
+        <a href="projet.html" class="projet-tab" style="text-decoration:none;text-align:center">Editeur de texte</a>
+        <a href="classes.html" class="projet-tab active" style="text-decoration:none;text-align:center">Classes CECB</a>
+        <a href="projet.html" class="projet-tab" style="text-decoration:none;text-align:center">Variantes</a>
+        <a href="projet.html" class="projet-tab" style="text-decoration:none;text-align:center">Annexe Photos</a>
+        <a href="projet.html" class="projet-tab" style="text-decoration:none;text-align:center">Textes (ancienne version)</a>
+    </div>
 
     <div class="container classes-container">
         <h1>Classes CECB — Synthèse</h1>

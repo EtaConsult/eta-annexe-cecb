@@ -1035,6 +1035,21 @@ function initRecueil() {
     }
 }
 
+/** Default texts for Complément sub-tab */
+var COMPLEMENT_DEFAULTS = {
+    revalorisation: "La rénovation énergétique offre une opportunité intéressante pour améliorer durablement le confort et préserver la valeur d'un bâtiment. Elle permet de créer des surfaces habitables supplémentaires grâce à des surélévations ou des extensions, de repenser l'agencement des espaces intérieurs ou d'agrandir les balcons existants. L'amélioration du confort et le maintien de la valeur à long terme représentent des objectifs importants de cette approche. Une rénovation énergétique est une occasion unique d'améliorer à long terme le confort et de maintenir la valeur d'un bâtiment. On peut créer des surfaces habitables supplémentaires par des surélévations ou des extensions ; on peut aussi revoir l'agencement des pièces ou agrandir des balcons. Il est pertinent d'optimiser le confort et le maintien de la valeur à long terme.",
+    comportement: "Le CECB évalue la performance énergétique du bâtiment selon des conditions d'utilisation et d'occupation normalisées. La consommation énergétique effective dépend en grande partie du comportement des occupant·e·s et peut ainsi s'écarter significativement des valeurs indiquées par le CECB. Les recommandations du document CECB se concentrent exclusivement sur l'enveloppe du bâtiment et ses installations techniques. Néanmoins, une utilisation rationnelle de l'énergie demeure l'une des mesures les plus performantes et économiquement avantageuses. Des réductions importantes de la consommation peuvent être obtenues par une aération appropriée et par l'ajustement à la baisse de la température ambiante durant la période hivernale."
+};
+
+/** Reset a complement textarea to its original default text */
+function resetComplementField(field) {
+    var ta = document.getElementById('gen-' + field);
+    if (ta && COMPLEMENT_DEFAULTS[field]) {
+        ta.value = COMPLEMENT_DEFAULTS[field];
+        recueilAutoSave();
+    }
+}
+
 /** Open the RegBL extended info page for the current project's EGID */
 function ouvrirRegbl() {
     var egid = rv('meta-egid');

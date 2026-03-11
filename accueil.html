@@ -144,6 +144,20 @@
                     <option value="claude-opus-4-20250514">Claude Opus 4</option>
                 </select>
             </div>
+            <hr style="margin:16px 0;border:none;border-top:1px solid #E2E8F0">
+            <h3 style="margin:0 0 10px;font-size:.95em;color:#475569">Notifications email (EmailJS)</h3>
+            <div style="margin-bottom:10px">
+                <label style="display:block;font-size:13px;font-weight:600;color:#475569;margin-bottom:4px">Public Key</label>
+                <input type="text" id="emailjsPublicKey" placeholder="ex: AbCdEfGhIjK" style="width:100%;padding:8px 12px;border:1px solid #CBD5E1;border-radius:6px;font-size:14px">
+            </div>
+            <div style="margin-bottom:10px">
+                <label style="display:block;font-size:13px;font-weight:600;color:#475569;margin-bottom:4px">Service ID</label>
+                <input type="text" id="emailjsServiceId" placeholder="ex: service_xxxxx" style="width:100%;padding:8px 12px;border:1px solid #CBD5E1;border-radius:6px;font-size:14px">
+            </div>
+            <div style="margin-bottom:14px">
+                <label style="display:block;font-size:13px;font-weight:600;color:#475569;margin-bottom:4px">Template ID</label>
+                <input type="text" id="emailjsTemplateId" placeholder="ex: template_xxxxx" style="width:100%;padding:8px 12px;border:1px solid #CBD5E1;border-radius:6px;font-size:14px">
+            </div>
             <div style="display:flex;gap:8px">
                 <button onclick="saveApiSettings()" style="padding:8px 18px;background:#10B981;color:#fff;border:none;border-radius:6px;font-weight:600">Enregistrer</button>
                 <button onclick="closeSettings()" style="padding:8px 18px;background:#64748B;color:#fff;border:none;border-radius:6px;font-weight:600">Fermer</button>
@@ -151,6 +165,7 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <script src="auth.js"></script>
     <script src="project-store.js"></script>
     <script>
@@ -384,11 +399,17 @@ function renderProjectsList() {
 function openApiSettings() {
     document.getElementById('apiKeyInput').value = localStorage.getItem('cecb_api_key') || '';
     document.getElementById('apiModelInput').value = localStorage.getItem('cecb_api_model') || 'claude-sonnet-4-20250514';
+    document.getElementById('emailjsPublicKey').value = localStorage.getItem('cecb_emailjs_public_key') || '';
+    document.getElementById('emailjsServiceId').value = localStorage.getItem('cecb_emailjs_service_id') || '';
+    document.getElementById('emailjsTemplateId').value = localStorage.getItem('cecb_emailjs_template_id') || '';
     document.getElementById('settingsModal').style.display = 'flex';
 }
 function saveApiSettings() {
     localStorage.setItem('cecb_api_key', document.getElementById('apiKeyInput').value);
     localStorage.setItem('cecb_api_model', document.getElementById('apiModelInput').value);
+    localStorage.setItem('cecb_emailjs_public_key', document.getElementById('emailjsPublicKey').value);
+    localStorage.setItem('cecb_emailjs_service_id', document.getElementById('emailjsServiceId').value);
+    localStorage.setItem('cecb_emailjs_template_id', document.getElementById('emailjsTemplateId').value);
     closeSettings();
     showNotification('Parametres enregistres');
 }
@@ -452,6 +473,24 @@ function submitFeedback() {
     document.getElementById('feedbackText').value = '';
     showNotification('Merci pour votre retour !');
     if (isAdmin()) renderFeedbackAdmin();
+    sendFeedbackEmail(entry);
+}
+
+function sendFeedbackEmail(entry) {
+    var publicKey = localStorage.getItem('cecb_emailjs_public_key');
+    var serviceId = localStorage.getItem('cecb_emailjs_service_id');
+    var templateId = localStorage.getItem('cecb_emailjs_template_id');
+    if (!publicKey || !serviceId || !templateId || typeof emailjs === 'undefined') return;
+    var typeLabel = entry.type === 'bug' ? 'Bug' : 'Amélioration';
+    emailjs.init(publicKey);
+    emailjs.send(serviceId, templateId, {
+        to_email: 'info@etaconsult.ch',
+        subject: '[Assistant CECB] Nouveau retour : ' + typeLabel,
+        from_name: entry.user,
+        message: typeLabel + ' signalé(e) par ' + entry.user + ' le ' + new Date(entry.date).toLocaleDateString('fr-CH') + ' :\n\n' + entry.text + '\n\n---\nPour consulter tous les retours, demandez à Claude de lire localStorage.getItem(\'cecb-feedback\') dans le navigateur.'
+    }).catch(function(err) {
+        console.warn('EmailJS error:', err);
+    });
 }
 
 function renderFeedbackAdmin() {

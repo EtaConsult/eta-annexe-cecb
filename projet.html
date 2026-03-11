@@ -125,6 +125,37 @@
 .char-counter{font-size:.75em;color:#888;margin-left:8px}
 .project-title-nav{color:rgba(255,255,255,.85);font-weight:600;font-size:14px;margin-left:auto;padding:0 16px}
 @media(max-width:768px){.form-row{grid-template-columns:1fr}.variant-config{grid-template-columns:1fr}}
+/* ─── Classes CECB tab ──────────────────────────────── */
+.classes-container{max-width:900px;margin:0 auto;padding:20px 24px 60px}
+.classes-container h1{color:#1E293B;font-size:1.6em;margin-bottom:4px}
+.classes-container .subtitle{color:#64748B;margin-bottom:24px}
+.selector-grid{display:flex;flex-direction:column;gap:12px;margin-bottom:24px}
+.selector-card{background:#fff;border:1px solid #E2E8F0;border-radius:10px;padding:14px 20px;display:flex;align-items:center;gap:16px}
+.selector-card h3{font-size:.9em;color:#2c5f2d;margin:0;white-space:nowrap;min-width:180px;display:flex;align-items:center;gap:6px}
+.class-buttons{display:flex;gap:6px}
+.class-btn{width:42px;height:42px;border:2px solid;border-radius:8px;font-weight:700;font-size:16px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;background:#fff}
+.class-btn:hover{transform:scale(1.08)}
+.class-btn.selected{color:#fff !important;transform:scale(1.12);box-shadow:0 2px 10px rgba(0,0,0,.3)}
+.class-btn[data-class="A"]{border-color:#00843D;color:#00843D}.class-btn[data-class="A"].selected{background:#00843D}
+.class-btn[data-class="B"]{border-color:#4CAF50;color:#4CAF50}.class-btn[data-class="B"].selected{background:#4CAF50}
+.class-btn[data-class="C"]{border-color:#8BC34A;color:#6d9e2e}.class-btn[data-class="C"].selected{background:#8BC34A}
+.class-btn[data-class="D"]{border-color:#FFC107;color:#c99700}.class-btn[data-class="D"].selected{background:#FFC107;color:#333 !important}
+.class-btn[data-class="E"]{border-color:#FF9800;color:#e08600}.class-btn[data-class="E"].selected{background:#FF9800}
+.class-btn[data-class="F"]{border-color:#FF5722;color:#FF5722}.class-btn[data-class="F"].selected{background:#FF5722}
+.class-btn[data-class="G"]{border-color:#D32F2F;color:#D32F2F}.class-btn[data-class="G"].selected{background:#D32F2F}
+.co2-buttons{display:flex;gap:8px}
+.co2-btn{padding:8px 14px;border:2px solid #E2E8F0;border-radius:8px;font-weight:600;font-size:.85em;background:#fff;cursor:pointer;transition:all .2s}
+.co2-btn:hover{border-color:#2c5f2d}
+.co2-btn.selected{background:#2c5f2d;color:#fff;border-color:#2c5f2d}
+.output-panel{background:#fff;border:1px solid #E2E8F0;border-radius:10px;padding:20px;margin-bottom:16px}
+.output-panel h3{color:#2c5f2d;font-size:.95em;margin-bottom:12px}
+.output-panel textarea{width:100%;min-height:100px;padding:12px;border:1px solid #E2E8F0;border-radius:6px;font-family:inherit;font-size:.9em;line-height:1.6;resize:vertical}
+.output-panel textarea:focus{outline:none;border-color:#2c5f2d;box-shadow:0 0 0 2px rgba(44,95,45,.15)}
+.output-btns{display:flex;gap:8px;margin-top:8px;justify-content:flex-end}
+.hint-bar{display:flex;gap:12px;align-items:center;margin-bottom:16px;padding:10px 14px;background:#f0f8f0;border-radius:8px;font-size:.85em;color:#2c5f2d}
+.hint-bar .class-badge{font-weight:700;font-size:1.1em;padding:2px 10px;border-radius:6px;color:#fff}
+.copy-all-bar{text-align:center;margin-top:20px}
+@media(max-width:700px){.selector-card{flex-direction:column;align-items:flex-start}.selector-card h3{min-width:auto}}
     </style>
 </head>
 <body>
@@ -138,7 +169,7 @@
     <!-- PROJECT TABS -->
     <div id="projet-tabs">
         <button class="projet-tab active" data-tab="recueil" onclick="switchProjetTab('recueil')">Editeur de texte</button>
-        <a href="classes.html" class="projet-tab" style="text-decoration:none;text-align:center">Classes CECB</a>
+        <button class="projet-tab" data-tab="classes" onclick="switchProjetTab('classes')">Classes CECB</button>
         <button class="projet-tab" data-tab="variantes" onclick="switchProjetTab('variantes')">Variantes</button>
         <button class="projet-tab" data-tab="photos" onclick="switchProjetTab('photos')">Annexe Photos</button>
         <button class="projet-tab" data-tab="textes" onclick="switchProjetTab('textes')">Textes (ancienne version)</button>
@@ -156,6 +187,7 @@
             <div class="tab active" data-tab="batiment" onclick="switchRecueilTab('batiment')">Bâtiment</div>
             <div class="tab" data-tab="enveloppe" onclick="switchRecueilTab('enveloppe')">Enveloppe</div>
             <div class="tab" data-tab="technique" onclick="switchRecueilTab('technique')">Technique</div>
+            <div class="tab" data-tab="complement" onclick="switchRecueilTab('complement')">Complément</div>
         </div>
 
         <!-- Sub-tab: Bâtiment -->
@@ -505,8 +537,110 @@
         </div>
 
 
+        <!-- Sub-tab: Complément -->
+        <div id="recueil-tab-complement" class="recueil-tab-content">
+
+            <!-- Revalorisation -->
+            <div class="recueil-section">
+                <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> Revalorisation</h3></div>
+                <div class="section-body">
+                    <textarea id="gen-revalorisation" class="gen-textarea" style="min-height:150px" oninput="onGenTextChange(this)">La rénovation énergétique offre une opportunité intéressante pour améliorer durablement le confort et préserver la valeur d'un bâtiment. Elle permet de créer des surfaces habitables supplémentaires grâce à des surélévations ou des extensions, de repenser l'agencement des espaces intérieurs ou d'agrandir les balcons existants. L'amélioration du confort et le maintien de la valeur à long terme représentent des objectifs importants de cette approche. Une rénovation énergétique est une occasion unique d'améliorer à long terme le confort et de maintenir la valeur d'un bâtiment. On peut créer des surfaces habitables supplémentaires par des surélévations ou des extensions ; on peut aussi revoir l'agencement des pièces ou agrandir des balcons. Il est pertinent d'optimiser le confort et le maintien de la valeur à long terme.</textarea>
+                    <div class="output-field-btns" style="margin-top:8px">
+                        <button class="btn btn-sm btn-success" onclick="recueilCopyField('gen-revalorisation')">Copier</button>
+                        <button class="btn btn-sm btn-warning" onclick="enhanceField('gen-revalorisation','Revalorisation')">Enhance</button>
+                        <button class="btn btn-sm" style="background:#64748B;color:#fff" onclick="resetComplementField('revalorisation')">Revenir au texte original</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comportement de l'occupant -->
+            <div class="recueil-section">
+                <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> Comportement de l'occupant</h3></div>
+                <div class="section-body">
+                    <textarea id="gen-comportement" class="gen-textarea" style="min-height:150px" oninput="onGenTextChange(this)">Le CECB évalue la performance énergétique du bâtiment selon des conditions d'utilisation et d'occupation normalisées. La consommation énergétique effective dépend en grande partie du comportement des occupant·e·s et peut ainsi s'écarter significativement des valeurs indiquées par le CECB. Les recommandations du document CECB se concentrent exclusivement sur l'enveloppe du bâtiment et ses installations techniques. Néanmoins, une utilisation rationnelle de l'énergie demeure l'une des mesures les plus performantes et économiquement avantageuses. Des réductions importantes de la consommation peuvent être obtenues par une aération appropriée et par l'ajustement à la baisse de la température ambiante durant la période hivernale.</textarea>
+                    <div class="output-field-btns" style="margin-top:8px">
+                        <button class="btn btn-sm btn-success" onclick="recueilCopyField('gen-comportement')">Copier</button>
+                        <button class="btn btn-sm btn-warning" onclick="enhanceField('gen-comportement','Comportement occupant')">Enhance</button>
+                        <button class="btn btn-sm" style="background:#64748B;color:#fff" onclick="resetComplementField('comportement')">Revenir au texte original</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Save -->
+            <div class="btn-group" style="justify-content:center;padding:15px">
+                <button class="btn btn-primary" onclick="manualSave()">Sauvegarder</button>
+            </div>
+        </div>
+
         <!-- Hidden output container for PDF export compatibility -->
         <div id="recueil-output-container" style="display:none"></div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════
+         TAB: CLASSES CECB
+         ═══════════════════════════════════════════════════ -->
+    <div id="tab-classes" class="projet-panel">
+        <div class="classes-container">
+            <h1>Classes CECB — Synthèse</h1>
+            <p class="subtitle">Textes descriptifs selon les classes CECB de l'enveloppe, de l'efficacité énergétique et des émissions CO₂</p>
+
+            <div class="selector-grid">
+                <div class="selector-card">
+                    <h3>Classe enveloppe</h3>
+                    <div class="class-buttons" id="sel-enveloppe"></div>
+                </div>
+                <div class="selector-card">
+                    <h3>Efficacité énergétique</h3>
+                    <div class="class-buttons" id="sel-efficacite"></div>
+                </div>
+                <div class="selector-card">
+                    <h3>Émissions CO₂</h3>
+                    <div class="co2-buttons" id="sel-co2">
+                        <button class="co2-btn" data-co2="fossile" onclick="selectCO2('fossile')">Fossile</button>
+                        <button class="co2-btn" data-co2="renouvelable" onclick="selectCO2('renouvelable')">Renouvelable</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hint-bar" id="hint-bar" style="display:none">
+                <span>Sélection :</span>
+                <span>Enveloppe <span class="class-badge" id="badge-env">—</span></span>
+                <span>Efficacité <span class="class-badge" id="badge-eff">—</span></span>
+                <span>CO₂ <span id="badge-co2" style="font-weight:700">—</span></span>
+            </div>
+
+            <div class="output-panel" id="panel-enveloppe" style="display:none">
+                <h3>Enveloppe du bâtiment</h3>
+                <textarea id="txt-enveloppe" rows="4"></textarea>
+                <div class="output-btns">
+                    <button class="btn btn-sm btn-success" onclick="classeCopyField('txt-enveloppe')">Copier</button>
+                    <button class="btn btn-sm btn-warning" onclick="classeEnhanceField('txt-enveloppe','Enveloppe')">Enhance</button>
+                </div>
+            </div>
+
+            <div class="output-panel" id="panel-efficacite" style="display:none">
+                <h3>Efficacité énergétique globale</h3>
+                <textarea id="txt-efficacite" rows="4"></textarea>
+                <div class="output-btns">
+                    <button class="btn btn-sm btn-success" onclick="classeCopyField('txt-efficacite')">Copier</button>
+                    <button class="btn btn-sm btn-warning" onclick="classeEnhanceField('txt-efficacite','Efficacité')">Enhance</button>
+                </div>
+            </div>
+
+            <div class="output-panel" id="panel-co2" style="display:none">
+                <h3>Émissions CO₂</h3>
+                <textarea id="txt-co2" rows="3"></textarea>
+                <div class="output-btns">
+                    <button class="btn btn-sm btn-success" onclick="classeCopyField('txt-co2')">Copier</button>
+                    <button class="btn btn-sm btn-warning" onclick="classeEnhanceField('txt-co2','CO₂')">Enhance</button>
+                </div>
+            </div>
+
+            <div class="copy-all-bar" id="copy-all-bar" style="display:none">
+                <button class="btn btn-primary" onclick="saveClasses()">Sauvegarder</button>
+                <button class="btn btn-primary" onclick="classCopyAll()" style="margin-left:8px">Tout copier</button>
+            </div>
+        </div>
     </div>
 
     <!-- ═══════════════════════════════════════════════════
@@ -610,7 +744,7 @@
     <script>
     /* ═══════ PROJECT PAGE CONTROLLER ═══════ */
 
-    var _tabsInitialized = { recueil: false, photos: false, variantes: false, textes: false };
+    var _tabsInitialized = { recueil: false, classes: false, photos: false, variantes: false, textes: false };
 
     function switchProjetTab(tab) {
         document.querySelectorAll('#projet-tabs .projet-tab').forEach(function (t) { t.classList.toggle('active', t.dataset.tab === tab); });
@@ -621,6 +755,7 @@
         if (!_tabsInitialized[tab]) {
             _tabsInitialized[tab] = true;
             if (tab === 'recueil') initRecueil();
+            else if (tab === 'classes') initClassesCecb();
             else if (tab === 'photos') initPhotos();
             else if (tab === 'variantes') initVariantes();
             else if (tab === 'textes') initTextes();
@@ -647,6 +782,7 @@
         var pid = ProjectStore.getCurrentId();
         if (!pid) return;
         if (typeof recueilAutoSave === 'function') recueilAutoSave();
+        if (typeof saveClasses === 'function' && classesState && (classesState.enveloppe || classesState.efficacite || classesState.co2)) saveClasses();
         if (typeof autoSavePhotos === 'function') autoSavePhotos();
         if (typeof varSaveState === 'function') varSaveState();
         if (typeof textesAutoSave === 'function') textesAutoSave();
@@ -654,6 +790,174 @@
         el.textContent = 'Projet sauvegardé';
         el.classList.add('show');
         setTimeout(function () { el.classList.remove('show'); }, 2500);
+    }
+
+    /* ═══════ CLASSES CECB TAB ═══════ */
+
+    var TEXTES_ENVELOPPE = {
+        A: "L'enveloppe du bâtiment offre une isolation thermique exemplaire, avec des déperditions inférieures à 50 % des exigences actuelles pour les nouvelles constructions.",
+        B: "L'enveloppe du bâtiment offre une excellente isolation thermique, avec des déperditions comprises entre 50 % et 100 % des exigences actuelles des nouvelles constructions.",
+        C: "L'enveloppe du bâtiment offre une bonne isolation thermique, avec des déperditions comprises entre 100 % et 150 % des exigences actuelles des nouvelles constructions.",
+        D: "L'enveloppe du bâtiment offre une isolation thermique moyenne, avec des déperditions comprises entre 150 % et 200 % des exigences actuelles des nouvelles constructions.",
+        E: "L'enveloppe du bâtiment offre une isolation thermique moyenne, avec des déperditions comprises entre 200 % et 250 % des exigences actuelles des nouvelles constructions.",
+        F: "L'enveloppe du bâtiment offre une isolation thermique médiocre, avec des déperditions comprises entre 250 % et 300 % des exigences actuelles des nouvelles constructions.",
+        G: "L'enveloppe du bâtiment offre une très mauvaise isolation thermique, avec des déperditions supérieures à 300 % des exigences actuelles des nouvelles constructions."
+    };
+    var TEXTES_EFFICACITE = {
+        A: "L'efficacité énergétique globale est remarquable, avec un besoin énergétique pondéré (chauffage, eau chaude, électricité) inférieur à 50 % des exigences actuelles.",
+        B: "L'efficacité énergétique globale est très bonne, avec un besoin énergétique pondéré (chauffage, eau chaude, électricité) compris entre 50 % et 100 % des exigences actuelles.",
+        C: "L'efficacité énergétique globale est bonne, avec un besoin énergétique pondéré (chauffage, eau chaude, électricité) compris entre 100 % et 150 % des exigences actuelles.",
+        D: "L'efficacité énergétique globale est acceptable, avec un besoin énergétique pondéré (chauffage, eau chaude, électricité) compris entre 150 % et 200 % des exigences actuelles.",
+        E: "L'efficacité énergétique globale est faible, avec un besoin énergétique pondéré (chauffage, eau chaude, électricité) compris entre 200 % et 250 % des exigences actuelles.",
+        F: "L'efficacité énergétique globale est largement déficiente, avec un besoin énergétique pondéré (chauffage, eau chaude, électricité) compris entre 250 % et 300 % des exigences actuelles.",
+        G: "L'efficacité énergétique globale est critique, avec un besoin énergétique pondéré (chauffage, eau chaude, électricité) supérieur à 300 % des exigences actuelles."
+    };
+    var TEXTES_CO2 = {
+        fossile: "Le bâtiment est chauffé par des énergies fossiles et émet beaucoup de CO₂. L'utilisation d'énergies renouvelables et l'amélioration de l'enveloppe du bâtiment sont recommandées.",
+        renouvelable: "Le bâtiment ne génère pas d'émissions directes de CO₂."
+    };
+    var CLASS_COLORS = { A: '#00843D', B: '#4CAF50', C: '#8BC34A', D: '#FFC107', E: '#FF9800', F: '#FF5722', G: '#D32F2F' };
+    var classesState = { enveloppe: null, efficacite: null, co2: null };
+    var CLASSES_STORAGE_KEY = 'cecb-classes-data';
+
+    function initClassesCecb() {
+        var classes = ['A','B','C','D','E','F','G'];
+        ['sel-enveloppe', 'sel-efficacite'].forEach(function(id) {
+            var container = document.getElementById(id);
+            if (!container || container.children.length > 0) return;
+            var type = id === 'sel-enveloppe' ? 'enveloppe' : 'efficacite';
+            classes.forEach(function(c) {
+                var btn = document.createElement('button');
+                btn.className = 'class-btn';
+                btn.setAttribute('data-class', c);
+                btn.textContent = c;
+                btn.onclick = function() { selectClass(type, c); };
+                container.appendChild(btn);
+            });
+        });
+        loadClasses();
+    }
+
+    function selectClass(type, cls) {
+        classesState[type] = cls;
+        var containerId = type === 'enveloppe' ? 'sel-enveloppe' : 'sel-efficacite';
+        document.querySelectorAll('#' + containerId + ' .class-btn').forEach(function(b) {
+            b.classList.toggle('selected', b.getAttribute('data-class') === cls);
+        });
+        updateClassesOutput();
+    }
+
+    function selectCO2(val) {
+        classesState.co2 = val;
+        document.querySelectorAll('#sel-co2 .co2-btn').forEach(function(b) {
+            b.classList.toggle('selected', b.getAttribute('data-co2') === val);
+        });
+        updateClassesOutput();
+    }
+
+    function updateClassesOutput() {
+        var anySelected = classesState.enveloppe || classesState.efficacite || classesState.co2;
+        document.getElementById('hint-bar').style.display = anySelected ? 'flex' : 'none';
+        if (classesState.enveloppe) {
+            document.getElementById('panel-enveloppe').style.display = 'block';
+            document.getElementById('txt-enveloppe').value = TEXTES_ENVELOPPE[classesState.enveloppe];
+            var badgeEnv = document.getElementById('badge-env');
+            badgeEnv.textContent = classesState.enveloppe;
+            badgeEnv.style.background = CLASS_COLORS[classesState.enveloppe];
+            badgeEnv.style.color = classesState.enveloppe === 'D' ? '#333' : '#fff';
+        }
+        if (classesState.efficacite) {
+            document.getElementById('panel-efficacite').style.display = 'block';
+            document.getElementById('txt-efficacite').value = TEXTES_EFFICACITE[classesState.efficacite];
+            var badgeEff = document.getElementById('badge-eff');
+            badgeEff.textContent = classesState.efficacite;
+            badgeEff.style.background = CLASS_COLORS[classesState.efficacite];
+            badgeEff.style.color = classesState.efficacite === 'D' ? '#333' : '#fff';
+        }
+        if (classesState.co2) {
+            document.getElementById('panel-co2').style.display = 'block';
+            document.getElementById('txt-co2').value = TEXTES_CO2[classesState.co2];
+            document.getElementById('badge-co2').textContent = classesState.co2 === 'fossile' ? 'Fossile' : 'Renouvelable';
+        }
+        document.getElementById('copy-all-bar').style.display = anySelected ? 'block' : 'none';
+    }
+
+    function classeCopyField(id) {
+        var ta = document.getElementById(id);
+        navigator.clipboard.writeText(ta.value);
+        var el = document.getElementById('notification');
+        el.textContent = 'Texte copié !';
+        el.classList.add('show');
+        setTimeout(function() { el.classList.remove('show'); }, 2500);
+    }
+
+    function classCopyAll() {
+        var parts = [];
+        if (classesState.enveloppe) parts.push(document.getElementById('txt-enveloppe').value);
+        if (classesState.efficacite) parts.push(document.getElementById('txt-efficacite').value);
+        if (classesState.co2) parts.push(document.getElementById('txt-co2').value);
+        navigator.clipboard.writeText(parts.join('\n\n'));
+        var el = document.getElementById('notification');
+        el.textContent = 'Tout copié !';
+        el.classList.add('show');
+        setTimeout(function() { el.classList.remove('show'); }, 2500);
+    }
+
+    async function classeEnhanceField(fieldId, label) {
+        var apiKey = localStorage.getItem('cecb_api_key');
+        if (!apiKey) { alert('Configurez votre clé API dans les paramètres (page d\'accueil)'); return; }
+        var ta = document.getElementById(fieldId);
+        if (!ta || !ta.value.trim()) return;
+        var model = localStorage.getItem('cecb_api_model') || 'claude-sonnet-4-20250514';
+        var btn = ta.parentElement.querySelector('.btn-warning');
+        var orig = btn ? btn.innerHTML : '';
+        if (btn) { btn.innerHTML = 'En cours...'; btn.disabled = true; }
+        try {
+            var resp = await fetch('https://api.anthropic.com/v1/messages', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+                body: JSON.stringify({ model: model, max_tokens: 1024, system: "Tu es un rédacteur technique pour des rapports CECB. Améliore le texte en corrigeant la grammaire et l'orthographe, et en reformulant légèrement pour une meilleure fluidité et clarté. Conserve le sens exact et toutes les données techniques. Retourne UNIQUEMENT le texte amélioré.", messages: [{ role: 'user', content: 'Améliore ce texte :\n\n' + ta.value }] })
+            });
+            if (!resp.ok) { alert('Erreur API: ' + resp.status); return; }
+            var data = await resp.json();
+            var enriched = ((data.content || [])[0] || {}).text || '';
+            if (enriched.trim()) ta.value = enriched.trim();
+        } catch (e) { alert('Erreur: ' + e.message); }
+        finally { if (btn) { btn.innerHTML = orig; btn.disabled = false; } }
+    }
+
+    function saveClasses() {
+        var data = {
+            state: classesState,
+            textes: {
+                enveloppe: document.getElementById('txt-enveloppe').value,
+                efficacite: document.getElementById('txt-efficacite').value,
+                co2: document.getElementById('txt-co2').value
+            }
+        };
+        localStorage.setItem(CLASSES_STORAGE_KEY, JSON.stringify(data));
+        var el = document.getElementById('notification');
+        el.textContent = 'Classes sauvegardées !';
+        el.classList.add('show');
+        setTimeout(function() { el.classList.remove('show'); }, 2500);
+    }
+
+    function loadClasses() {
+        try {
+            var raw = localStorage.getItem(CLASSES_STORAGE_KEY);
+            if (!raw) return;
+            var data = JSON.parse(raw);
+            if (data.state) {
+                if (data.state.enveloppe) selectClass('enveloppe', data.state.enveloppe);
+                if (data.state.efficacite) selectClass('efficacite', data.state.efficacite);
+                if (data.state.co2) selectCO2(data.state.co2);
+            }
+            if (data.textes) {
+                if (data.textes.enveloppe) document.getElementById('txt-enveloppe').value = data.textes.enveloppe;
+                if (data.textes.efficacite) document.getElementById('txt-efficacite').value = data.textes.efficacite;
+                if (data.textes.co2) document.getElementById('txt-co2').value = data.textes.co2;
+            }
+        } catch(e) {}
     }
 
     // Start
