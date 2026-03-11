@@ -161,7 +161,6 @@
         <div id="recueil-tabs">
             <div class="tab active" data-tab="enveloppe" onclick="switchRecueilTab('enveloppe')">Enveloppe</div>
             <div class="tab" data-tab="technique" onclick="switchRecueilTab('technique')">Technique</div>
-            <div class="tab" data-tab="subsidies" onclick="switchRecueilTab('subsidies')">Subventions PB</div>
         </div>
 
         <!-- Sub-tab: Enveloppe -->
@@ -436,7 +435,7 @@
                 <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> H. Eau chaude sanitaire</h3><span id="life-ecs"></span></div>
                 <div class="section-body">
                     <div class="form-row">
-                        <div class="form-group"><label>Type de production ECS</label><select id="ecs-type"><option value="">—</option><option value="chaudiere">Par la chaudière (fossile)</option><option value="ce_elec_central">CE électrique centralisé</option><option value="ce_elec_decentral">CE électrique décentralisé</option><option value="thermodynamique">Chauffe-eau thermodynamique</option><option value="pac">Par la PAC</option><option value="cad">Par le CAD</option><option value="solaire">Solaire thermique</option></select></div>
+                        <div class="form-group"><label>Type de production ECS</label><select id="ecs-type"><option value="">—</option><option value="chaudiere">Par la chaudière (fossile)</option><option value="ce_elec_central">CE électrique centralisé</option><option value="ce_elec_decentral">CE électrique décentralisé</option><option value="boiler_elec">Boiler électrique (ancien)</option><option value="thermodynamique">Chauffe-eau thermodynamique</option><option value="pac">Par la PAC</option><option value="cad">Par le CAD</option><option value="solaire_pac">Solaire thermique + PAC</option></select></div>
                         <div class="form-group"><label>Année installation ECS</label><input type="number" id="ecs-year" placeholder="Année" min="1950" max="2030" onchange="updateLifeIndicator('ecs',20)"></div>
                         <div class="form-group"><label>Volume (litres)</label><input type="number" id="ecs-volume" placeholder="Ex: 300" min="0"></div>
                     </div>
@@ -484,15 +483,6 @@
             </div>
         </div>
 
-        <!-- Sub-tab: Subsidies -->
-        <div id="recueil-tab-subsidies" class="recueil-tab-content">
-            <div id="recueil-subsidies-container">
-                <p style="color:#888;text-align:center;padding:40px">Générez d'abord les textes par section pour voir le récapitulatif des subventions.</p>
-            </div>
-            <div style="margin-top:15px;text-align:center">
-                <a href="https://www.francsenergie.ch/fr" target="_blank" rel="noopener" style="color:var(--r-success);font-weight:600;font-size:14px">francsenergie.ch — Informations subventions cantonales</a>
-            </div>
-        </div>
 
         <!-- Hidden output container for PDF export compatibility -->
         <div id="recueil-output-container" style="display:none"></div>

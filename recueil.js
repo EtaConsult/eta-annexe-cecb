@@ -163,54 +163,61 @@ function updateLifeIndicator(component, lifespan) {
 
 var BLOCS = {
     toit: {
-        ei_inclinee: "Le bâtiment est couvert d'une toiture traditionnelle inclinée, installée lors de sa construction en {year}. Cette toiture présente une isolation thermique {isolation_desc}{isolation_detail}. Elle est à l'origine de déperditions thermiques supérieures aux standards actuels pour les nouvelles constructions.",
+        ei_inclinee: "Le bâtiment est couvert d'une toiture traditionnelle inclinée, installée lors de sa construction en {year}. Cette toiture présente une isolation thermique {isolation_desc}{isolation_detail}, conforme aux standards de l'époque de construction. Elle est à l'origine de déperditions thermiques supérieures aux standards actuels pour les nouvelles constructions. Elle abrite un espace chauffé.",
+        ei_froide: "Le bâtiment est équipé d'une toiture traditionnelle inclinée de type \"froid\", recouverte de tuiles. Celle-ci ne dispose d'aucune isolation thermique et abrite un espace non chauffé.",
+        ei_construction_travaux: "Le bâtiment est équipé d'une toiture traditionnelle datant probablement de sa construction initiale, avec une isolation thermique située vraisemblablement au-dessus des chevrons, conforme aux standards de l'époque. Des travaux d'amélioration thermique ont été réalisés ultérieurement, comprenant l'ajout d'une couche de laine minérale entre les chevrons. L'isolation thermique actuelle de la toiture présente de bonnes performances. La toiture protège un espace chauffé.",
         ei_plate_renovee: "Le bâtiment est couvert par une toiture plate. Une intervention de rénovation thermique a été réalisée en {year} par l'ajout d'une couche d'isolation thermique que nous estimons à {cm} cm d'XPS. Cette dernière dispose d'une bonne capacité isolante, équivalente aux exigences pour les nouvelles constructions.",
-        ei_vieillissante: "La toiture, datant de la construction du bâtiment en {year}, montre des signes de vieillissement après {age} ans d'utilisation. Sa fin de vie théorique approche et des travaux d'entretien ou de remplacement sont à planifier.",
-        ei_plancher_combles: "Le plancher des combles sépare l'espace chauffé des combles non chauffés. Il est constitué de {composition} et est {isolation_desc} avec {materiau}.",
-        ei_plafond_nc: "Les plafonds contre local non chauffés présentent une isolation thermique {isolation_desc}.",
-        ap_renovation: "En cas de travaux importants sur la couverture ou dans le cadre de son entretien, il est recommandé d'envisager simultanément l'amélioration de l'isolation thermique de la toiture. Pour bénéficier des subventions du Programme Bâtiments, il est nécessaire d'atteindre une valeur U inférieure à 0,20 W/m²K, ce qui permettra de réduire considérablement les déperditions thermiques.",
-        ap_non_prioritaire: "Bien que l'amélioration de l'isolation de la toiture ne constitue pas une priorité immédiate, elle reste une intervention pertinente, à planifier lors des prochains travaux de rénovation lourds.",
-        ap_plancher_combles: "Il est recommandé d'optimiser l'isolation du plancher des combles en renforçant l'isolation existante. Pour bénéficier des subventions du Programme Bâtiments, une valeur U inférieure à 0,20 W/m²K est requise.",
-        ap_plafond_nc: "Des mesures d'isolation thermique des plafonds contre local non chauffés doivent être examinées lors des prochains travaux d'entretien. Ces travaux ne sont pas éligibles aux subventions du Programme Bâtiments de manière indépendante.",
-        ap_pv: "Avant d'envisager l'installation de panneaux photovoltaïques, il est conseillé de faire vérifier la capacité portante de la charpente par un ingénieur civil."
+        ei_plancher_combles_bois: "Le plancher des combles sépare l'espace chauffé des combles non chauffés. Il est constitué d'un plancher traditionnel en bois. Il ne présente pas d'isolation thermique.",
+        ei_plancher_combles_beton: "Le plancher des combles sépare l'espace chauffé des combles non chauffés. Il est constitué d'une dalle en béton recouverte d'une chape ciment. Il est faiblement isolé et présente des performances thermiques inférieures aux exigences pour les nouvelles constructions.",
+        ap_renovation: "En cas de travaux importants sur la couverture ou dans le cadre de son entretien régulier, il est recommandé d'envisager simultanément l'amélioration de l'isolation thermique de la toiture. Cela peut être réalisé par l'ajout d'une isolation entre les chevrons et au-dessus de ceux-ci. Pour bénéficier des subventions du Programme Bâtiments, il est nécessaire d'atteindre une valeur U inférieure à 0,20 W/m²K, ce qui permettra de réduire considérablement les déperditions thermiques. Avant toute installation de panneaux photovoltaïques, il convient de faire vérifier la capacité portante de la charpente par un ingénieur civil.",
+        ap_non_prioritaire: "Bien que l'amélioration de l'isolation de la toiture ne constitue pas une priorité immédiate, elle reste une intervention pertinente, à planifier lors des prochains travaux de rénovation lourds, liés à son besoin d'entretien ou quand celle-ci aura atteint sa fin de vie théorique. Pour bénéficier des subventions du Programme Bâtiments, il est nécessaire d'atteindre une valeur U inférieure à 0,20 W/m²K afin de réduire significativement les déperditions thermiques. Avant d'envisager l'installation de panneaux photovoltaïques, il est conseillé de faire vérifier la capacité portante de la charpente par un ingénieur civil.",
+        ap_froide: "En vue d'une éventuelle exploitation future des combles en espace habitable, il est recommandé de planifier l'amélioration de la performance isolante de la toiture en coordination avec les échéances d'entretien. Dans cette perspective, une surélévation du bâtiment pourrait s'avérer pertinente, sous réserve des dispositions du règlement communal. Avant toute installation de panneaux photovoltaïques, il convient de faire vérifier la capacité portante de la charpente par un ingénieur civil. À noter que la toiture couvrant un espace de combles non chauffé, les travaux d'isolation en toiture ne bénéficient pas des subventions du Programme Bâtiments.",
+        ap_plancher_combles_bois: "Il est recommandé d'envisager l'isolation du plancher des combles. Ces travaux devraient être planifiés à court terme dans le cadre des mesures correctives.",
+        ap_plancher_combles_beton: "Il est recommandé d'optimiser l'isolation du plancher des combles en remplaçant l'isolation existante par une isolation sur dalle présentant de meilleures performances thermiques."
     },
     murs: {
-        ei_sans_isolation: "Depuis l'année {year}, aucune intervention thermique significative n'a été réalisée en vue d'améliorer l'isolation thermique des façades. {composition_desc}. Elles offrent une isolation thermique très limitée en comparaison à un bâtiment neuf, mais toutefois conforme aux standards de l'époque de la construction du bâtiment. Cette situation engendre des pertes énergétiques conséquentes.",
-        ei_double_paroi: "Les façades du bâtiment présentent essentiellement une maçonnerie à double paroi avec une isolation intermédiaire évaluée à {cm} cm d'EPS. Dans cette configuration, l'isolation correspond aux standards en vigueur lors de la construction, mais ne satisfait pas aux exigences actuelles applicables aux bâtiments neufs.",
-        ei_ite: "Les façades du bâtiment sont constituées de maçonnerie homogène avec une isolation par l'extérieur. En tenant compte de l'année de construction, une épaisseur d'isolation de {cm} cm a été retenue pour cette étude.",
-        ei_ossature: "Les façades présentent une ossature en {type_ossature} avec un revêtement en {revetement}. Cette configuration offre une isolation thermique limitée. La complexité de la structure rend l'installation d'une ITE plus délicate que pour une façade en maçonnerie traditionnelle.",
-        ei_moellons: "Les façades sont constituées de maçonnerie de moellons, caractéristique de l'époque de construction du bâtiment. Cette composition offre une inertie thermique intéressante mais une isolation insuffisante au regard des standards actuels.",
+        ei_sans_isolation: "Les façades du bâtiment sont composées de maçonnerie en {composition_desc} et n'ont bénéficié d'aucune amélioration thermique depuis leur construction initiale.",
+        ei_double_paroi: "Les façades du bâtiment présentent une maçonnerie à double paroi avec, selon toute probabilité, une isolation intermédiaire compte tenu de l'année de construction. Dans cette configuration, l'isolation correspond aux standards en vigueur lors de la construction, mais ne satisfait pas aux exigences actuelles applicables aux bâtiments neufs. Aucune amélioration thermique des façades n'a été réalisée depuis l'achèvement du bâtiment.",
+        ei_ite: "Les façades du bâtiment sont constituées de maçonnerie homogène avec une isolation par l'extérieur. En tenant compte de l'année de construction, une épaisseur d'isolation de {cm} cm a été retenue pour cette étude. Cette configuration contribue à l'isolation thermique de l'enveloppe du bâtiment, bien que les performances restent en deçà des exigences applicables aux nouvelles constructions. Nous recommandons de réaliser un sondage de la façade avant d'engager des travaux d'amélioration thermique de l'enveloppe du bâtiment.",
+        ei_moellons: "Les façades du bâtiment sont constituées de maçonnerie en moellons sans isolation thermique. Certaines façades sont en contact avec des espaces non chauffés, ce qui réduit les déperditions thermiques par rapport à des façades exposées directement aux conditions extérieures et contribue ainsi à améliorer l'efficacité énergétique globale du bâtiment.",
+        ei_moellons_protege: "Les façades du bâtiment sont composées de maçonnerie en moellons et n'ont bénéficié d'aucune amélioration thermique depuis leur construction initiale.",
         ei_mitoyen: "Le bâtiment est contigu sur {cotes} côté(s). Les façades contiguës ne nécessitent pas de travaux d'amélioration thermique.",
-        ap_ite: "L'installation d'une isolation thermique par l'extérieur (ITE) représente une option intéressante lors d'une rénovation des façades. Pour bénéficier des subventions du Programme Bâtiments, une valeur U inférieure à 0,20 W/m²K est nécessaire.",
-        ap_sondage: "Nous recommandons de réaliser un sondage de la façade avant d'engager des travaux d'amélioration thermique."
+        ap_ite: "L'installation d'une isolation thermique par l'extérieur (ITE) représente une option intéressante lors d'une rénovation des façades, sans toutefois constituer une priorité immédiate. Ces travaux peuvent être programmés à moyen terme. Pour obtenir une réduction substantielle des pertes thermiques et bénéficier des subventions du Programme Bâtiments, une valeur U inférieure à 0,20 W/m²K est nécessaire.",
+        ap_ite_sondage: "Sur la base des hypothèses retenues dans cette étude, nous recommandons d'améliorer l'isolation des façades par l'ajout d'une isolation extérieure crépie. Cette intervention peut être planifiée à moyen ou long terme. Pour réduire efficacement les déperditions thermiques et pouvoir bénéficier des subventions du Programme Bâtiments, une valeur U inférieure à 0,20 W/m²K est requise.",
+        ap_moellons_protege: "Le bâtiment faisant partie d'un ensemble architectural protégé, toute isolation extérieure périphérique requiert l'accord préalable de la commune. Nous suggérons donc d'étudier la mise en œuvre d'un enduit isolant sur les façades extérieures. L'isolation par l'intérieur constitue une alternative envisageable, à condition de réaliser au préalable des analyses hygrothermiques détaillées pour maîtriser les risques de migration d'humidité dans la paroi. Pour obtenir une réduction notable des pertes thermiques, une valeur U inférieure à 0,20 W/m²K est nécessaire.",
+        ap_moellons: "Il est recommandé d'améliorer la performance thermique des façades en installant une isolation extérieure crépie. Ces travaux peuvent être envisagés à moyen terme. Une isolation par l'intérieur constitue également une option possible, sous réserve d'études approfondies en physique du bâtiment pour prévenir les risques de migration d'humidité dans le complexe constructif. Pour réduire efficacement les déperditions thermiques, il convient de viser une valeur U inférieure à 0,20 W/m²K.",
+        ap_double_paroi: "Compte tenu des hypothèses retenues dans le cadre de cette étude, il est recommandé d'améliorer le pouvoir isolant des façades par l'ajout d'une isolation extérieure crépie. Les travaux peuvent être planifiés à moyen terme. Une valeur U inférieure à 0,20 W/m²K est nécessaire pour réduire significativement les déperditions thermiques."
     },
     murs_terre: {
-        ei_sans_isolation: "Les murs contre terrain ne présentent pas d'isolation thermique. Ils sont constitués de {composition_desc} et sont à l'origine de déperditions thermiques significatives.",
-        ei_isole_interieur: "Des travaux d'amélioration thermique ont été réalisés sur les murs en contact avec le terrain. Une couche d'isolation d'environ {cm} cm d'EPS a été ajoutée par l'intérieur.",
-        ei_isole_perimetrique: "Les murs contre terrain disposent d'une isolation périmétrique d'environ {cm} cm, posée côté extérieur. Cette configuration offre une protection thermique satisfaisante.",
-        ap_isolation: "Des mesures d'isolation thermique des murs contre terrain devraient être planifiées. Pour les murs enterrés de plus de 2 mètres, une valeur U inférieure à 0,25 W/m²K permet de bénéficier des subventions du Programme Bâtiments.",
+        ei_sans_isolation: "Les murs du sous-sol adjacents à des locaux non chauffés ne disposent pas d'isolation.",
+        ei_isole_interieur: "Des travaux d'amélioration thermique ont été réalisés après la construction du bâtiment sur les murs du sous-sol en contact avec le terrain. Une couche d'isolation d'environ {cm} cm d'EPS a été ajoutée par l'intérieur. Ces interventions réduisent les déperditions thermiques et améliorent le confort intérieur.",
+        ap_isolation: "Il est recommandé d'isoler les murs du sous-sol en contact avec les locaux non chauffés afin de réduire les déperditions thermiques.",
         ap_non_prioritaire: "L'isolation des murs contre terrain ne constitue pas une priorité immédiate, compte tenu de leur état actuel."
     },
     murs_nc: {
-        ei_sans_isolation: "Les murs adjacents à des locaux non chauffés sont homogènes, réalisés en {composition_desc} et dépourvus d'isolation.",
+        ei_beton: "Les murs du sous-sol adjacents à des locaux non chauffés sont constitués de béton armé et ne disposent d'aucune isolation.",
+        ei_maconnerie: "Les murs du sous-sol adjacents à des locaux non chauffés sont constitués de maçonnerie creuse et ne disposent d'aucune isolation.",
         ei_isole: "Les murs adjacents aux locaux non chauffés disposent d'une isolation de {cm} cm. Cette configuration offre une protection thermique acceptable.",
-        ap_isolation: "Nous préconisons, à court terme et au titre de travaux correctifs, l'isolation des parois adjacentes aux locaux non chauffés. Ces travaux ne sont pas couverts par les subventions du Programme Bâtiments de manière indépendante. Une valeur U inférieure à 0,25 W/m²K est requise.",
+        ap_isolation: "Nous préconisons l'isolation des parois adjacentes aux locaux non chauffés du sous-sol. L'ajout d'isolation entraînera une diminution de la température au sous-sol, ce qui pourrait nécessiter une aération régulière en cas d'humidité élevée. Ces travaux ne sont pas éligibles aux subventions du Programme Bâtiments. Pour réduire de manière significative les déperditions thermiques à travers ces parois, une valeur U inférieure à 0,25 W/m²K est recommandée.",
         ap_non_prioritaire: "L'isolation des murs c/ non chauffé ne constitue pas une priorité immédiate, les performances actuelles étant jugées acceptables."
     },
     fenetres: {
+        ei_bois_1iv: "Le bâtiment est équipé principalement de fenêtres à cadre bois et à simple vitrage, dont la performance isolante se situe nettement en deçà des normes actuelles pour les constructions neuves. Ces fenêtres génèrent des déperditions de chaleur importantes.",
+        ei_bois_2iv: "Les logements du bâtiment sont équipés, pour l'essentiel, de fenêtres à cadre bois et à double vitrage, dont la performance isolante se situe légèrement en dessous des standards recommandés pour les nouvelles constructions. Les vitrages d'origine ont été remplacés par des doubles vitrages isolants, dans le respect du parti architectural du bâtiment. Ces fenêtres génèrent des déperditions thermiques légèrement supérieures aux recommandations actuelles pour les nouvelles constructions.",
         ei_insuffisante: "Le bâtiment est équipé principalement de fenêtres à cadre {cadre} et à {vitrage}, séparés par un intercalaire en aluminium. Le pouvoir isolant de ces fenêtres est {niveau} inférieur aux recommandations pour les nouvelles constructions.",
         ei_recentes: "Les fenêtres ont été remplacées en {year} par des modèles à {vitrage}. Elles présentent une isolation thermique conforme aux standards recommandés pour les constructions neuves.",
         ei_cadres_renov: "Les fenêtres ont été remplacées en {year} par des modèles à {vitrage} avec des cadres de rénovation permettant d'anticiper la pose future d'une ITE sans nécessiter un nouveau remplacement des fenêtres.",
         ei_porte: "L'ensemble menuisé d'accès au bâtiment est à l'origine de déperditions critiques dans le hall chauffé du bâtiment.",
-        ap_remplacement: "Nous recommandons le remplacement des fenêtres par des modèles à triple vitrage. Le remplacement de fenêtres n'est pas éligible aux subventions du Programme Bâtiments de manière indépendante. Une valeur Uw inférieure à 1,00 W/m²K est nécessaire pour réduire significativement les déperditions thermiques.",
+        ap_remplacement: "Le remplacement des fenêtres actuelles par des modèles à triple vitrage est une option pertinente. Les travaux peuvent être planifiés à court terme comme travaux correctifs. Le remplacement de fenêtres n'est pas subventionné par le Programme Bâtiments. Une valeur Uw inférieure à 1,00 W/m²K est nécessaire pour réduire significativement les déperditions thermiques.",
         ap_remplacement_cadre_renov: "Nous recommandons le remplacement des fenêtres par des modèles à triple vitrage avec cadres de rénovation, permettant d'anticiper la pose future d'une ITE sans nécessiter un nouveau remplacement des fenêtres. Le remplacement de fenêtres n'est pas éligible aux subventions du Programme Bâtiments de manière indépendante. Une valeur Uw inférieure à 1,00 W/m²K est nécessaire pour réduire significativement les déperditions thermiques.",
-        ap_non_prioritaire: "À ce stade, aucune intervention n'est recommandée concernant les fenêtres, étant donné leurs performances satisfaisantes."
+        ap_non_prioritaire: "À ce stade, aucune intervention n'est recommandée concernant les fenêtres, étant donné leurs performances satisfaisantes. Les travaux pourront être planifiés en fonction des besoins de remplacement ou coordonnés avec d'éventuels travaux de rénovation de façade. Le remplacement de fenêtres n'est pas éligible aux subventions du Programme Bâtiments. Pour réduire de manière significative les déperditions thermiques, une valeur Uw inférieure à 1,00 W/m²K serait nécessaire.",
+        ap_bois_2iv: "Le remplacement des fenêtres actuelles par des modèles à triple vitrage constitue une option à considérer, sous réserve de validation par les autorités compétentes. Cette intervention ne figure toutefois pas parmi les priorités immédiates. Les travaux peuvent être programmés en fonction des besoins de remplacement ou coordonnés avec d'éventuels travaux de rénovation de façade. Le remplacement des fenêtres n'est pas éligible aux subventions du Programme Bâtiments. Pour réduire de manière significative les déperditions thermiques, une valeur Uw inférieure à 1,00 W/m²K est nécessaire."
     },
     sols_terre: {
         ei_radier: "En l'absence de plans d'exécution ou de sondage, il est difficile de définir le détail constructif du radier contre terre. Ce dernier, constitué de maçonnerie, ne présente vraisemblablement pas ou peu d'isolation.",
-        ei_terre_plein: "Les planchers du bâtiment sont en contact direct avec le terrain. Au regard de l'époque de construction, la présence d'une couche d'isolation thermique est considérée comme peu probable.",
+        ei_terre_plein: "Les planchers du bâtiment sont en contact direct avec le terrain. En l'absence de plans d'exécution, il n'est pas possible de confirmer avec certitude leur composition. Toutefois, au regard de l'époque de construction, la présence d'une couche d'isolation thermique est considérée comme peu probable.",
         ei_isole: "Le sol contre terre dispose d'une isolation de {cm} cm. Cette configuration offre une performance thermique acceptable.",
-        ap_radier: "L'isolation du plancher du sous-sol représente une option efficace. Toutefois, cette intervention implique généralement des travaux dont le coût peut s'avérer élevé. Pour bénéficier des subventions du Programme Bâtiments, une valeur U inférieure à 0,25 W/m²K est nécessaire.",
+        ap_radier: "Pour améliorer la performance thermique de l'enveloppe, l'isolation du plancher du sous-sol constitue une mesure efficace. Il s'agit toutefois d'une intervention généralement lourde, dont le coût peut être élevé. Afin de réduire de manière significative les déperditions thermiques et de pouvoir bénéficier des subventions du Programme Bâtiments, une valeur U inférieure à 0,25 W/m²K est requise.",
         ap_terre_plein: "L'isolation du plancher constitue une option envisageable à long terme. Toutefois, le coût peut s'avérer disproportionné par rapport au gain énergétique attendu.",
         ap_non_prioritaire: "L'isolation du sol contre terre ne constitue pas une priorité, les performances actuelles étant jugées satisfaisantes."
     },
@@ -218,10 +225,11 @@ var BLOCS = {
         ei_dalle: "Le plancher du rez-de-chaussée assure la séparation thermique entre les espaces non chauffés du sous-sol et le volume chauffé. Il est constitué d'une dalle en maçonnerie homogène et ne dispose d'aucune isolation thermique en sous-face.",
         ei_hourdis: "Le plancher du rez-de-chaussée est constitué de hourdis et assure la séparation thermique entre les espaces non chauffés et le volume chauffé. Il ne dispose d'aucune isolation thermique en sous-face.",
         ei_isole: "Le plancher c/ non chauffé dispose d'une isolation en sous-face de {cm} cm. Cette configuration offre une performance thermique acceptable.",
-        ap_dalle: "Nous recommandons d'isoler la dalle du rez-de-chaussée en ajoutant une isolation en sous-face, tout en préservant l'accès aux installations techniques du plafond. Une valeur U inférieure à 0,25 W/m²K est requise. Ces travaux ne sont pas éligibles aux subventions du Programme Bâtiments de manière indépendante.",
+        ap_dalle: "Nous recommandons d'isoler la dalle du rez-de-chaussée en ajoutant une isolation en sous-face, tout en préservant l'accès aux installations techniques du plafond. Ces travaux peuvent être réalisés à court terme. Pour réduire efficacement les déperditions thermiques, une valeur U inférieure à 0,25 W/m²K est requise. Ces travaux ne sont pas éligibles aux subventions du Programme Bâtiments.",
         ap_non_prioritaire: "L'isolation de la dalle c/ non chauffé ne constitue pas une priorité, les performances actuelles étant jugées satisfaisantes."
     },
     ponts_thermiques: {
+        ei_inclus: "Les ponts thermiques linéaires ont été pris en compte dans le bilan thermique de l'état initial. Les ponts thermiques identifiés se situent au niveau du socle du bâtiment entre la cave et le rez-de-chaussée, ainsi qu'au niveau des raccords entre les murs et la toiture. Les fenêtres présentent des ponts thermiques usuels au niveau des embrasures et des appuis de fenêtre.",
         ei_standard: "Lors de l'évaluation thermique initiale, lorsque l'isolation existante est insuffisante ou négligeable, les ponts thermiques linéaires ne sont pas inclus dans le calcul du bilan thermique.",
         ei_avec_fenetres: "Lors d'une évaluation thermique initiale, lorsque l'isolation existante est insuffisante ou négligeable, les ponts thermiques linéaires ne sont pas inclus dans le calcul du bilan thermique. Les fenêtres présentent des ponts thermiques courants au niveau des embrasures, des linteaux et des appuis de fenêtre.",
         ap_standard: "Il est recommandé de prêter une attention particulière aux ponts thermiques lors de la planification de travaux d'isolation de façade. Une conception soignée et des détails constructifs adaptés permettront d'assurer la continuité de l'isolation et d'améliorer la performance énergétique de l'enveloppe du bâtiment.",
@@ -233,42 +241,52 @@ var BLOCS = {
     },
     chauffage: {
         ei_fossile: "Le bâtiment est équipé d'une chaudière à {source} à condensation installée en {year}, avec une puissance de {puissance} kW, qui ne répond plus entièrement aux standards techniques actuels ni aux recommandations en matière d'énergies renouvelables. Le système de chauffage fonctionne de manière satisfaisante et ne présente pas de défaillance notable. Cependant, ce système utilise une énergie fossile dont les émissions de CO₂ ont un impact environnemental défavorable et compromettent l'atteinte des objectifs climatiques cantonaux et fédéraux. La distribution de chaleur s'effectue via {distribution}.",
-        ei_elec: "Le bâtiment est équipé d'un système de chauffage par radiateurs électriques qui ne répond plus aux normes techniques actuelles. L'utilisation de l'électricité pour la production de chaleur s'avère coûteuse et devrait être évitée.",
-        ei_pac: "Le bâtiment est équipé d'une pompe à chaleur {type_pac}, offrant une puissance de {puissance} kW. Cette installation est conforme aux standards techniques actuels et aux recommandations concernant l'utilisation des énergies renouvelables.",
+        ei_elec: "Le bâtiment est équipé d'un système de chauffage électrique qui ne répond plus aux normes techniques actuelles ni aux recommandations en matière d'utilisation des énergies renouvelables. L'ensemble du système fonctionne normalement et ne présente pas de dysfonctionnement notable. L'utilisation de l'électricité pour la production de chaleur s'avère coûteuse et devrait être évitée. Ce système repose sur un chauffage électrique direct qui n'émet pas de CO₂ sur site, mais dont la performance énergétique reste limitée. La chaleur est distribuée par {distribution}.",
+        ei_pac: "Le bâtiment est équipé d'une pompe à chaleur {type_pac}, installée en {year}, offrant une puissance de chauffage de {puissance} kW. Cette installation est conforme aux standards techniques actuels et aux recommandations concernant l'utilisation des énergies renouvelables. Le système de chauffage fonctionne correctement et engendre peu de frais de maintenance. La distribution de la chaleur s'effectue via {distribution}.",
         ei_cad: "Le bâtiment est raccordé au chauffage à distance (CAD) de la commune de {commune}. Ce réseau représente une solution efficace, valorisant majoritairement des énergies renouvelables locales.",
         ei_conso_oui: "Les données de consommation de chauffage sur les {years} dernières années ont été transmises par le mandant.",
         ei_conso_non: "Les données de consommation n'ont pas été fournies par le mandant, ce qui limite la vérification de la plausibilité du modèle énergétique.",
-        ei_appoint: "Une cheminée décorative à {type_appoint} complète l'installation de chauffage.",
+        ei_appoint_insert: "Une cheminée décorative à foyer fermé complète l'installation de chauffage.",
+        ei_appoint_foyer: "Une cheminée à foyer ouvert vient compléter l'installation de chauffage. Son usage étant principalement orienté vers le confort, la consommation de bois qui en découle n'a pas d'impact significatif sur la consommation globale de chauffage du bâtiment.",
         ap_fossile: "Le remplacement du système de production de chaleur est à anticiper avant d'atteindre sa fin de vie théorique. Il est recommandé de remplacer la chaudière existante par une solution recourant aux énergies renouvelables. La mise en place d'un suivi des consommations de chauffage, accompagnée de mesures correctives, serait bénéfique tant sur le plan économique qu'écologique. Par ailleurs, l'isolation des conduites de distribution mérite d'être améliorée. Ces interventions sont à planifier à moyen terme, dans un horizon d'environ 5 ans. Le remplacement d'un système principal fonctionnant au mazout, au gaz ou à l'électricité directe peut bénéficier d'une subvention du Programme Bâtiments, pour autant qu'il soit remplacé par un système utilisant les énergies renouvelables ou par un raccordement à un chauffage à distance. {condition_pb}",
-        ap_elec_central_vd: "Il est recommandé de procéder au remplacement du système de production de chaleur par un système exploitant les énergies renouvelables. Depuis le 1er janvier 2025, le décret vaudois sur l'assainissement des chauffages et chauffe-eau électriques (DACCE, BLV 730.051) est en vigueur. Ce décret interdit l'utilisation de ces installations et impose leur remplacement d'ici le 1er janvier 2033.",
+        ap_elec_central_vd: "Il est recommandé de procéder au remplacement du système de production de chaleur actuel par une pompe à chaleur air-eau. La création initiale d'un réseau de distribution hydraulique bénéficie d'un soutien financier dans le cadre du Programme Bâtiments. Le remplacement d'un système principal fonctionnant au mazout, au gaz ou à l'électricité directe est également subventionné par le Programme Bâtiments, à condition qu'il soit remplacé par un système utilisant des énergies renouvelables ou par un raccordement à un réseau de chauffage à distance. {condition_pb} Depuis le 1er janvier 2025, le décret vaudois sur l'assainissement des chauffages et chauffe-eau électriques (DACCE, BLV 730.051) est en vigueur. Ce décret interdit l'utilisation de ces installations et impose leur remplacement d'ici le 1er janvier 2033.",
         ap_elec_decentral_vd: "Il est recommandé de remplacer l'ensemble des radiateurs électriques par un système centralisé renouvelable. Le DACCE impose le remplacement d'ici 2033. La création d'un réseau hydraulique bénéficie d'un soutien du Programme Bâtiments.",
         ap_elec_ge: "Il est recommandé de procéder au remplacement du système par une pompe à chaleur ou un autre système renouvelable.",
-        ap_pac: "Aucune amélioration du système de production de chaleur n'est recommandée. Toutefois, il est vivement conseillé d'améliorer l'isolation de l'enveloppe thermique afin d'optimiser le coefficient de performance de la pompe à chaleur.",
+        ap_pac: "Aucune amélioration technique du système de production de chaleur n'est recommandée à ce stade. Toutefois, il est conseillé d'améliorer l'isolation de l'enveloppe thermique du bâtiment afin d'optimiser l'efficacité énergétique de la pompe à chaleur et d'améliorer son coefficient de performance.",
         ap_cad: "Aucune recommandation n'est préconisée concernant le système de production de chaleur."
     },
     ecs: {
-        ei_fossile: "La production d'eau chaude sanitaire est assurée par la chaudière existante. Ce système est lié au remplacement du système de chauffage.",
-        ei_ce_elec: "La production d'eau chaude sanitaire est assurée par {nb} chauffe-eau électrique{pl}. Le recours à l'électricité directe pour la production d'ECS est coûteux et n'est pas recommandé.",
+        ei_chaudiere: "La production d'eau chaude sanitaire est actuellement assurée par la chaudière existante, datant de {year}. Ce système n'est plus conforme aux standards techniques actuels et ne répond pas aux exigences de performance énergétique modernes.",
+        ei_ce_elec_central: "La production d'eau chaude sanitaire est actuellement assurée par un chauffe-eau électrique centralisé. Le recours à l'électricité directe pour la production d'ECS est coûteux et n'est pas recommandé. L'installation est par ailleurs considérée comme obsolète au regard des standards techniques actuels.",
+        ei_ce_elec_decentral: "La production d'eau chaude sanitaire est assurée par plusieurs chauffe-eau électriques. Le recours à l'électricité directe pour la production d'ECS est coûteux et n'est pas recommandé.",
+        ei_boiler_elec: "La production d'eau chaude sanitaire est actuellement assurée par un chauffe-eau électrique datant de {year}. L'utilisation d'électricité pour la production d'ECS représente une solution coûteuse qui devra être remplacée dans les prochaines années, compte tenu de la fin de vie prévisible de l'installation.",
         ei_thermo: "La production d'eau chaude sanitaire est assurée par un chauffe-eau thermodynamique de {volume} L utilisant une pompe à chaleur air-eau.",
         ei_pac: "La production d'eau chaude sanitaire est assurée par la pompe à chaleur. Ce système est conforme aux standards actuels.",
         ei_cad: "La production de chaleur du bâtiment, y compris l'eau chaude sanitaire, est assurée par le réseau CAD.",
-        ap_enr: "Il est recommandé de remplacer le système d'ECS actuel. La production pourra être assurée par le nouveau système de chauffage renouvelable. L'isolation des conduites devrait être améliorée.",
-        ap_dacce_central_vd: "Le décret vaudois DACCE (BLV 730.051) impose le remplacement des chauffe-eau électriques d'ici au 1er janvier 2033.",
-        ap_dacce_decentral_vd: "Le DACCE impose le remplacement des chauffe-eau électriques d'ici 2033. Une alternative est prévue pour les chauffe-eau décentralisés.",
+        ei_solaire_pac: "La production d'eau chaude sanitaire est principalement assurée par une installation solaire thermique de {surface} m² située en toiture. Celle-ci couvre une partie des besoins en eau chaude du bâtiment, avec une production variable selon les saisons. Lorsque l'installation solaire ne suffit pas, la pompe à chaleur complète l'apport.",
+        ap_chaudiere: "Il est recommandé de remplacer le système de production d'eau chaude sanitaire actuel. La production d'ECS pourra être assurée par le nouveau système de chauffage basé sur les énergies renouvelables. L'isolation des conduites de distribution devrait également être améliorée.",
+        ap_boiler_renouvelable: "La production d'ECS peut être intégrée au nouveau système de chauffage en recourant à des énergies renouvelables. Il convient également d'améliorer l'isolation des conduites de distribution. La mise en place d'un réseau de distribution hydraulique est éligible aux subventions du Programme Bâtiments.",
+        ap_dacce_vd: "Le système de production d'eau chaude sanitaire doit être remplacé. L'isolation des conduites de distribution est à améliorer. Depuis le 1er janvier 2025, le décret vaudois sur l'assainissement des chauffages et chauffe-eau électriques (DACCE, BLV 730.051) est entré en vigueur. Il interdit l'utilisation de ces installations et impose leur remplacement au plus tard d'ici au 1er janvier 2033. Ce décret concerne les chauffages électriques fixes à résistance, qu'ils soient centralisés ou décentralisés, ainsi que les chauffe-eau électriques. Afin d'accompagner cette transition, le canton de Vaud renforce les subventions destinées au remplacement de ces systèmes par des solutions recourant aux énergies renouvelables, telles que les pompes à chaleur, les chaudières à bois ou le raccordement à un réseau de chauffage à distance.",
         ap_cad_pac: "Aucune recommandation n'est préconisée concernant le système de production d'ECS."
     },
     appareils: {
         ei: "Les appareils électriques installés présentent différentes classes d'efficacité énergétique et sont globalement conformes aux normes en vigueur. {conso_mention}",
-        ap: "Le remplacement d'appareils obsolètes par des modèles plus récents contribue à améliorer l'efficacité énergétique. Recommandation : consulter www.topten.ch."
+        ap: "Le remplacement d'appareils obsolètes ou peu performants par des modèles plus récents contribue à améliorer l'efficacité énergétique du bâtiment. Pour des recommandations détaillées, nous vous recommandons de consulter le site www.top-ten.ch."
     },
     pv: {
-        ei_non: "Aucune installation photovoltaïque n'a été constatée lors de la visite.",
-        ei_oui: "Le bâtiment est équipé d'une installation de panneaux photovoltaïques totalisant {puissance} kWc. L'installation permet de réduire la consommation électrique courante.",
-        ap_installation: "Il est recommandé d'envisager l'installation de panneaux solaires photovoltaïques. L'autoproduction d'électricité présente des avantages économiques et contribue à la réduction des émissions de gaz à effet de serre. Les travaux bénéficient de subventions de Pronovo.",
-        ap_pac: "Le couplage de la pompe à chaleur avec une installation photovoltaïque est pertinent."
+        ei_non: "Aucune installation photovoltaïque n'a été constatée lors de la visite. Le bâtiment ne dispose actuellement pas d'autoproduction d'électricité.",
+        ei_oui: "Le bâtiment est équipé d'une installation solaire photovoltaïque d'environ {puissance} kWc mise en service en {year_pv}.",
+        ei_oui_batterie: "Le bâtiment est équipé d'une installation solaire photovoltaïque d'environ {puissance} kWc mise en service en {year_pv}. Une batterie permet d'optimiser l'autoconsommation de l'énergie produite sur place.",
+        ei_oui_sans_batterie: "Le bâtiment dispose actuellement d'une installation solaire photovoltaïque de {puissance} kWc mise en service en {year_pv}. L'absence de système de stockage par batterie réduit les possibilités d'autoconsommation de l'énergie produite.",
+        ap_installation: "Il est recommandé d'envisager l'installation d'un système de panneaux solaires photovoltaïques sur une toiture préalablement rénovée. L'autoproduction d'électricité présente généralement des avantages économiques et contribue à la réduction des émissions de gaz à effet de serre. Les travaux d'installation d'un système photovoltaïque bénéficient de subventions de Pronovo, dont le montant dépend de la taille de l'installation et de l'option retenue (rétribution unique ou rétribution à l'injection).",
+        ap_installation_max: "Il convient d'envisager l'installation d'un système de panneaux solaires photovoltaïques. L'autoproduction d'électricité s'avère généralement rentable et contribue à la réduction des émissions de gaz à effet de serre. Nous préconisons d'exploiter le potentiel maximal de la toiture en y installant un système solaire photovoltaïque. Nous suggérons par ailleurs l'intégration d'un système de stockage d'électricité pour optimiser l'autoconsommation et valoriser l'énergie solaire produite localement. Une étude d'ensoleillement devra être réalisée pour confirmer la faisabilité technique, en tenant compte de l'ombrage potentiel et de l'orientation de la toiture. Les travaux bénéficient de subventions Pronovo.",
+        ap_extension: "Il est recommandé d'exploiter pleinement le potentiel de la toiture en installant un système solaire photovoltaïque. Cette production permettrait de réduire les besoins électriques et de diminuer significativement les émissions de gaz à effet de serre. L'intégration d'un système de stockage d'électricité est également conseillée pour optimiser l'autoconsommation et valoriser l'énergie solaire produite localement. Une étude d'ensoleillement devra être réalisée pour confirmer la faisabilité technique.",
+        ap_non_prioritaire: "Nous ne recommandons pas d'améliorations concernant la production photovoltaïque à ce stade."
     },
-    comportement: "Le CECB donne une évaluation de la performance énergétique du bâtiment dans des conditions d'utilisation et d'occupation standard. C'est pourquoi la consommation effective d'énergie, qui dépend beaucoup du comportement de l'occupant, peut être très différente des données chiffrées du CECB. Les recommandations du document CECB ne concernent donc que l'enveloppe du bâtiment et ses installations techniques. Pourtant, l'exploitation économe en énergie est l'une des mesures les plus efficaces et les plus rentables que l'on puisse prendre.",
-    revalorisation: "Conseils et recommandation : une rénovation énergétique est une occasion unique d'améliorer à long terme le confort et de maintenir la valeur d'un bâtiment. On peut créer des surfaces habitables supplémentaires par des surélévations ou des extensions. Il est pertinent d'optimiser le confort et le maintien de la valeur à long terme. Une rénovation Minergie est à envisager."
+    comportement: "Le CECB évalue la performance énergétique du bâtiment selon des conditions d'utilisation et d'occupation normalisées. La consommation énergétique effective dépend en grande partie du comportement des occupants et peut ainsi s'écarter significativement des valeurs indiquées par le CECB. Les recommandations du document CECB se concentrent exclusivement sur l'enveloppe du bâtiment et ses installations techniques. Néanmoins, une utilisation rationnelle de l'énergie demeure l'une des mesures les plus performantes et économiquement avantageuses. Des réductions importantes de la consommation peuvent être obtenues par une aération appropriée et par l'ajustement à la baisse de la température ambiante durant la période hivernale.",
+    revalorisation: "La rénovation énergétique offre une opportunité intéressante pour améliorer durablement le confort et préserver la valeur d'un bâtiment. Elle permet de créer des surfaces habitables supplémentaires grâce à des surélévations ou des extensions, de repenser l'agencement des espaces intérieurs ou d'agrandir les balcons existants. L'amélioration du confort et le maintien de la valeur à long terme représentent des objectifs importants de cette approche.",
+    sondes_geo: "La parcelle est située dans une zone où l'utilisation de sondes géothermiques est en principe admissible selon les données cadastrales disponibles. Toutefois, une vérification auprès des autorités compétentes reste nécessaire avant tout engagement, notamment pour l'obtention du permis de forage.",
+    bornes_recharge: "Une borne de recharge pour véhicules électriques complète l'installation technique du bâtiment. Le CECB se concentre exclusivement sur l'énergie directement liée au bâtiment, notamment le chauffage, l'eau chaude sanitaire, l'éclairage et les installations techniques. La consommation électrique des véhicules électriques n'entre pas dans le bilan énergétique du bâtiment."
 };
 
 /* ===== FORM FIELD HELPERS ===== */
@@ -640,13 +658,13 @@ function generateChauffageText() {
         ei = fillTemplate(BLOCS.chauffage.ei_fossile, { source: chaufSrc === 'mazout' ? 'mazout' : 'gaz', puissance: chaufPuiss, year: chaufYear, distribution: distribLabels[rv('chauf-distrib')] || 'radiateurs' });
         ap = fillTemplate(BLOCS.chauffage.ap_fossile, { condition_pb: conditionPB });
     } else if (chaufSrc === 'elec_central') {
-        ei = BLOCS.chauffage.ei_elec;
-        ap = canton === 'VD' ? BLOCS.chauffage.ap_elec_central_vd : BLOCS.chauffage.ap_elec_ge;
+        ei = fillTemplate(BLOCS.chauffage.ei_elec, { distribution: distribLabels[rv('chauf-distrib')] || 'des convecteurs électriques' });
+        ap = canton === 'VD' ? fillTemplate(BLOCS.chauffage.ap_elec_central_vd, { condition_pb: conditionPB }) : BLOCS.chauffage.ap_elec_ge;
     } else if (chaufSrc === 'elec_decentral') {
-        ei = BLOCS.chauffage.ei_elec;
+        ei = fillTemplate(BLOCS.chauffage.ei_elec, { distribution: distribLabels[rv('chauf-distrib')] || 'des convecteurs électriques' });
         ap = canton === 'VD' ? BLOCS.chauffage.ap_elec_decentral_vd : BLOCS.chauffage.ap_elec_ge;
     } else if (chaufSrc && chaufSrc.startsWith('pac_')) {
-        ei = fillTemplate(BLOCS.chauffage.ei_pac, { type_pac: pacTypes[chaufSrc], puissance: chaufPuiss });
+        ei = fillTemplate(BLOCS.chauffage.ei_pac, { type_pac: pacTypes[chaufSrc], puissance: chaufPuiss, year: chaufYear, distribution: distribLabels[rv('chauf-distrib')] || 'des radiateurs' });
         ap = BLOCS.chauffage.ap_pac;
     } else if (chaufSrc === 'cad') {
         ei = fillTemplate(BLOCS.chauffage.ei_cad, { commune: commune });
@@ -658,8 +676,8 @@ function generateChauffageText() {
 
     if (rv('chauf-conso') === 'oui') ei += ' ' + fillTemplate(BLOCS.chauffage.ei_conso_oui, { years: rv('chauf-conso-years') || '3' });
     else if (rv('chauf-conso') === 'non') ei += ' ' + BLOCS.chauffage.ei_conso_non;
-    if (rv('chauf-appoint') === 'insert') ei += ' ' + fillTemplate(BLOCS.chauffage.ei_appoint, { type_appoint: 'foyer fermé' });
-    else if (rv('chauf-appoint') === 'foyer_ouvert') ei += ' ' + fillTemplate(BLOCS.chauffage.ei_appoint, { type_appoint: 'foyer ouvert' });
+    if (rv('chauf-appoint') === 'insert') ei += ' ' + BLOCS.chauffage.ei_appoint_insert;
+    else if (rv('chauf-appoint') === 'foyer_ouvert') ei += ' ' + BLOCS.chauffage.ei_appoint_foyer;
     return { ei: ei, ap: ap };
 }
 
@@ -667,12 +685,15 @@ function generateEcsText() {
     var canton = rv('meta-canton');
     var ecsType = rv('ecs-type');
     var ei = '', ap = '';
-    if (ecsType === 'chaudiere') { ei = BLOCS.ecs.ei_fossile; ap = BLOCS.ecs.ap_enr; }
-    else if (ecsType === 'ce_elec_central') { ei = fillTemplate(BLOCS.ecs.ei_ce_elec, { nb: 'un', pl: '' }); ap = canton === 'VD' ? BLOCS.ecs.ap_dacce_central_vd : BLOCS.ecs.ap_enr; }
-    else if (ecsType === 'ce_elec_decentral') { ei = fillTemplate(BLOCS.ecs.ei_ce_elec, { nb: 'plusieurs', pl: 's' }); ap = canton === 'VD' ? BLOCS.ecs.ap_dacce_decentral_vd : BLOCS.ecs.ap_enr; }
+    var ecsYear = rv('ecs-year');
+    if (ecsType === 'chaudiere') { ei = fillTemplate(BLOCS.ecs.ei_chaudiere, { year: ecsYear || '[année]' }); ap = BLOCS.ecs.ap_chaudiere; }
+    else if (ecsType === 'ce_elec_central') { ei = BLOCS.ecs.ei_ce_elec_central; ap = canton === 'VD' ? BLOCS.ecs.ap_dacce_vd : BLOCS.ecs.ap_chaudiere; }
+    else if (ecsType === 'ce_elec_decentral') { ei = BLOCS.ecs.ei_ce_elec_decentral; ap = canton === 'VD' ? BLOCS.ecs.ap_dacce_vd : BLOCS.ecs.ap_chaudiere; }
+    else if (ecsType === 'boiler_elec') { ei = fillTemplate(BLOCS.ecs.ei_boiler_elec, { year: ecsYear || '[année]' }); ap = canton === 'VD' ? BLOCS.ecs.ap_dacce_vd : BLOCS.ecs.ap_boiler_renouvelable; }
     else if (ecsType === 'thermodynamique') { ei = fillTemplate(BLOCS.ecs.ei_thermo, { volume: rv('ecs-volume') || '[X]' }); ap = BLOCS.ecs.ap_cad_pac; }
     else if (ecsType === 'pac') { ei = BLOCS.ecs.ei_pac; ap = BLOCS.ecs.ap_cad_pac; }
     else if (ecsType === 'cad') { ei = BLOCS.ecs.ei_cad; ap = BLOCS.ecs.ap_cad_pac; }
+    else if (ecsType === 'solaire_pac') { ei = fillTemplate(BLOCS.ecs.ei_solaire_pac, { surface: rv('ecs-volume') || '[X]' }); ap = BLOCS.ecs.ap_cad_pac; }
     else { ei = '[DONNÉES MANQUANTES — à compléter]'; ap = '[DONNÉES MANQUANTES — à compléter]'; }
     return { ei: ei, ap: ap };
 }
@@ -698,7 +719,6 @@ function generatePvText() {
 function generateText() {
     var allSections = ['toit', 'murs-ext', 'murs-terre', 'murs-nc', 'fenetres', 'sols-terre', 'sols-nc', 'ventilation', 'chauffage', 'ecs', 'appareils', 'pv'];
     allSections.forEach(function (s) { generateSection(s); });
-    calculateSubsidies();
     recueilToast('Tous les textes générés');
 }
 
@@ -734,57 +754,6 @@ function recueilCopyAll() {
         recueilToast('Tout le texte copié !');
     } else {
         recueilToast('Aucun texte à copier', 'error');
-    }
-}
-
-/* ===== SUBSIDIES CALCULATOR ===== */
-
-function calculateSubsidies() {
-    var canton = rv('meta-canton');
-    var year = rvi('meta-year');
-    var altitude = rvi('meta-altitude');
-    var sre = rvi('meta-sre');
-    var chaufSrc = rv('chauf-source');
-    var ecsType = rv('ecs-type');
-    var toitIsol = rv('toit-isolation');
-    var mursIsol = rv('murs-isolation');
-
-    var items = [];
-    if (year > 0 && year < 2000) {
-        if (toitIsol !== 'conforme' && rv('toit-config')) items.push({ label: 'M-01 Isolation toiture — CHF 40 à 100/m²', note: 'U ≤ 0.20 → 40/m² | U ≤ 0.15 → 70/m² | +PV → 100/m²' });
-        if (mursIsol !== 'ite' && rv('murs-composition')) items.push({ label: 'M-01 Isolation façades — CHF 40 à 70/m²', note: 'U ≤ 0.20 → 40/m² | U ≤ 0.15 → 70/m²' });
-        var solsTerreConfig = rv('sols-terre-config');
-        if (solsTerreConfig === 'radier' || solsTerreConfig === 'terre_plein') {
-            var solsTerreIsol = rv('sols-terre-isolation');
-            if (solsTerreIsol !== 'oui') items.push({ label: 'M-01 Isolation sol contre terre — CHF 40 à 70/m²', note: 'U ≤ 0.20 → 40/m² | U ≤ 0.15 → 70/m²' });
-        }
-    }
-    if (chaufSrc === 'mazout' || chaufSrc === 'gaz' || (chaufSrc && chaufSrc.includes('elec'))) {
-        var classeReq = altitude > 1000 ? 'A à C' : 'A à E';
-        if (chaufSrc === 'mazout' || chaufSrc === 'gaz') {
-            items.push({ label: 'M-05 PAC air-eau', note: 'Classe env. ' + classeReq });
-            items.push({ label: 'M-06 PAC sol-eau', note: 'Classe env. ' + classeReq });
-        }
-        if (chaufSrc === 'elec_decentral' && canton === 'VD') {
-            items.push({ label: 'IP-19 Remplacement chauffages élec.', note: sre < 250 ? 'CHF 15\'000' : 'CHF 60/m² SRE' });
-        }
-    }
-    if (rv('vent-vmc') === 'non') {
-        var nb = rvi('meta-apartments') || 1;
-        items.push({ label: 'M-09 Ventilation double flux', note: 'CHF 2\'400 × ' + nb + ' (si env. A-C)' });
-    }
-    if (canton === 'VD' && ((chaufSrc && chaufSrc.includes('elec')) || (ecsType && ecsType.includes('elec')))) {
-        items.push({ label: 'DACCE (BLV 730.051)', note: 'Remplacement obligatoire avant 01.01.2033' });
-    }
-
-    var container = document.getElementById('recueil-subsidies-container');
-    if (items.length === 0) {
-        container.innerHTML = '<p style="text-align:center;color:#888;padding:30px">Aucune subvention identifiée pour cette configuration.</p>';
-    } else {
-        var html = '<div class="subsidy-panel"><h4>Récapitulatif des subventions PB 2026</h4>';
-        items.forEach(function (it) { html += '<div class="subsidy-row"><span><strong>' + it.label + '</strong></span><span style="font-size:.85em;color:#888">' + it.note + '</span></div>'; });
-        html += '<p style="margin-top:12px;font-size:.8em;color:#e67e22">Estimation indicative — à vérifier avec le Programme Bâtiments</p></div>';
-        container.innerHTML = html;
     }
 }
 
