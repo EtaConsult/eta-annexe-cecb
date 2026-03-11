@@ -870,31 +870,49 @@ async function analyzeTranscript(transcriptText) {
 
     var status = document.getElementById('transcript-status');
     var btn = document.getElementById('btnImportTranscript');
-    if (status) status.innerHTML = 'Analyse en cours...';
+    if (status) status.innerHTML = 'Étape 1/2 — Extraction des données...';
     if (btn) { btn.disabled = true; btn.textContent = 'Analyse...'; }
     var model = localStorage.getItem('cecb_api_model') || 'claude-sonnet-4-20250514';
-
-    var extractPrompt = 'Analyse cette transcription de visite CECB et extrais les informations.\n\nRetourne UNIQUEMENT un objet JSON valide avec DEUX parties :\n1) "fields" : les données structurées pour pré-remplir les formulaires\n2) "textes" : les textes descriptifs par section pour le rapport CECB (état initial EI et améliorations proposées AP)\n\nStructure exacte :\n{\n"fields":{"meta":{"canton":"","commune":"","adresse":"","annee_construction":null,"type":"","sre":null},"toit":{"config":"","type":"","annee":null,"isolation":"","isolation_cm":null,"materiau":"","etat":"","pv":"","combles_comp":""},"murs":{"composition":"","revetement":"","isolation":"","isolation_cm":null,"mitoyen":"non"},"murs_terre":{"composition":"","isolation":"","isol_cm":null,"etat":""},"murs_nc":{"composition":"","isolation":"","isol_cm":null,"etat":""},"fenetres":{"cadre":"","vitrage":"","annee":null,"cadres_renov":"","porte":""},"sols_terre":{"config":"","isolation":"","isol_cm":null},"sols_nc":{"config":"","isolation":"","isol_cm":null,"soussol":"","usage":""},"ventilation":{"vmc":"","extraction":""},"chauffage":{"source":"","puissance":null,"annee":null,"distribution":"","conso":"","conso_years":null,"appoint":""},"ecs":{"type":"","annee":null,"volume":null},"appareils":{"conso":""},"pv":{"existant":"","puissance":null,"batterie":"non"}},\n"textes":{"toit":{"ei":"","ap":""},"murs-ext":{"ei":"","ap":""},"murs-terre":{"ei":"","ap":""},"murs-nc":{"ei":"","ap":""},"fenetres":{"ei":"","ap":""},"sols-terre":{"ei":"","ap":""},"sols-nc":{"ei":"","ap":""},"ventilation":{"ei":"","ap":""},"chauffage":{"ei":"","ap":""},"ecs":{"ei":"","ap":""},"appareils":{"ei":"","ap":""},"pv":{"ei":"","ap":""}}\n}\n\nRègles pour les textes :\n- EI (état initial) : description technique factuelle de l\'élément tel qu\'observé lors de la visite\n- AP (améliorations proposées) : recommandations concrètes d\'amélioration énergétique\n- Style professionnel, 3e personne, pas de "nous constatons/observons"\n- Si une section n\'est pas mentionnée dans le transcript, laisser les textes vides ""\n- Rédige en français\n\nTranscription :\n' + transcriptText;
+    var headers = { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' };
 
     try {
-        var resp = await fetch('https://api.anthropic.com/v1/messages', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
-            body: JSON.stringify({ model: model, max_tokens: 4096, messages: [{ role: 'user', content: extractPrompt }] })
+        // STEP 1: Extract structured fields
+        var fieldsPrompt = 'Analyse cette transcription de visite CECB et extrais les informations structurées au format JSON.\n\nRetourne UNIQUEMENT un objet JSON valide avec cette structure :\n{"meta":{"canton":"","commune":"","adresse":"","annee_construction":null,"type":"","sre":null},"toit":{"config":"","type":"","annee":null,"isolation":"","isolation_cm":null,"materiau":"","etat":"","pv":"","combles_comp":""},"murs":{"composition":"","revetement":"","isolation":"","isolation_cm":null,"mitoyen":"non"},"murs_terre":{"composition":"","isolation":"","isol_cm":null,"etat":""},"murs_nc":{"composition":"","isolation":"","isol_cm":null,"etat":""},"fenetres":{"cadre":"","vitrage":"","annee":null,"cadres_renov":"","porte":""},"sols_terre":{"config":"","isolation":"","isol_cm":null},"sols_nc":{"config":"","isolation":"","isol_cm":null,"soussol":"","usage":""},"ventilation":{"vmc":"","extraction":""},"chauffage":{"source":"","puissance":null,"annee":null,"distribution":"","conso":"","conso_years":null,"appoint":""},"ecs":{"type":"","annee":null,"volume":null},"appareils":{"conso":""},"pv":{"existant":"","puissance":null,"batterie":"non"}}\n\nTranscription :\n' + transcriptText;
+
+        var resp1 = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST', headers: headers,
+            body: JSON.stringify({ model: model, max_tokens: 2048, messages: [{ role: 'user', content: fieldsPrompt }] })
         });
-        if (!resp.ok) { if (status) status.textContent = 'Erreur API: ' + resp.status; return; }
-        var data = await resp.json();
-        var text = ((data.content || [])[0] || {}).text || '';
-        var json;
-        try { var match = text.match(/\{[\s\S]*\}/); json = JSON.parse(match ? match[0] : text); }
-        catch (e) { if (status) status.textContent = 'Erreur: réponse non JSON'; return; }
+        if (resp1.ok) {
+            var data1 = await resp1.json();
+            var text1 = ((data1.content || [])[0] || {}).text || '';
+            try {
+                var match1 = text1.match(/\{[\s\S]*\}/);
+                var json1 = JSON.parse(match1 ? match1[0] : text1);
+                fillFromJSON(json1);
+            } catch (e) { console.warn('Transcript fields parse error:', e); }
+        }
 
-        // Fill form fields from fields section
-        if (json.fields) fillFromJSON(json.fields);
-        else fillFromJSON(json); // backward compat
+        // STEP 2: Generate section texts
+        if (status) status.innerHTML = 'Étape 2/2 — Rédaction des textes...';
+        var textesPrompt = 'À partir de cette transcription de visite CECB, rédige les textes descriptifs pour le rapport CECB.\n\nRetourne UNIQUEMENT un objet JSON avec cette structure :\n{"toit":{"ei":"","ap":""},"murs-ext":{"ei":"","ap":""},"murs-terre":{"ei":"","ap":""},"murs-nc":{"ei":"","ap":""},"fenetres":{"ei":"","ap":""},"sols-terre":{"ei":"","ap":""},"sols-nc":{"ei":"","ap":""},"ventilation":{"ei":"","ap":""},"chauffage":{"ei":"","ap":""},"ecs":{"ei":"","ap":""},"appareils":{"ei":"","ap":""},"pv":{"ei":"","ap":""}}\n\nRègles :\n- "ei" = état initial : description technique factuelle de l\'élément tel qu\'observé lors de la visite (2-4 phrases)\n- "ap" = améliorations proposées : recommandations concrètes d\'amélioration énergétique (2-4 phrases)\n- Style professionnel, 3e personne, jamais "nous constatons/observons/notons"\n- Si une section n\'est pas mentionnée dans le transcript, laisser ei et ap vides ""\n- Rédige en français\n\nTranscription :\n' + transcriptText;
 
-        // Fill text blocks from textes section
-        if (json.textes) fillTextBlocks(json.textes);
+        var resp2 = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST', headers: headers,
+            body: JSON.stringify({ model: model, max_tokens: 4096, messages: [{ role: 'user', content: textesPrompt }] })
+        });
+        if (resp2.ok) {
+            var data2 = await resp2.json();
+            var text2 = ((data2.content || [])[0] || {}).text || '';
+            console.log('Transcript textes response:', text2.substring(0, 200));
+            try {
+                var match2 = text2.match(/\{[\s\S]*\}/);
+                var json2 = JSON.parse(match2 ? match2[0] : text2);
+                fillTextBlocks(json2);
+            } catch (e) { console.warn('Transcript textes parse error:', e, text2.substring(0, 300)); }
+        } else {
+            console.warn('Transcript textes API error:', resp2.status);
+        }
 
         if (status) status.textContent = '';
         recueilToast('Fichier importé');
