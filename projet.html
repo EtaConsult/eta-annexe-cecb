@@ -132,6 +132,7 @@
     <nav class="main-nav">
         <span class="brand">CECB Plus</span>
         <a href="accueil.html">Accueil</a>
+        <a href="classes.html">Classes CECB</a>
     </nav>
 
     <!-- PROJECT INFO BAR -->
@@ -196,21 +197,14 @@
                             <div class="form-group"><label>Type de bâtiment</label><select id="meta-type" onchange="onBuildingTypeChange()"><option value="">—</option><option value="1020">Habitat individuel (SIA 1020)</option><option value="1025">Habitat collectif (SIA 1025)</option><option value="1030">Administration / Bureaux (SIA 1030)</option><option value="1040">Écoles (SIA 1040)</option><option value="1060">Commerce (SIA 1060)</option><option value="1070">Restauration (SIA 1070)</option><option value="1080">Lieux de rassemblement (SIA 1080)</option><option value="1081">Hôpitaux (SIA 1081)</option><option value="1090">Industrie (SIA 1090)</option><option value="1100">Dépôts (SIA 1100)</option><option value="1110">Installations sportives (SIA 1110)</option><option value="1120">Piscines couvertes (SIA 1120)</option></select></div>
                             <div class="form-group"><label>Nombre d'habitants</label><input type="number" id="meta-habitants" placeholder="4" min="1"></div>
                         </div>
-                        <div class="form-row" style="grid-template-columns:1fr 1fr">
+                        <div style="display:grid;grid-template-columns:1fr;gap:6px;max-width:280px">
                             <div class="form-group"><label>Studios</label><input type="number" id="meta-studios" placeholder="0" min="0"></div>
                             <div class="form-group"><label>2-pièces</label><input type="number" id="meta-2p" placeholder="0" min="0"></div>
-                        </div>
-                        <div class="form-row" style="grid-template-columns:1fr 1fr">
                             <div class="form-group"><label>3-pièces</label><input type="number" id="meta-3p" placeholder="0" min="0"></div>
                             <div class="form-group"><label>4-pièces</label><input type="number" id="meta-4p" placeholder="0" min="0"></div>
-                        </div>
-                        <div class="form-row" style="grid-template-columns:1fr 1fr">
                             <div class="form-group"><label>5-pièces</label><input type="number" id="meta-5p" placeholder="0" min="0"></div>
                             <div class="form-group"><label>6-pièces</label><input type="number" id="meta-6p" placeholder="0" min="0"></div>
-                        </div>
-                        <div class="form-row" style="grid-template-columns:1fr 1fr">
                             <div class="form-group"><label>Logements > 6 pièces</label><input type="number" id="meta-6p-plus" placeholder="0" min="0"></div>
-                            <div class="form-group"></div>
                         </div>
                     </div>
                     <!-- Conditions d'utilisation standard -->
