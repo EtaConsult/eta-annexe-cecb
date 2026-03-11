@@ -146,6 +146,7 @@
     <!-- PROJECT TABS -->
     <div id="projet-tabs">
         <button class="projet-tab active" data-tab="recueil" onclick="switchProjetTab('recueil')">Texte CECB</button>
+        <button class="projet-tab" data-tab="classes" onclick="switchProjetTab('classes')">Classes CECB</button>
         <button class="projet-tab" data-tab="photos" onclick="switchProjetTab('photos')">Annexe Photos</button>
         <button class="projet-tab" data-tab="variantes" onclick="switchProjetTab('variantes')">Variantes</button>
         <button class="projet-tab" data-tab="textes" onclick="switchProjetTab('textes')">Textes (ancienne version)</button>
@@ -535,6 +536,16 @@
     </div>
 
     <!-- ═══════════════════════════════════════════════════
+         TAB: CLASSES CECB
+         ═══════════════════════════════════════════════════ -->
+    <div id="tab-classes" class="projet-panel">
+        <h1>Classes CECB — Synthèse</h1>
+        <p class="subtitle">Textes descriptifs selon les classes CECB</p>
+        <div id="classes-embed"></div>
+        <div style="text-align:center;padding:15px"><button class="btn btn-success" onclick="manualSave()">Sauvegarder le projet</button></div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════
          TAB 3: VARIANTES
          ═══════════════════════════════════════════════════ -->
     <div id="tab-variantes" class="projet-panel">
@@ -614,7 +625,7 @@
     <script>
     /* ═══════ PROJECT PAGE CONTROLLER ═══════ */
 
-    var _tabsInitialized = { recueil: false, photos: false, variantes: false, textes: false };
+    var _tabsInitialized = { recueil: false, classes: false, photos: false, variantes: false, textes: false };
 
     function switchProjetTab(tab) {
         document.querySelectorAll('#projet-tabs .projet-tab').forEach(function (t) { t.classList.toggle('active', t.dataset.tab === tab); });
@@ -625,9 +636,155 @@
         if (!_tabsInitialized[tab]) {
             _tabsInitialized[tab] = true;
             if (tab === 'recueil') initRecueil();
+            else if (tab === 'classes') initClassesTab();
             else if (tab === 'photos') initPhotos();
             else if (tab === 'variantes') initVariantes();
             else if (tab === 'textes') initTextes();
+        }
+    }
+
+    /* ═══ CLASSES CECB TAB ═══ */
+    var TEXTES_ENVELOPPE = {
+        A: "L'enveloppe du bâtiment offre une isolation thermique exemplaire, avec des déperditions inférieures à 50 % des exigences actuelles pour les nouvelles constructions.",
+        B: "L'enveloppe du bâtiment offre une excellente isolation thermique, avec des déperditions comprises entre 50 % et 100 % des exigences actuelles des nouvelles constructions.",
+        C: "L'enveloppe du bâtiment offre une bonne isolation thermique, avec des déperditions comprises entre 100 % et 150 % des exigences actuelles des nouvelles constructions.",
+        D: "L'enveloppe du bâtiment offre une isolation thermique moyenne, avec des déperditions comprises entre 150 % et 200 % des exigences actuelles des nouvelles constructions.",
+        E: "L'enveloppe du bâtiment offre une isolation thermique moyenne, avec des déperditions comprises entre 200 % et 250 % des exigences actuelles des nouvelles constructions.",
+        F: "L'enveloppe du bâtiment offre une isolation thermique médiocre, avec des déperditions comprises entre 250 % et 300 % des exigences actuelles des nouvelles constructions.",
+        G: "L'enveloppe du bâtiment offre une très mauvaise isolation thermique, avec des déperditions supérieures à 300 % des exigences actuelles des nouvelles constructions."
+    };
+    var TEXTES_EFFICACITE = {
+        A: "L'efficacité énergétique globale est remarquable, avec un besoin énergétique pondéré (chauffage, eau chaude, électricité) inférieur à 50 % des exigences actuelles.",
+        B: "L'efficacité énergétique globale est très bonne, avec un besoin énergétique pondéré (chauffage, eau chaude, électricité) compris entre 50 % et 100 % des exigences actuelles.",
+        C: "L'efficacité énergétique globale est bonne, avec un besoin énergétique pondéré (chauffage, eau chaude, électricité) compris entre 100 % et 150 % des exigences actuelles.",
+        D: "L'efficacité énergétique globale est acceptable, avec un besoin énergétique pondéré (chauffage, eau chaude, électricité) compris entre 150 % et 200 % des exigences actuelles.",
+        E: "L'efficacité énergétique globale est faible, avec un besoin énergétique pondéré (chauffage, eau chaude, électricité) compris entre 200 % et 250 % des exigences actuelles.",
+        F: "L'efficacité énergétique globale est largement déficiente, avec un besoin énergétique pondéré (chauffage, eau chaude, électricité) compris entre 250 % et 300 % des exigences actuelles.",
+        G: "L'efficacité énergétique globale est critique, avec un besoin énergétique pondéré (chauffage, eau chaude, électricité) supérieur à 300 % des exigences actuelles."
+    };
+    var TEXTES_CO2 = {
+        fossile: "Le bâtiment est chauffé par des énergies fossiles et émet beaucoup de CO₂. L'utilisation d'énergies renouvelables et l'amélioration de l'enveloppe du bâtiment sont recommandées.",
+        renouvelable: "Le bâtiment ne génère pas d'émissions directes de CO₂."
+    };
+    var CLASS_COLORS = { A:'#00843D', B:'#4CAF50', C:'#8BC34A', D:'#FFC107', E:'#FF9800', F:'#FF5722', G:'#D32F2F' };
+    var classesState = { enveloppe: null, efficacite: null, co2: null };
+
+    function initClassesTab() {
+        var container = document.getElementById('classes-embed');
+        container.innerHTML = '<style>'
+            + '.cls-row{display:flex;align-items:center;gap:16px;margin-bottom:10px;background:#fff;border:1px solid #E2E8F0;border-radius:10px;padding:12px 20px}'
+            + '.cls-row h4{font-size:.9em;color:#2c5f2d;margin:0;white-space:nowrap;min-width:180px}'
+            + '.cls-btns{display:flex;gap:6px}'
+            + '.cls-btn{width:40px;height:40px;border:2px solid;border-radius:8px;font-weight:700;font-size:15px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;background:#fff}'
+            + '.cls-btn:hover{transform:scale(1.08)}'
+            + '.cls-btn.sel{color:#fff!important;transform:scale(1.12);box-shadow:0 2px 10px rgba(0,0,0,.3)}'
+            + '.cls-btn[data-c="A"]{border-color:#00843D;color:#00843D}.cls-btn[data-c="A"].sel{background:#00843D}'
+            + '.cls-btn[data-c="B"]{border-color:#4CAF50;color:#4CAF50}.cls-btn[data-c="B"].sel{background:#4CAF50}'
+            + '.cls-btn[data-c="C"]{border-color:#8BC34A;color:#6d9e2e}.cls-btn[data-c="C"].sel{background:#8BC34A}'
+            + '.cls-btn[data-c="D"]{border-color:#FFC107;color:#c99700}.cls-btn[data-c="D"].sel{background:#FFC107;color:#333!important}'
+            + '.cls-btn[data-c="E"]{border-color:#FF9800;color:#e08600}.cls-btn[data-c="E"].sel{background:#FF9800}'
+            + '.cls-btn[data-c="F"]{border-color:#FF5722;color:#FF5722}.cls-btn[data-c="F"].sel{background:#FF5722}'
+            + '.cls-btn[data-c="G"]{border-color:#D32F2F;color:#D32F2F}.cls-btn[data-c="G"].sel{background:#D32F2F}'
+            + '.co2-btn{padding:8px 14px;border:2px solid #E2E8F0;border-radius:8px;font-weight:600;font-size:.85em;background:#fff;cursor:pointer;transition:all .2s}'
+            + '.co2-btn:hover{border-color:#2c5f2d}.co2-btn.sel{background:#2c5f2d;color:#fff;border-color:#2c5f2d}'
+            + '.cls-panel{background:#fff;border:1px solid #E2E8F0;border-radius:10px;padding:16px 20px;margin-bottom:12px}'
+            + '.cls-panel h4{color:#2c5f2d;font-size:.9em;margin:0 0 8px}'
+            + '.cls-panel textarea{width:100%;min-height:80px;padding:10px;border:1px solid #E2E8F0;border-radius:6px;font-family:inherit;font-size:.9em;line-height:1.5;resize:vertical}'
+            + '.cls-panel textarea:focus{outline:none;border-color:#2c5f2d}'
+            + '.cls-panel-btns{display:flex;gap:8px;margin-top:6px;justify-content:flex-end}'
+            + '</style>'
+            + '<div class="cls-row"><h4>Classe enveloppe</h4><div class="cls-btns" id="cls-sel-env"></div></div>'
+            + '<div class="cls-row"><h4>Efficacité énergétique</h4><div class="cls-btns" id="cls-sel-eff"></div></div>'
+            + '<div class="cls-row"><h4>Émissions CO₂</h4><div class="cls-btns" id="cls-sel-co2">'
+            + '<button class="co2-btn" onclick="clsSelectCO2(\'fossile\')">Fossile</button>'
+            + '<button class="co2-btn" onclick="clsSelectCO2(\'renouvelable\')">Renouvelable</button>'
+            + '</div></div>'
+            + '<div class="cls-panel" id="cls-p-env" style="display:none"><h4>Enveloppe du bâtiment</h4><textarea id="cls-txt-env"></textarea><div class="cls-panel-btns"><button class="btn btn-sm btn-success" onclick="clsCopy(\'cls-txt-env\')">Copier</button><button class="btn btn-sm btn-warning" onclick="enhanceField(\'cls-txt-env\',\'Enveloppe\')">Enhance</button></div></div>'
+            + '<div class="cls-panel" id="cls-p-eff" style="display:none"><h4>Efficacité énergétique globale</h4><textarea id="cls-txt-eff"></textarea><div class="cls-panel-btns"><button class="btn btn-sm btn-success" onclick="clsCopy(\'cls-txt-eff\')">Copier</button><button class="btn btn-sm btn-warning" onclick="enhanceField(\'cls-txt-eff\',\'Efficacité\')">Enhance</button></div></div>'
+            + '<div class="cls-panel" id="cls-p-co2" style="display:none"><h4>Émissions CO₂</h4><textarea id="cls-txt-co2"></textarea><div class="cls-panel-btns"><button class="btn btn-sm btn-success" onclick="clsCopy(\'cls-txt-co2\')">Copier</button><button class="btn btn-sm btn-warning" onclick="enhanceField(\'cls-txt-co2\',\'CO₂\')">Enhance</button></div></div>'
+            + '<div style="text-align:center;margin-top:12px"><button class="btn btn-primary" onclick="clsCopyAll()">Tout copier</button></div>';
+
+        // Build A-G buttons
+        ['cls-sel-env','cls-sel-eff'].forEach(function(id) {
+            var ct = document.getElementById(id);
+            var type = id === 'cls-sel-env' ? 'enveloppe' : 'efficacite';
+            ['A','B','C','D','E','F','G'].forEach(function(c) {
+                var b = document.createElement('button');
+                b.className = 'cls-btn';
+                b.setAttribute('data-c', c);
+                b.textContent = c;
+                b.onclick = function() { clsSelect(type, c); };
+                ct.appendChild(b);
+            });
+        });
+
+        // Load saved state from project
+        clsLoadFromProject();
+    }
+
+    function clsSelect(type, cls) {
+        classesState[type] = cls;
+        var id = type === 'enveloppe' ? 'cls-sel-env' : 'cls-sel-eff';
+        document.querySelectorAll('#'+id+' .cls-btn').forEach(function(b) { b.classList.toggle('sel', b.getAttribute('data-c')===cls); });
+        var panelId = type === 'enveloppe' ? 'cls-p-env' : 'cls-p-eff';
+        var txtId = type === 'enveloppe' ? 'cls-txt-env' : 'cls-txt-eff';
+        var textes = type === 'enveloppe' ? TEXTES_ENVELOPPE : TEXTES_EFFICACITE;
+        document.getElementById(panelId).style.display = 'block';
+        document.getElementById(txtId).value = textes[cls];
+    }
+
+    function clsSelectCO2(val) {
+        classesState.co2 = val;
+        document.querySelectorAll('#cls-sel-co2 .co2-btn').forEach(function(b) { b.classList.toggle('sel', b.textContent.toLowerCase().indexOf(val)>=0); });
+        document.getElementById('cls-p-co2').style.display = 'block';
+        document.getElementById('cls-txt-co2').value = TEXTES_CO2[val];
+    }
+
+    function clsCopy(id) {
+        navigator.clipboard.writeText(document.getElementById(id).value);
+        showToast('Copié !');
+    }
+
+    function clsCopyAll() {
+        var parts = [];
+        if (classesState.enveloppe) parts.push(document.getElementById('cls-txt-env').value);
+        if (classesState.efficacite) parts.push(document.getElementById('cls-txt-eff').value);
+        if (classesState.co2) parts.push(document.getElementById('cls-txt-co2').value);
+        navigator.clipboard.writeText(parts.join('\n\n'));
+        showToast('Tout copié !');
+    }
+
+    function clsSaveToProject() {
+        var pid = ProjectStore.getCurrentId();
+        if (!pid) return;
+        var p = ProjectStore.get(pid);
+        if (!p) return;
+        p.classes = {
+            state: classesState,
+            textes: {
+                enveloppe: document.getElementById('cls-txt-env') ? document.getElementById('cls-txt-env').value : '',
+                efficacite: document.getElementById('cls-txt-eff') ? document.getElementById('cls-txt-eff').value : '',
+                co2: document.getElementById('cls-txt-co2') ? document.getElementById('cls-txt-co2').value : ''
+            }
+        };
+        ProjectStore.save(p);
+    }
+
+    function clsLoadFromProject() {
+        var pid = ProjectStore.getCurrentId();
+        if (!pid) return;
+        var p = ProjectStore.get(pid);
+        if (!p || !p.classes) return;
+        var d = p.classes;
+        if (d.state) {
+            if (d.state.enveloppe) clsSelect('enveloppe', d.state.enveloppe);
+            if (d.state.efficacite) clsSelect('efficacite', d.state.efficacite);
+            if (d.state.co2) clsSelectCO2(d.state.co2);
+        }
+        if (d.textes) {
+            if (d.textes.enveloppe && document.getElementById('cls-txt-env')) document.getElementById('cls-txt-env').value = d.textes.enveloppe;
+            if (d.textes.efficacite && document.getElementById('cls-txt-eff')) document.getElementById('cls-txt-eff').value = d.textes.efficacite;
+            if (d.textes.co2 && document.getElementById('cls-txt-co2')) document.getElementById('cls-txt-co2').value = d.textes.co2;
         }
     }
 
@@ -655,6 +812,7 @@
         var pid = ProjectStore.getCurrentId();
         if (!pid) return;
         if (typeof recueilAutoSave === 'function') recueilAutoSave();
+        if (typeof clsSaveToProject === 'function') clsSaveToProject();
         if (typeof autoSavePhotos === 'function') autoSavePhotos();
         if (typeof varSaveState === 'function') varSaveState();
         if (typeof textesAutoSave === 'function') textesAutoSave();
