@@ -14,18 +14,18 @@
         .selector-card { background: #fff; border: 1px solid #E2E8F0; border-radius: 10px; padding: 16px; }
         .selector-card h3 { font-size: .9em; color: #2c5f2d; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
         .class-buttons { display: flex; gap: 6px; flex-wrap: wrap; }
-        .class-btn { width: 42px; height: 42px; border: 2px solid #E2E8F0; border-radius: 8px; font-weight: 700; font-size: 16px; background: #fff; color: #334155; cursor: pointer; transition: all .2s; display: flex; align-items: center; justify-content: center; }
-        .class-btn:hover { transform: scale(1.08); }
-        .class-btn.selected { color: #fff; border-color: transparent; transform: scale(1.1); box-shadow: 0 2px 8px rgba(0,0,0,.2); }
+        .class-btn { width: 42px; height: 42px; border: 2px solid transparent; border-radius: 8px; font-weight: 700; font-size: 16px; color: #fff; cursor: pointer; transition: all .2s; display: flex; align-items: center; justify-content: center; opacity: .7; }
+        .class-btn:hover { transform: scale(1.08); opacity: .9; }
+        .class-btn.selected { opacity: 1; transform: scale(1.12); box-shadow: 0 2px 10px rgba(0,0,0,.3); border-color: #fff; }
 
-        /* Couleurs CECB officielles */
-        .class-btn[data-class="A"] { }  .class-btn[data-class="A"].selected { background: #00843D; }
-        .class-btn[data-class="B"] { }  .class-btn[data-class="B"].selected { background: #4CAF50; }
-        .class-btn[data-class="C"] { }  .class-btn[data-class="C"].selected { background: #8BC34A; }
-        .class-btn[data-class="D"] { }  .class-btn[data-class="D"].selected { background: #FFC107; color: #333; }
-        .class-btn[data-class="E"] { }  .class-btn[data-class="E"].selected { background: #FF9800; }
-        .class-btn[data-class="F"] { }  .class-btn[data-class="F"].selected { background: #FF5722; }
-        .class-btn[data-class="G"] { }  .class-btn[data-class="G"].selected { background: #D32F2F; }
+        /* Couleurs CECB officielles — toujours visibles */
+        .class-btn[data-class="A"] { background: #00843D; }
+        .class-btn[data-class="B"] { background: #4CAF50; }
+        .class-btn[data-class="C"] { background: #8BC34A; color: #333; }
+        .class-btn[data-class="D"] { background: #FFC107; color: #333; }
+        .class-btn[data-class="E"] { background: #FF9800; }
+        .class-btn[data-class="F"] { background: #FF5722; }
+        .class-btn[data-class="G"] { background: #D32F2F; }
 
         .co2-buttons { display: flex; gap: 8px; }
         .co2-btn { padding: 8px 14px; border: 2px solid #E2E8F0; border-radius: 8px; font-weight: 600; font-size: .85em; background: #fff; cursor: pointer; transition: all .2s; }
