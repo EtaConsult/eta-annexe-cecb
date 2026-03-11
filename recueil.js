@@ -168,9 +168,9 @@ var BLOCS = {
         ei_vieillissante: "La toiture, datant de la construction du bâtiment en {year}, montre des signes de vieillissement après {age} ans d'utilisation. Sa fin de vie théorique approche et des travaux d'entretien ou de remplacement sont à planifier.",
         ei_plancher_combles: "Le plancher des combles sépare l'espace chauffé des combles non chauffés. Il est constitué de {composition} et est {isolation_desc} avec {materiau}.",
         ei_plafond_nc: "Les plafonds contre local non chauffés présentent une isolation thermique {isolation_desc}.",
-        ap_renovation: "En cas de travaux importants sur la couverture ou dans le cadre de son entretien, il est recommandé d'envisager simultanément l'amélioration de l'isolation thermique de la toiture. Pour bénéficier des subventions du Programme Bâtiments (mesure M-01), il est nécessaire d'atteindre une valeur U inférieure à 0,20 W/m²K, ce qui permettra de réduire considérablement les déperditions thermiques.",
+        ap_renovation: "En cas de travaux importants sur la couverture ou dans le cadre de son entretien, il est recommandé d'envisager simultanément l'amélioration de l'isolation thermique de la toiture. Pour bénéficier des subventions du Programme Bâtiments, il est nécessaire d'atteindre une valeur U inférieure à 0,20 W/m²K, ce qui permettra de réduire considérablement les déperditions thermiques.",
         ap_non_prioritaire: "Bien que l'amélioration de l'isolation de la toiture ne constitue pas une priorité immédiate, elle reste une intervention pertinente, à planifier lors des prochains travaux de rénovation lourds.",
-        ap_plancher_combles: "Il est recommandé d'optimiser l'isolation du plancher des combles en renforçant l'isolation existante. Pour bénéficier des subventions du Programme Bâtiments (mesure M-01, rubrique Toit), une valeur U inférieure à 0,20 W/m²K est requise.",
+        ap_plancher_combles: "Il est recommandé d'optimiser l'isolation du plancher des combles en renforçant l'isolation existante. Pour bénéficier des subventions du Programme Bâtiments, une valeur U inférieure à 0,20 W/m²K est requise.",
         ap_plafond_nc: "Des mesures d'isolation thermique des plafonds contre local non chauffés doivent être examinées lors des prochains travaux d'entretien. Ces travaux ne sont pas éligibles aux subventions du Programme Bâtiments de manière indépendante.",
         ap_pv: "Avant d'envisager l'installation de panneaux photovoltaïques, il est conseillé de faire vérifier la capacité portante de la charpente par un ingénieur civil."
     },
@@ -181,14 +181,14 @@ var BLOCS = {
         ei_ossature: "Les façades présentent une ossature en {type_ossature} avec un revêtement en {revetement}. Cette configuration offre une isolation thermique limitée. La complexité de la structure rend l'installation d'une ITE plus délicate que pour une façade en maçonnerie traditionnelle.",
         ei_moellons: "Les façades sont constituées de maçonnerie de moellons, caractéristique de l'époque de construction du bâtiment. Cette composition offre une inertie thermique intéressante mais une isolation insuffisante au regard des standards actuels.",
         ei_mitoyen: "Le bâtiment est contigu sur {cotes} côté(s). Les façades contiguës ne nécessitent pas de travaux d'amélioration thermique.",
-        ap_ite: "L'installation d'une isolation thermique par l'extérieur (ITE) représente une option intéressante lors d'une rénovation des façades. Pour bénéficier des subventions du Programme Bâtiments (mesure M-01), une valeur U inférieure à 0,20 W/m²K est nécessaire.",
+        ap_ite: "L'installation d'une isolation thermique par l'extérieur (ITE) représente une option intéressante lors d'une rénovation des façades. Pour bénéficier des subventions du Programme Bâtiments, une valeur U inférieure à 0,20 W/m²K est nécessaire.",
         ap_sondage: "Nous recommandons de réaliser un sondage de la façade avant d'engager des travaux d'amélioration thermique."
     },
     murs_terre: {
         ei_sans_isolation: "Les murs contre terrain ne présentent pas d'isolation thermique. Ils sont constitués de {composition_desc} et sont à l'origine de déperditions thermiques significatives.",
         ei_isole_interieur: "Des travaux d'amélioration thermique ont été réalisés sur les murs en contact avec le terrain. Une couche d'isolation d'environ {cm} cm d'EPS a été ajoutée par l'intérieur.",
         ei_isole_perimetrique: "Les murs contre terrain disposent d'une isolation périmétrique d'environ {cm} cm, posée côté extérieur. Cette configuration offre une protection thermique satisfaisante.",
-        ap_isolation: "Des mesures d'isolation thermique des murs contre terrain devraient être planifiées. Pour les murs enterrés de plus de 2 mètres, une valeur U inférieure à 0,25 W/m²K permet de bénéficier des subventions du Programme Bâtiments (mesure M-01).",
+        ap_isolation: "Des mesures d'isolation thermique des murs contre terrain devraient être planifiées. Pour les murs enterrés de plus de 2 mètres, une valeur U inférieure à 0,25 W/m²K permet de bénéficier des subventions du Programme Bâtiments.",
         ap_non_prioritaire: "L'isolation des murs contre terrain ne constitue pas une priorité immédiate, compte tenu de leur état actuel."
     },
     murs_nc: {
@@ -210,7 +210,7 @@ var BLOCS = {
         ei_radier: "En l'absence de plans d'exécution ou de sondage, il est difficile de définir le détail constructif du radier contre terre. Ce dernier, constitué de maçonnerie, ne présente vraisemblablement pas ou peu d'isolation.",
         ei_terre_plein: "Les planchers du bâtiment sont en contact direct avec le terrain. Au regard de l'époque de construction, la présence d'une couche d'isolation thermique est considérée comme peu probable.",
         ei_isole: "Le sol contre terre dispose d'une isolation de {cm} cm. Cette configuration offre une performance thermique acceptable.",
-        ap_radier: "L'isolation du plancher du sous-sol représente une option efficace. Toutefois, cette intervention implique généralement des travaux dont le coût peut s'avérer élevé. Pour bénéficier des subventions du Programme Bâtiments (mesure M-01), une valeur U inférieure à 0,25 W/m²K est nécessaire.",
+        ap_radier: "L'isolation du plancher du sous-sol représente une option efficace. Toutefois, cette intervention implique généralement des travaux dont le coût peut s'avérer élevé. Pour bénéficier des subventions du Programme Bâtiments, une valeur U inférieure à 0,25 W/m²K est nécessaire.",
         ap_terre_plein: "L'isolation du plancher constitue une option envisageable à long terme. Toutefois, le coût peut s'avérer disproportionné par rapport au gain énergétique attendu.",
         ap_non_prioritaire: "L'isolation du sol contre terre ne constitue pas une priorité, les performances actuelles étant jugées satisfaisantes."
     },
@@ -229,19 +229,19 @@ var BLOCS = {
     },
     ventilation: {
         ei_standard: "Le bâtiment ne dispose pas de système de ventilation mécanique. Le renouvellement de l'air est effectué par l'ouverture manuelle des fenêtres. Les locaux humides sont équipés de ventilateurs avec temporisation pour l'extraction de l'air vicié.",
-        ap_standard: "L'intégration d'une ventilation mécanique contrôlée (VMC) simple flux avec récupération de chaleur peut être réalisée efficacement lors de travaux de rénovation. Ce système permet de limiter les déperditions thermiques en récupérant la chaleur de l'air extrait pour préchauffer l'air neuf entrant. L'air frais pénètre dans les pièces de vie par des réglettes hygroréglables installées dans les cadres de fenêtres, tandis que l'air vicié est extrait par le réseau existant des WC et salles de bains. Cette solution optimise l'efficacité énergétique du bâtiment tout en assurant une qualité d'air appropriée. Les réglettes hygroréglables ajustent automatiquement le débit d'air selon le taux d'humidité intérieure. L'installation d'une VMC double flux bénéficie d'une subvention du Programme Bâtiments (mesure M-09) de CHF 2'400 par unité d'habitation, à condition que le bâtiment atteigne une classe CECB enveloppe A à C."
+        ap_standard: "L'intégration d'une ventilation mécanique contrôlée (VMC) simple flux avec récupération de chaleur peut être réalisée lors de travaux de rénovation. Ce système permet de limiter les déperditions thermiques. L'air frais pénètre dans les pièces de vie par des réglettes hygroréglables installées dans les cadres de fenêtres, tandis que l'air vicié est extrait par le réseau existant des WC et salles de bains. Cette solution optimise l'efficacité énergétique du bâtiment tout en assurant une qualité d'air appropriée. Les réglettes hygroréglables ajustent automatiquement le débit d'air selon le taux d'humidité intérieure : elles s'ouvrent davantage en présence d'humidité élevée et se ferment lorsque l'air est sec, permettant ainsi un fonctionnement à débit variable et une meilleure performance énergétique."
     },
     chauffage: {
-        ei_fossile: "Le bâtiment dispose d'une chaudière à {source} à condensation d'une puissance de {puissance} kW, mise en service en {year}. Celle-ci ne satisfait plus entièrement aux standards techniques actuels ni aux recommandations relatives à l'utilisation des énergies renouvelables. Le système fonctionne de manière satisfaisante. Le recours aux énergies fossiles génère des émissions de CO2 importantes. La distribution de chaleur s'effectue au moyen de {distribution}.",
+        ei_fossile: "Le bâtiment est équipé d'une chaudière à {source} à condensation installée en {year}, avec une puissance de {puissance} kW, qui ne répond plus entièrement aux standards techniques actuels ni aux recommandations en matière d'énergies renouvelables. Le système de chauffage fonctionne de manière satisfaisante et ne présente pas de défaillance notable. Cependant, ce système utilise une énergie fossile dont les émissions de CO₂ ont un impact environnemental défavorable et compromettent l'atteinte des objectifs climatiques cantonaux et fédéraux. La distribution de chaleur s'effectue via {distribution}.",
         ei_elec: "Le bâtiment est équipé d'un système de chauffage par radiateurs électriques qui ne répond plus aux normes techniques actuelles. L'utilisation de l'électricité pour la production de chaleur s'avère coûteuse et devrait être évitée.",
         ei_pac: "Le bâtiment est équipé d'une pompe à chaleur {type_pac}, offrant une puissance de {puissance} kW. Cette installation est conforme aux standards techniques actuels et aux recommandations concernant l'utilisation des énergies renouvelables.",
         ei_cad: "Le bâtiment est raccordé au chauffage à distance (CAD) de la commune de {commune}. Ce réseau représente une solution efficace, valorisant majoritairement des énergies renouvelables locales.",
-        ei_conso_oui: "Les données de consommation de chauffage ont été transmises par le mandant sur une période de {years} années.",
+        ei_conso_oui: "Les données de consommation de chauffage sur les {years} dernières années ont été transmises par le mandant.",
         ei_conso_non: "Les données de consommation n'ont pas été fournies par le mandant, ce qui limite la vérification de la plausibilité du modèle énergétique.",
-        ei_appoint: "Une cheminée à {type_appoint} complète l'installation de chauffage.",
-        ap_fossile: "Nous recommandons de remplacer, à terme, la chaudière existante par un système exploitant les énergies renouvelables. Le remplacement peut bénéficier de subventions du Programme Bâtiments (mesures M-02 à M-08), à condition qu'il soit remplacé par un système renouvelable. {condition_pb}",
+        ei_appoint: "Une cheminée décorative à {type_appoint} complète l'installation de chauffage.",
+        ap_fossile: "Le remplacement du système de production de chaleur est à anticiper avant d'atteindre sa fin de vie théorique. Il est recommandé de remplacer la chaudière existante par une solution recourant aux énergies renouvelables. La mise en place d'un suivi des consommations de chauffage, accompagnée de mesures correctives, serait bénéfique tant sur le plan économique qu'écologique. Par ailleurs, l'isolation des conduites de distribution mérite d'être améliorée. Ces interventions sont à planifier à moyen terme, dans un horizon d'environ 5 ans. Le remplacement d'un système principal fonctionnant au mazout, au gaz ou à l'électricité directe peut bénéficier d'une subvention du Programme Bâtiments, pour autant qu'il soit remplacé par un système utilisant les énergies renouvelables ou par un raccordement à un chauffage à distance. {condition_pb}",
         ap_elec_central_vd: "Il est recommandé de procéder au remplacement du système de production de chaleur par un système exploitant les énergies renouvelables. Depuis le 1er janvier 2025, le décret vaudois sur l'assainissement des chauffages et chauffe-eau électriques (DACCE, BLV 730.051) est en vigueur. Ce décret interdit l'utilisation de ces installations et impose leur remplacement d'ici le 1er janvier 2033.",
-        ap_elec_decentral_vd: "Il est recommandé de remplacer l'ensemble des radiateurs électriques par un système centralisé renouvelable. Le DACCE impose le remplacement d'ici 2033. La création d'un réseau hydraulique bénéficie d'un soutien du Programme Bâtiments (mesure IP-19).",
+        ap_elec_decentral_vd: "Il est recommandé de remplacer l'ensemble des radiateurs électriques par un système centralisé renouvelable. Le DACCE impose le remplacement d'ici 2033. La création d'un réseau hydraulique bénéficie d'un soutien du Programme Bâtiments.",
         ap_elec_ge: "Il est recommandé de procéder au remplacement du système par une pompe à chaleur ou un autre système renouvelable.",
         ap_pac: "Aucune amélioration du système de production de chaleur n'est recommandée. Toutefois, il est vivement conseillé d'améliorer l'isolation de l'enveloppe thermique afin d'optimiser le coefficient de performance de la pompe à chaleur.",
         ap_cad: "Aucune recommandation n'est préconisée concernant le système de production de chaleur."
@@ -627,12 +627,12 @@ function generateChauffageText() {
     var commune = rv('meta-commune');
     var altitude = rvi('meta-altitude');
     var conditionPB = altitude > 1000 ?
-        "Pour les bâtiments construits avant 2000, une classe CECB de l'enveloppe comprise entre A et C doit être justifiée." :
-        "Pour les bâtiments construits avant 2000, une classe CECB de l'enveloppe comprise entre A et E doit être justifiée.";
+        "Pour les bâtiments construits avant l'an 2000, une classe CECB® de l'enveloppe comprise entre A et C (mise à jour 2023) doit être justifiée." :
+        "Pour les bâtiments construits avant l'an 2000, une classe CECB® de l'enveloppe comprise entre A et E (mise à jour 2023) doit être justifiée.";
     var chaufSrc = rv('chauf-source');
     var chaufYear = rv('chauf-year');
     var chaufPuiss = rv('chauf-puissance');
-    var distribLabels = { radiateurs: 'radiateurs', plancher: 'plancher chauffant', convecteurs: 'convecteurs', radiateurs_elec: 'radiateurs électriques' };
+    var distribLabels = { radiateurs: 'des radiateurs', plancher: 'un chauffage au sol hydraulique avec régulation individuelle par pièce', convecteurs: 'des convecteurs', radiateurs_elec: 'des radiateurs électriques' };
     var pacTypes = { pac_air: 'air-eau', pac_sol: 'sol-eau', pac_eau: 'eau-eau' };
     var ei = '', ap = '';
 
@@ -658,7 +658,7 @@ function generateChauffageText() {
 
     if (rv('chauf-conso') === 'oui') ei += ' ' + fillTemplate(BLOCS.chauffage.ei_conso_oui, { years: rv('chauf-conso-years') || '3' });
     else if (rv('chauf-conso') === 'non') ei += ' ' + BLOCS.chauffage.ei_conso_non;
-    if (rv('chauf-appoint') === 'insert') ei += ' ' + fillTemplate(BLOCS.chauffage.ei_appoint, { type_appoint: 'insert' });
+    if (rv('chauf-appoint') === 'insert') ei += ' ' + fillTemplate(BLOCS.chauffage.ei_appoint, { type_appoint: 'foyer fermé' });
     else if (rv('chauf-appoint') === 'foyer_ouvert') ei += ' ' + fillTemplate(BLOCS.chauffage.ei_appoint, { type_appoint: 'foyer ouvert' });
     return { ei: ei, ap: ap };
 }
@@ -809,8 +809,8 @@ async function enhanceField(fieldId, fieldLabel) {
     var btnOrig = btn ? btn.innerHTML : '';
     if (btn) { btn.innerHTML = 'En cours...'; btn.disabled = true; }
 
-    var systemPrompt = "Tu es un correcteur pour des rapports techniques CECB. Ton rôle est UNIQUEMENT de corriger la grammaire, l'orthographe et d'améliorer légèrement la fluidité de lecture. Règles STRICTES : ne reformule PAS les phrases, ne rajoute AUCUN mot ou expression (interdit : 'nous constatons', 'nous observons', 'nous notons', 'il est à noter', 'il convient de'). Conserve la structure, le vocabulaire et toutes les données techniques. Supprime les passages entre crochets [...] marqués 'à compléter'. Retourne UNIQUEMENT le texte corrigé.";
-    var userMsg = 'Corrige uniquement la grammaire, l\'orthographe et la ponctuation du texte ci-dessous. Améliore légèrement la fluidité si nécessaire, mais ne reformule pas et n\'ajoute aucun mot ou expression. Le texte doit rester le plus proche possible de l\'original. Envoie uniquement le texte corrigé.\n\n' + ta.value;
+    var systemPrompt = "Tu es un rédacteur technique pour des rapports CECB/CECB Plus. Améliore le texte en corrigeant la grammaire et l'orthographe, et en reformulant légèrement pour une meilleure fluidité et clarté. Règles : conserve le sens exact et toutes les données techniques (valeurs, années, mesures). Ne rajoute aucune information ni aucune phrase nouvelle. N'utilise jamais 'nous constatons', 'nous observons', 'nous notons', 'il est à noter', 'il convient de'. Supprime les passages entre crochets [...] marqués 'à compléter'. Retourne UNIQUEMENT le texte amélioré.";
+    var userMsg = 'Améliore le texte ci-dessous : corrige la grammaire et l\'orthographe, reformule légèrement les phrases pour plus de fluidité et de clarté. Ne change pas le sens, ne rajoute aucune information nouvelle. Conserve toutes les données techniques. Envoie uniquement le texte amélioré.\n\n' + ta.value;
 
     try {
         var resp = await fetch('https://api.anthropic.com/v1/messages', {
@@ -874,8 +874,8 @@ async function enrichField(fieldId, fieldLabel) {
     var btnOrig = btn ? btn.innerHTML : '';
     if (btn) { btn.innerHTML = 'En cours...'; btn.disabled = true; }
 
-    var systemPrompt = "Tu es un correcteur pour des rapports techniques CECB. Ton rôle est UNIQUEMENT de corriger la grammaire, l'orthographe et d'améliorer légèrement la fluidité de lecture. Règles STRICTES : ne reformule PAS les phrases, ne rajoute AUCUN mot ou expression (interdit : 'nous constatons', 'nous observons', 'nous notons', 'il est à noter', 'il convient de'). Conserve la structure, le vocabulaire et toutes les données techniques. Supprime les passages entre crochets [...] marqués 'à compléter'. Retourne UNIQUEMENT le texte corrigé.";
-    var userMsg = instruction.trim() ? 'Consigne : ' + instruction + '\n\nTexte :\n\n' + ta.value : 'Corrige uniquement la grammaire, l\'orthographe et la ponctuation du texte ci-dessous. Améliore légèrement la fluidité si nécessaire, mais ne reformule pas et n\'ajoute aucun mot ou expression. Envoie uniquement le texte corrigé.\n\n' + ta.value;
+    var systemPrompt = "Tu es un rédacteur technique pour des rapports CECB/CECB Plus. Améliore le texte en corrigeant la grammaire et l'orthographe, et en reformulant légèrement pour une meilleure fluidité et clarté. Règles : conserve le sens exact et toutes les données techniques (valeurs, années, mesures). Ne rajoute aucune information ni aucune phrase nouvelle. N'utilise jamais 'nous constatons', 'nous observons', 'nous notons', 'il est à noter', 'il convient de'. Supprime les passages entre crochets [...] marqués 'à compléter'. Retourne UNIQUEMENT le texte amélioré.";
+    var userMsg = instruction.trim() ? 'Consigne : ' + instruction + '\n\nTexte :\n\n' + ta.value : 'Améliore le texte ci-dessous : corrige la grammaire et l\'orthographe, reformule légèrement les phrases pour plus de fluidité et de clarté. Ne change pas le sens, ne rajoute aucune information nouvelle. Envoie uniquement le texte amélioré.\n\n' + ta.value;
 
     try {
         var resp = await fetch('https://api.anthropic.com/v1/messages', {
