@@ -39,6 +39,9 @@ input, select, textarea {
     align-items: center;
     padding: 0 24px;
     gap: 0;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
 }
 
 .main-nav a {

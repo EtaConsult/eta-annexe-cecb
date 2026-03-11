@@ -133,7 +133,8 @@
         </div>
 
         <div class="copy-all-bar" id="copy-all-bar" style="display:none">
-            <button class="btn btn-primary" onclick="copyAll()">📋 Tout copier</button>
+            <button class="btn btn-primary" onclick="saveClasses()">💾 Sauvegarder</button>
+            <button class="btn btn-primary" onclick="copyAll()" style="margin-left:8px">📋 Tout copier</button>
         </div>
     </div>
 
@@ -296,8 +297,44 @@ function showToast(msg, isError) {
     setTimeout(function() { t.remove(); }, 2500);
 }
 
+/* ═══ SAVE / LOAD ═══ */
+var CLASSES_STORAGE_KEY = 'cecb-classes-data';
+
+function saveClasses() {
+    var data = {
+        state: state,
+        textes: {
+            enveloppe: document.getElementById('txt-enveloppe').value,
+            efficacite: document.getElementById('txt-efficacite').value,
+            co2: document.getElementById('txt-co2').value
+        }
+    };
+    localStorage.setItem(CLASSES_STORAGE_KEY, JSON.stringify(data));
+    showToast('Sauvegardé !');
+}
+
+function loadClasses() {
+    try {
+        var raw = localStorage.getItem(CLASSES_STORAGE_KEY);
+        if (!raw) return;
+        var data = JSON.parse(raw);
+        if (data.state) {
+            if (data.state.enveloppe) selectClass('enveloppe', data.state.enveloppe);
+            if (data.state.efficacite) selectClass('efficacite', data.state.efficacite);
+            if (data.state.co2) selectCO2(data.state.co2);
+        }
+        // Restore edited texts (after selectClass sets defaults)
+        if (data.textes) {
+            if (data.textes.enveloppe) document.getElementById('txt-enveloppe').value = data.textes.enveloppe;
+            if (data.textes.efficacite) document.getElementById('txt-efficacite').value = data.textes.efficacite;
+            if (data.textes.co2) document.getElementById('txt-co2').value = data.textes.co2;
+        }
+    } catch(e) {}
+}
+
 /* ═══ BOOT ═══ */
 initButtons();
+loadClasses();
     </script>
 </body>
 </html>
