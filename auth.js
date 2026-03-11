@@ -35,10 +35,14 @@ async function initAdmin() {
     const users = getUsers();
     const admin = users.find(u => u.email === ADMIN_EMAIL);
     if (!admin) {
-        users.push({ email: ADMIN_EMAIL, passwordHash: '', isAdmin: true, name: 'Gérard Merminod' });
+        users.push({ email: ADMIN_EMAIL, passwordHash: '', isAdmin: true, firstName: 'Gérard', lastName: 'Merminod' });
         saveUsers(users);
-    } else if (admin.name === 'Admin') {
-        admin.name = 'Gérard Merminod';
+    } else if (!admin.firstName) {
+        // Migrate old name field to firstName/lastName
+        var parts = (admin.name || 'Gérard Merminod').split(' ');
+        admin.firstName = parts[0] || '';
+        admin.lastName = parts.slice(1).join(' ') || '';
+        delete admin.name;
         saveUsers(users);
     }
 }
@@ -57,7 +61,7 @@ function getSession() {
 }
 
 function setSession(user, persistent) {
-    var data = JSON.stringify({ email: user.email, isAdmin: user.isAdmin, name: user.name });
+    var data = JSON.stringify({ email: user.email, isAdmin: user.isAdmin, name: (user.firstName || '') + ' ' + (user.lastName || '') });
     sessionStorage.setItem(AUTH_SESSION_KEY, data);
     if (persistent) {
         localStorage.setItem(AUTH_SESSION_KEY, data);
@@ -106,13 +110,13 @@ async function setPassword(email, newPassword) {
     return true;
 }
 
-async function addUser(email, password, name) {
+async function addUser(email, password, firstName, lastName) {
     const users = getUsers();
     if (users.find(u => u.email.toLowerCase() === email.toLowerCase())) {
         return { ok: false, msg: 'Cet email existe déjà' };
     }
     const hash = await hashPassword(password);
-    users.push({ email: email.toLowerCase(), passwordHash: hash, plainPassword: password, isAdmin: false, name: name || email });
+    users.push({ email: email.toLowerCase(), passwordHash: hash, plainPassword: password, isAdmin: false, firstName: firstName || '', lastName: lastName || '' });
     saveUsers(users);
     return { ok: true };
 }
@@ -339,9 +343,11 @@ function renderAdminPanel() {
     panel.id = 'adminPanel';
 
     let html = '<h3>Gestion des accès</h3>';
-    html += '<table><thead><tr><th>Nom</th><th>Email</th><th>Mot de passe</th><th>Rôle</th><th></th></tr></thead><tbody>';
+    html += '<table><thead><tr><th>Prénom</th><th>Nom</th><th>Email</th><th>Mot de passe</th><th>Rôle</th><th></th></tr></thead><tbody>';
     users.forEach(u => {
-        html += '<tr><td>' + escapeAuthHtml(u.name || '') + '</td><td>' + escapeAuthHtml(u.email) + '</td><td style="font-family:monospace;font-size:12px;color:#666">' + (u.plainPassword ? escapeAuthHtml(u.plainPassword) : '<em style="color:#aaa">—</em>') + '</td><td>' + (u.isAdmin ? 'Admin' : 'Utilisateur') + '</td>';
+        var fn = u.firstName || (u.name ? u.name.split(' ')[0] : '');
+        var ln = u.lastName || (u.name ? u.name.split(' ').slice(1).join(' ') : '');
+        html += '<tr><td>' + escapeAuthHtml(fn) + '</td><td>' + escapeAuthHtml(ln) + '</td><td>' + escapeAuthHtml(u.email) + '</td><td style="font-family:monospace;font-size:12px;color:#666">' + (u.plainPassword ? escapeAuthHtml(u.plainPassword) : '<em style="color:#aaa">—</em>') + '</td><td>' + (u.isAdmin ? 'Admin' : 'Utilisateur') + '</td>';
         if (!u.isAdmin) {
             html += '<td><button class="btn-del" data-email="' + escapeAuthHtml(u.email) + '">Supprimer</button></td>';
         } else {
@@ -351,7 +357,8 @@ function renderAdminPanel() {
     });
     html += '</tbody></table>';
     html += '<div class="admin-add-form" id="adminAddForm">';
-    html += '<div class="field"><label>Nom</label><input type="text" id="adminNewName" placeholder="Nom"></div>';
+    html += '<div class="field"><label>Prénom</label><input type="text" id="adminNewFirstName" placeholder="Prénom"></div>';
+    html += '<div class="field"><label>Nom</label><input type="text" id="adminNewLastName" placeholder="Nom"></div>';
     html += '<div class="field"><label>Email</label><input type="email" id="adminNewEmail" placeholder="email@example.ch"></div>';
     html += '<div class="field"><label>Mot de passe</label><input type="text" id="adminNewPw" placeholder="Mot de passe"></div>';
     html += '<button id="adminAddBtn">Ajouter</button>';
@@ -380,7 +387,8 @@ function renderAdminPanel() {
 
     // Add handler
     document.getElementById('adminAddBtn').addEventListener('click', async function() {
-        const name = document.getElementById('adminNewName').value.trim();
+        const firstName = document.getElementById('adminNewFirstName').value.trim();
+        const lastName = document.getElementById('adminNewLastName').value.trim();
         const email = document.getElementById('adminNewEmail').value.trim();
         const pw = document.getElementById('adminNewPw').value;
         const errorEl = document.getElementById('adminError');
@@ -396,7 +404,7 @@ function renderAdminPanel() {
             return;
         }
 
-        const result = await addUser(email, pw, name || email);
+        const result = await addUser(email, pw, firstName, lastName);
         if (result.ok) {
             renderAdminPanel();
         } else {
