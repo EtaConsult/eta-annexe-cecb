@@ -103,6 +103,27 @@
             <div id="projectsList"></div>
         </div>
 
+        <!-- Feedback section -->
+        <div class="new-project-card" style="margin-top:16px">
+            <h2 style="font-size:1rem;display:flex;align-items:center;gap:8px;cursor:pointer" onclick="toggleFeedbackForm()">
+                <span id="feedbackToggle" style="transition:transform .2s">&#x25B6;</span> Signaler un bug ou proposer une amélioration
+            </h2>
+            <div id="feedbackForm" style="display:none">
+                <div style="display:flex;gap:10px;margin-bottom:10px">
+                    <label style="display:flex;align-items:center;gap:4px;cursor:pointer"><input type="radio" name="fbType" value="bug" checked> Bug</label>
+                    <label style="display:flex;align-items:center;gap:4px;cursor:pointer"><input type="radio" name="fbType" value="amelioration"> Amélioration</label>
+                </div>
+                <textarea id="feedbackText" rows="3" placeholder="Décrivez le problème ou l'amélioration souhaitée..." style="width:100%;padding:10px;border:1px solid #CBD5E1;border-radius:8px;font-size:14px;font-family:inherit;resize:vertical"></textarea>
+                <button onclick="submitFeedback()" style="margin-top:8px;padding:8px 18px;background:#10B981;color:#fff;border:none;border-radius:8px;font-weight:600;font-size:14px;cursor:pointer">Envoyer</button>
+            </div>
+        </div>
+
+        <!-- Admin: feedback list -->
+        <div id="feedbackAdminSection" style="display:none;margin-top:16px" class="new-project-card">
+            <h2 style="font-size:1rem">Retours utilisateurs</h2>
+            <div id="feedbackList"></div>
+        </div>
+
         <button class="settings-link" id="settingsBtn" style="display:none" onclick="openApiSettings()">Parametres API Claude</button>
     </div>
 
@@ -388,12 +409,97 @@ function showNotification(msg) {
     setTimeout(function () { el.classList.remove('show'); }, 2500);
 }
 
+/* ─── Feedback System ─────────────────────────────── */
+var FEEDBACK_KEY = 'cecb-feedback';
+
+function toggleFeedbackForm() {
+    var form = document.getElementById('feedbackForm');
+    var toggle = document.getElementById('feedbackToggle');
+    if (form.style.display === 'none') {
+        form.style.display = 'block';
+        toggle.style.transform = 'rotate(90deg)';
+    } else {
+        form.style.display = 'none';
+        toggle.style.transform = '';
+    }
+}
+
+function getFeedback() {
+    try { return JSON.parse(localStorage.getItem(FEEDBACK_KEY)) || []; }
+    catch (e) { return []; }
+}
+
+function saveFeedback(list) {
+    localStorage.setItem(FEEDBACK_KEY, JSON.stringify(list));
+}
+
+function submitFeedback() {
+    var text = document.getElementById('feedbackText').value.trim();
+    if (!text) { showNotification('Veuillez décrire le problème'); return; }
+    var type = document.querySelector('input[name="fbType"]:checked').value;
+    var session = getSession();
+    var entry = {
+        id: Date.now().toString(36),
+        type: type,
+        text: text,
+        user: session ? session.email : 'anonyme',
+        date: new Date().toISOString(),
+        status: 'nouveau'
+    };
+    var list = getFeedback();
+    list.unshift(entry);
+    saveFeedback(list);
+    document.getElementById('feedbackText').value = '';
+    showNotification('Merci pour votre retour !');
+    if (isAdmin()) renderFeedbackAdmin();
+}
+
+function renderFeedbackAdmin() {
+    var section = document.getElementById('feedbackAdminSection');
+    var list = getFeedback();
+    if (list.length === 0) {
+        section.style.display = 'none';
+        return;
+    }
+    section.style.display = 'block';
+    var container = document.getElementById('feedbackList');
+    var html = '<table style="width:100%;border-collapse:collapse;font-size:.85em;margin-top:8px">';
+    html += '<thead><tr style="text-align:left;border-bottom:2px solid #e2e8f0"><th style="padding:6px">Type</th><th style="padding:6px">Description</th><th style="padding:6px">Utilisateur</th><th style="padding:6px">Date</th><th style="padding:6px">Statut</th><th style="padding:6px"></th></tr></thead><tbody>';
+    list.forEach(function(fb) {
+        var typeLabel = fb.type === 'bug' ? '<span style="color:#c0392b;font-weight:600">Bug</span>' : '<span style="color:#2980b9;font-weight:600">Amélioration</span>';
+        var statusColor = fb.status === 'nouveau' ? '#e67e22' : fb.status === 'traite' ? '#27ae60' : '#95a5a6';
+        var statusLabel = fb.status === 'nouveau' ? 'Nouveau' : fb.status === 'traite' ? 'Traité' : 'Rejeté';
+        var date = new Date(fb.date).toLocaleDateString('fr-CH');
+        html += '<tr style="border-bottom:1px solid #f1f5f9">';
+        html += '<td style="padding:6px">' + typeLabel + '</td>';
+        html += '<td style="padding:6px;max-width:300px;word-break:break-word">' + escapeHtml(fb.text) + '</td>';
+        html += '<td style="padding:6px;font-size:.8em">' + escapeHtml(fb.user) + '</td>';
+        html += '<td style="padding:6px;white-space:nowrap">' + date + '</td>';
+        html += '<td style="padding:6px"><span style="color:' + statusColor + ';font-weight:600">' + statusLabel + '</span></td>';
+        html += '<td style="padding:6px;white-space:nowrap">';
+        if (fb.status === 'nouveau') {
+            html += '<button onclick="updateFeedbackStatus(\'' + fb.id + '\',\'traite\')" style="padding:3px 8px;background:#27ae60;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:.8em;margin-right:4px">Traité</button>';
+            html += '<button onclick="updateFeedbackStatus(\'' + fb.id + '\',\'rejete\')" style="padding:3px 8px;background:#95a5a6;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:.8em">Rejeté</button>';
+        }
+        html += '</td></tr>';
+    });
+    html += '</tbody></table>';
+    container.innerHTML = html;
+}
+
+function updateFeedbackStatus(id, status) {
+    var list = getFeedback();
+    var item = list.find(function(f) { return f.id === id; });
+    if (item) { item.status = status; saveFeedback(list); renderFeedbackAdmin(); }
+}
+
 /* ─── Auth override ───────────────────────────────── */
 function onAuthSuccess() {
     showUserBar();
     document.querySelectorAll('.container').forEach(function (el) { el.style.display = ''; });
     if (isAdmin()) {
         document.getElementById('settingsBtn').style.display = '';
+        renderFeedbackAdmin();
     }
     renderProjectsList();
 }
