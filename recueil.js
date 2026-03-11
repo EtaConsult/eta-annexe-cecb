@@ -1031,4 +1031,20 @@ function initRecueil() {
 
     // Building type change handler (show/hide RegBL housing)
     onBuildingTypeChange();
+
+    // Enable/disable RegBL button based on EGID availability
+    var btnRegbl = document.getElementById('btnRegbl');
+    if (btnRegbl) {
+        btnRegbl.disabled = !rv('meta-egid');
+        btnRegbl.style.opacity = rv('meta-egid') ? '1' : '0.4';
+        btnRegbl.style.cursor = rv('meta-egid') ? 'pointer' : 'not-allowed';
+    }
+}
+
+/** Open the RegBL extended info page for the current project's EGID */
+function ouvrirRegbl() {
+    var egid = rv('meta-egid');
+    if (egid) {
+        window.open('https://api3.geo.admin.ch/rest/services/ech/MapServer/ch.bfs.gebaeude_wohnungs_register/' + egid + '_0/extendedHtmlPopup?lang=fr', '_blank');
+    }
 }
