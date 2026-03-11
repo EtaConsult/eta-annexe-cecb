@@ -241,19 +241,8 @@
                             <div class="form-group"><label>Supplément régulation (K)</label><input type="number" id="meta-suppl-reg" value="0" min="0" max="5" step="0.5"><span class="hint">0 K si régulation individuelle par pièce</span></div>
                         </div>
                     </div>
-                    <!-- Transcript import (discret) -->
-                    <div class="form-row">
-                        <div class="form-group" style="grid-column:1/-1">
-                            <button class="btn btn-sm btn-secondary" onclick="toggleTranscriptPanel()">Importer transcript Plaud</button>
-                            <div id="transcript-panel" style="display:none;margin-top:10px">
-                                <textarea class="transcript-area" id="transcript-input" placeholder="Collez ici la transcription Plaud de la visite..."></textarea>
-                                <div class="btn-group">
-                                    <button class="btn btn-warning btn-sm" onclick="analyzeTranscript()">Analyser</button>
-                                    <span id="transcript-status" style="font-size:.85em;color:var(--r-grey)"></span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- Hidden file input for transcript import -->
+                    <input type="file" id="transcript-file-input" accept=".txt" style="display:none" onchange="handleTranscriptFile(this)">
                 </div>
             </div>
 
@@ -261,6 +250,8 @@
             <div class="btn-group" style="justify-content:center;padding:15px">
                 <button class="btn btn-primary" onclick="manualSave()">Sauvegarder</button>
                 <button class="btn" style="background:#3B82F6;color:#fff" onclick="ouvrirRegbl()" id="btnRegbl">Voir fiche RegBL</button>
+                <button class="btn" style="background:#8B5CF6;color:#fff" onclick="document.getElementById('transcript-file-input').click()" id="btnImportTranscript">Importer Transcript</button>
+                <span id="transcript-status" style="font-size:.85em;color:var(--r-grey)"></span>
             </div>
         </div>
 

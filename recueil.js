@@ -20,9 +20,17 @@ function toggleSection(header) {
     if (toggle) toggle.classList.toggle('collapsed');
 }
 
-function toggleTranscriptPanel() {
-    var panel = document.getElementById('transcript-panel');
-    panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+function handleTranscriptFile(input) {
+    if (!input.files || !input.files[0]) return;
+    var file = input.files[0];
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        var text = e.target.result;
+        if (!text || !text.trim()) { recueilToast('Fichier vide', 'error'); return; }
+        analyzeTranscript(text);
+    };
+    reader.readAsText(file);
+    input.value = '';
 }
 
 function recueilToast(msg, type) {
@@ -320,7 +328,7 @@ function fillTemplate(tpl, vars) {
 function recueilCollectFormData() {
     var data = {};
     RECUEIL_FIELDS.forEach(function (f) { data[f] = rv(f); });
-    data.transcript = (document.getElementById('transcript-input') || {}).value || '';
+    // transcript field removed — now uses file import
     return data;
 }
 
@@ -328,11 +336,7 @@ function recueilLoadFormData(data) {
     if (!data) return;
     Object.entries(data).forEach(function (entry) {
         var k = entry[0], val = entry[1];
-        if (k === 'transcript') {
-            var ta = document.getElementById('transcript-input');
-            if (ta && val) ta.value = val;
-            return;
-        }
+        if (k === 'transcript') return; // legacy field, skip
         var el = document.getElementById(k);
         if (el && val !== undefined && val !== null && val !== '') el.value = val;
     });
@@ -360,7 +364,7 @@ function recueilAutoSave() {
         document.querySelectorAll('.gen-textarea').forEach(function (ta) {
             if (ta.id && ta.value) generatedTexts[ta.id] = ta.value;
         });
-        ProjectStore.update(pid, 'recueil', { formData: formData, generatedTexts: generatedTexts, transcript: formData.transcript || '' });
+        ProjectStore.update(pid, 'recueil', { formData: formData, generatedTexts: generatedTexts });
     }, 2000);
 }
 
@@ -858,36 +862,68 @@ async function enrichField(fieldId, fieldLabel) {
 
 /* ===== TRANSCRIPT ANALYSIS ===== */
 
-async function analyzeTranscript() {
+async function analyzeTranscript(transcriptText) {
     var apiKey = localStorage.getItem('cecb_api_key');
     if (!apiKey) { recueilToast('Configurez votre clé API', 'error'); return; }
 
-    var transcript = (document.getElementById('transcript-input') || {}).value || '';
-    if (!transcript.trim()) { recueilToast('Collez un transcript', 'error'); return; }
+    if (!transcriptText || !transcriptText.trim()) { recueilToast('Transcript vide', 'error'); return; }
 
     var status = document.getElementById('transcript-status');
-    status.innerHTML = 'Analyse en cours...';
+    var btn = document.getElementById('btnImportTranscript');
+    if (status) status.innerHTML = 'Analyse en cours...';
+    if (btn) { btn.disabled = true; btn.textContent = 'Analyse...'; }
     var model = localStorage.getItem('cecb_api_model') || 'claude-sonnet-4-20250514';
 
-    var extractPrompt = 'Analyse cette transcription de visite CECB et extrais les informations structurées au format JSON.\n\nRetourne UNIQUEMENT un objet JSON valide avec cette structure :\n{"meta":{"canton":"","commune":"","adresse":"","annee_construction":null,"type":"","sre":null},"toit":{"config":"","type":"","annee":null,"isolation":"","isolation_cm":null,"materiau":"","etat":"","pv":"","combles_comp":""},"murs":{"composition":"","revetement":"","isolation":"","isolation_cm":null,"mitoyen":"non"},"murs_terre":{"composition":"","isolation":"","isol_cm":null,"etat":""},"murs_nc":{"composition":"","isolation":"","isol_cm":null,"etat":""},"fenetres":{"cadre":"","vitrage":"","annee":null,"cadres_renov":"","porte":""},"sols_terre":{"config":"","isolation":"","isol_cm":null},"sols_nc":{"config":"","isolation":"","isol_cm":null,"soussol":"","usage":""},"ventilation":{"vmc":"","extraction":""},"chauffage":{"source":"","puissance":null,"annee":null,"distribution":"","conso":"","conso_years":null,"appoint":""},"ecs":{"type":"","annee":null,"volume":null},"appareils":{"conso":""},"pv":{"existant":"","puissance":null,"batterie":"non"}}\n\nTranscription :\n' + transcript;
+    var extractPrompt = 'Analyse cette transcription de visite CECB et extrais les informations.\n\nRetourne UNIQUEMENT un objet JSON valide avec DEUX parties :\n1) "fields" : les données structurées pour pré-remplir les formulaires\n2) "textes" : les textes descriptifs par section pour le rapport CECB (état initial EI et améliorations proposées AP)\n\nStructure exacte :\n{\n"fields":{"meta":{"canton":"","commune":"","adresse":"","annee_construction":null,"type":"","sre":null},"toit":{"config":"","type":"","annee":null,"isolation":"","isolation_cm":null,"materiau":"","etat":"","pv":"","combles_comp":""},"murs":{"composition":"","revetement":"","isolation":"","isolation_cm":null,"mitoyen":"non"},"murs_terre":{"composition":"","isolation":"","isol_cm":null,"etat":""},"murs_nc":{"composition":"","isolation":"","isol_cm":null,"etat":""},"fenetres":{"cadre":"","vitrage":"","annee":null,"cadres_renov":"","porte":""},"sols_terre":{"config":"","isolation":"","isol_cm":null},"sols_nc":{"config":"","isolation":"","isol_cm":null,"soussol":"","usage":""},"ventilation":{"vmc":"","extraction":""},"chauffage":{"source":"","puissance":null,"annee":null,"distribution":"","conso":"","conso_years":null,"appoint":""},"ecs":{"type":"","annee":null,"volume":null},"appareils":{"conso":""},"pv":{"existant":"","puissance":null,"batterie":"non"}},\n"textes":{"toit":{"ei":"","ap":""},"murs-ext":{"ei":"","ap":""},"murs-terre":{"ei":"","ap":""},"murs-nc":{"ei":"","ap":""},"fenetres":{"ei":"","ap":""},"sols-terre":{"ei":"","ap":""},"sols-nc":{"ei":"","ap":""},"ventilation":{"ei":"","ap":""},"chauffage":{"ei":"","ap":""},"ecs":{"ei":"","ap":""},"appareils":{"ei":"","ap":""},"pv":{"ei":"","ap":""}}\n}\n\nRègles pour les textes :\n- EI (état initial) : description technique factuelle de l\'élément tel qu\'observé lors de la visite\n- AP (améliorations proposées) : recommandations concrètes d\'amélioration énergétique\n- Style professionnel, 3e personne, pas de "nous constatons/observons"\n- Si une section n\'est pas mentionnée dans le transcript, laisser les textes vides ""\n- Rédige en français\n\nTranscription :\n' + transcriptText;
 
     try {
         var resp = await fetch('https://api.anthropic.com/v1/messages', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
-            body: JSON.stringify({ model: model, max_tokens: 2048, messages: [{ role: 'user', content: extractPrompt }] })
+            body: JSON.stringify({ model: model, max_tokens: 4096, messages: [{ role: 'user', content: extractPrompt }] })
         });
-        if (!resp.ok) { status.textContent = 'Erreur API: ' + resp.status; return; }
+        if (!resp.ok) { if (status) status.textContent = 'Erreur API: ' + resp.status; return; }
         var data = await resp.json();
         var text = ((data.content || [])[0] || {}).text || '';
         var json;
         try { var match = text.match(/\{[\s\S]*\}/); json = JSON.parse(match ? match[0] : text); }
-        catch (e) { status.textContent = 'Erreur: réponse non JSON'; return; }
-        fillFromJSON(json);
-        status.textContent = 'Analyse terminée — vérifiez les champs';
-        recueilToast('Transcript analysé !');
+        catch (e) { if (status) status.textContent = 'Erreur: réponse non JSON'; return; }
+
+        // Fill form fields from fields section
+        if (json.fields) fillFromJSON(json.fields);
+        else fillFromJSON(json); // backward compat
+
+        // Fill text blocks from textes section
+        if (json.textes) fillTextBlocks(json.textes);
+
+        if (status) status.textContent = '';
+        recueilToast('Fichier importé');
         recueilAutoSave();
-    } catch (e) { status.textContent = 'Erreur: ' + e.message; }
+    } catch (e) { if (status) status.textContent = 'Erreur: ' + e.message; }
+    finally { if (btn) { btn.disabled = false; btn.textContent = 'Importer Transcript'; } }
+}
+
+function fillTextBlocks(textes) {
+    var sections = ['toit','murs-ext','murs-terre','murs-nc','fenetres','sols-terre','sols-nc','ventilation','chauffage','ecs','appareils','pv'];
+    sections.forEach(function(section) {
+        var t = textes[section];
+        if (!t) return;
+        if (t.ei) {
+            var eiTa = document.getElementById('gen-' + section + '-ei');
+            if (eiTa) { eiTa.value = t.ei; }
+        }
+        if (t.ap) {
+            var apTa = document.getElementById('gen-' + section + '-ap');
+            if (apTa) { apTa.value = t.ap; }
+        }
+        // Show the output section if any text was set
+        if (t.ei || t.ap) {
+            var outputDiv = document.getElementById('output-' + section);
+            if (outputDiv) outputDiv.style.display = 'block';
+            if (t.ei) updateCharCounter(section, 'ei');
+            if (t.ap) updateCharCounter(section, 'ap');
+        }
+    });
 }
 
 function fillFromJSON(json) {
