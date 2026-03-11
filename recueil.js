@@ -66,41 +66,68 @@ function onBuildingTypeChange() {
 }
 
 async function fetchRegblHousing() {
-    var coordE = rv('meta-coord-e');
-    var coordN = rv('meta-coord-n');
+    var egid = rv('meta-egid');
     var container = document.getElementById('regbl-housing-content');
-    if (!coordE || !coordN) {
-        container.innerHTML = '<p style="color:#888">Coordonnées non disponibles — impossible de charger les données RegBL.</p>';
+    if (!egid) {
+        container.innerHTML = '<p style="color:#888">EGID non disponible — impossible de charger les données RegBL.</p>';
         return;
     }
     container.innerHTML = '<p style="color:#888">Chargement des données RegBL...</p>';
     try {
-        var resp = await fetch('https://api3.geo.admin.ch/rest/services/api/MapServer/identify?geometryType=esriGeometryPoint&geometry=' + coordE + ',' + coordN + '&layers=all:ch.bfs.gebaeude_wohnungs_register&mapExtent=0,0,100,100&imageDisplay=100,100,100&tolerance=10&returnGeometry=true');
+        var resp = await fetch('https://api3.geo.admin.ch/rest/services/api/MapServer/find?layer=ch.bfs.gebaeude_wohnungs_register&searchField=egid&searchText=' + egid + '&returnGeometry=false');
         var data = await resp.json();
         if (!data.results || data.results.length === 0) {
-            container.innerHTML = '<p style="color:#888">Aucune donnée RegBL trouvée pour ces coordonnées.</p>';
+            container.innerHTML = '<p style="color:#888">Aucune donnée RegBL trouvée pour EGID ' + egid + '.</p>';
             return;
         }
         var b = data.results[0].attributes || {};
         var totalWhg = b.ganzwhg || 0;
+        // wazim is an array of room counts per dwelling
+        var wazimArr = Array.isArray(b.wazim) ? b.wazim : [];
+        // Count dwellings by room size
+        var counts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, '7+': 0 };
+        wazimArr.forEach(function(n) {
+            if (n === null || n === undefined) return;
+            n = parseInt(n);
+            if (n <= 0) return;
+            if (n === 1) counts[1]++;
+            else if (n === 2) counts[2]++;
+            else if (n === 3) counts[3]++;
+            else if (n === 4) counts[4]++;
+            else if (n === 5) counts[5]++;
+            else if (n === 6) counts[6]++;
+            else counts['7+']++;
+        });
+        // Fill form fields
+        sv('meta-apartments', totalWhg);
+        sv('meta-studios', counts[1]);
+        sv('meta-2p', counts[2]);
+        sv('meta-3p', counts[3]);
+        sv('meta-4p', counts[4]);
+        sv('meta-5p', counts[5]);
+        sv('meta-6p', counts[6]);
+        sv('meta-6p-plus', counts['7+']);
+        // Display summary table
         var html = '<table style="width:100%;border-collapse:collapse;font-size:.9em">';
-        html += '<tr><td style="padding:6px;font-weight:600">Total logements (ganzwhg)</td><td style="padding:6px">' + totalWhg + '</td></tr>';
-        var rooms = [
-            { key: 'wazim1', label: '1 pièce' },
-            { key: 'wazim2', label: '2 pièces' },
-            { key: 'wazim3', label: '3 pièces' },
-            { key: 'wazim4', label: '4 pièces' },
-            { key: 'wazim5', label: '5 pièces' },
-            { key: 'wazim6', label: '6+ pièces' }
+        html += '<tr><td style="padding:6px;font-weight:600">Total logements</td><td style="padding:6px">' + totalWhg + '</td></tr>';
+        var roomLabels = [
+            { count: counts[1], label: 'Studios (1 pièce)' },
+            { count: counts[2], label: '2 pièces' },
+            { count: counts[3], label: '3 pièces' },
+            { count: counts[4], label: '4 pièces' },
+            { count: counts[5], label: '5 pièces' },
+            { count: counts[6], label: '6 pièces' },
+            { count: counts['7+'], label: '> 6 pièces' }
         ];
-        rooms.forEach(function (r) {
-            var val = b[r.key] || 0;
-            if (val > 0) {
-                html += '<tr><td style="padding:6px;border-top:1px solid #eee">' + r.label + '</td><td style="padding:6px;border-top:1px solid #eee">' + val + '</td></tr>';
+        roomLabels.forEach(function(r) {
+            if (r.count > 0) {
+                html += '<tr><td style="padding:6px;border-top:1px solid #eee">' + r.label + '</td><td style="padding:6px;border-top:1px solid #eee">' + r.count + '</td></tr>';
             }
         });
         html += '</table>';
         container.innerHTML = html;
+        // Trigger auto-save
+        if (typeof recueilAutoSave === 'function') recueilAutoSave();
     } catch (e) {
         container.innerHTML = '<p style="color:var(--r-danger)">Erreur lors du chargement: ' + e.message + '</p>';
     }
@@ -312,6 +339,7 @@ var RECUEIL_FIELDS = [
 ];
 
 function rv(id) { return (document.getElementById(id) || {}).value || ''; }
+function sv(id, val) { var el = document.getElementById(id); if (el) el.value = val; }
 function rvi(id) { return parseInt(rv(id)) || 0; }
 function rvf(id) { return parseFloat(rv(id)) || 0; }
 
