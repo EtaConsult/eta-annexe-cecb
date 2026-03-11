@@ -123,7 +123,7 @@
 .gen-textarea{width:100%;min-height:100px;padding:10px;border:1px solid var(--r-border);border-radius:4px;font-family:inherit;font-size:.9em;line-height:1.5;resize:vertical}
 .gen-textarea:focus{outline:none;border-color:var(--r-primary);box-shadow:0 0 0 2px rgba(44,95,45,.15)}
 .char-counter{font-size:.75em;color:#888;margin-left:8px}
-#projectEGID{font-weight:700;color:#059669}
+.project-title-nav{color:rgba(255,255,255,.85);font-weight:600;font-size:14px;margin-left:auto;padding:0 16px}
 @media(max-width:768px){.form-row{grid-template-columns:1fr}.variant-config{grid-template-columns:1fr}}
     </style>
 </head>
@@ -132,23 +132,15 @@
     <nav class="main-nav">
         <span class="brand">CECB Plus</span>
         <a href="accueil.html">Accueil</a>
-        <a href="classes.html">Classes CECB</a>
+        <span class="project-title-nav" id="projectTitleNav"></span>
     </nav>
-
-    <!-- PROJECT INFO BAR -->
-    <div class="project-info-bar" id="projectInfoBar">
-        <span class="project-title" id="projectTitle">Chargement...</span>
-        <span class="project-meta-item" id="projectEGID"></span>
-        <span class="project-meta-item" id="projectCanton"></span>
-        <span class="project-meta-item" id="projectYear"></span>
-    </div>
 
     <!-- PROJECT TABS -->
     <div id="projet-tabs">
         <button class="projet-tab active" data-tab="recueil" onclick="switchProjetTab('recueil')">Texte CECB</button>
         <button class="projet-tab" data-tab="classes" onclick="switchProjetTab('classes')">Classes CECB</button>
-        <button class="projet-tab" data-tab="photos" onclick="switchProjetTab('photos')">Annexe Photos</button>
         <button class="projet-tab" data-tab="variantes" onclick="switchProjetTab('variantes')">Variantes</button>
+        <button class="projet-tab" data-tab="photos" onclick="switchProjetTab('photos')">Annexe Photos</button>
         <button class="projet-tab" data-tab="textes" onclick="switchProjetTab('textes')">Textes (ancienne version)</button>
     </div>
 
@@ -795,11 +787,7 @@
         if (!project) { window.location.href = 'accueil.html'; return; }
 
         // Display project info
-        document.getElementById('projectTitle').textContent = project.name;
-        var addr = project.address || {};
-        if (addr.egid) document.getElementById('projectEGID').textContent = 'EGID: ' + addr.egid;
-        if (addr.canton) document.getElementById('projectCanton').textContent = 'Canton: ' + addr.canton;
-        if (addr.year) document.getElementById('projectYear').textContent = 'Année: ' + addr.year;
+        document.getElementById('projectTitleNav').textContent = project.name;
 
         document.title = 'CECB Plus — ' + project.name;
 

@@ -340,7 +340,7 @@ function recueilLoadFormData(data) {
             return;
         }
         var el = document.getElementById(k);
-        if (el && val) el.value = val;
+        if (el && val !== undefined && val !== null && val !== '') el.value = val;
     });
     updateToitFields();
     updateChauffageFields();
