@@ -56,9 +56,9 @@
 </head>
 <body>
     <nav class="main-nav">
-        <span class="brand">Assistant CECB</span>
-        <a href="accueil.html" class="active">Projets</a>
-        <a href="classes.html">Classes CECB</a>
+        <span class="brand" style="cursor:pointer" onclick="showView('nouveau')">Assistant CECB</span>
+        <a href="#" class="nav-view active" data-view="nouveau" onclick="showView('nouveau');return false">Nouveau projet</a>
+        <a href="#" class="nav-view" data-view="projets" onclick="showView('projets');return false">Mes projets</a>
     </nav>
 
     <div class="container">
@@ -68,7 +68,7 @@
         </div>
 
         <!-- New Project -->
-        <div class="new-project-card">
+        <div class="new-project-card" id="viewNouveau">
             <h2>Nouveau projet</h2>
             <div class="address-row">
                 <input type="text" id="addressInput" placeholder="Rechercher une adresse (ex: Rue du Lac 15, 1180 Rolle)" autocomplete="off">
@@ -95,7 +95,7 @@
         </div>
 
         <!-- Projects List -->
-        <div class="projects-section">
+        <div class="projects-section" id="viewProjets">
             <div class="projects-header">
                 <h2>Mes projets</h2>
                 <span class="count" id="projectCount">0</span>
@@ -124,7 +124,6 @@
             <div id="feedbackList"></div>
         </div>
 
-        <button class="settings-link" id="settingsBtn" style="display:none" onclick="openApiSettings()">Parametres API Claude</button>
     </div>
 
     <div class="notification" id="notification"></div>
@@ -180,6 +179,22 @@
 
 let selectedAddress = null;
 let addressTimeout;
+
+/* ─── View switching ───────────────────────────── */
+function showView(view) {
+    var nouveau = document.getElementById('viewNouveau');
+    var projets = document.getElementById('viewProjets');
+    if (view === 'nouveau') {
+        if (nouveau) nouveau.style.display = '';
+        if (projets) projets.style.display = 'none';
+    } else {
+        if (nouveau) nouveau.style.display = 'none';
+        if (projets) projets.style.display = '';
+    }
+    document.querySelectorAll('.nav-view').forEach(function(a) {
+        a.classList.toggle('active', a.dataset.view === view);
+    });
+}
 
 function getUserEmail() {
     const s = getSession();
@@ -544,10 +559,10 @@ function onAuthSuccess() {
     showUserBar();
     document.querySelectorAll('.container').forEach(function (el) { el.style.display = ''; });
     if (isAdmin()) {
-        document.getElementById('settingsBtn').style.display = '';
         renderFeedbackAdmin();
     }
     renderProjectsList();
+    showView('nouveau');
 }
     </script>
 </body>

@@ -974,15 +974,33 @@ function fillTranscriptPassages(passages) {
     });
 }
 
-function recallTranscriptPassages() {
+function recallSectionPassage(section, suffix) {
     var pid = ProjectStore.getCurrentId();
     if (!pid) { recueilToast('Aucun projet ouvert', 'error'); return; }
     var project = ProjectStore.get(pid);
     var passages = project && project.recueil && project.recueil.transcriptPassages;
-    if (!passages) { recueilToast('Aucun transcript importé', 'error'); return; }
-    fillTranscriptPassages(passages);
-    recueilToast('Textes du transcript restaurés');
-    recueilAutoSave();
+    if (!passages || !passages[section]) { recueilToast('Pas de transcript pour cette section', 'error'); return; }
+
+    var data = passages[section];
+    var text = '';
+    if (typeof data === 'string') {
+        // From txt/pdf import: flat string → only EI
+        if (suffix === 'ei') text = data;
+    } else if (typeof data === 'object') {
+        // From audio import: {ei, ap}
+        text = data[suffix] || '';
+    }
+    if (!text) { recueilToast('Pas de texte ' + suffix.toUpperCase() + ' pour cette section', 'error'); return; }
+
+    var ta = document.getElementById('gen-' + section + '-' + suffix);
+    if (ta) {
+        ta.value = text;
+        updateCharCounter(section, suffix);
+        var outputDiv = document.getElementById('output-' + section);
+        if (outputDiv) outputDiv.style.display = 'block';
+        recueilToast('Texte rappelé');
+        recueilAutoSave();
+    }
 }
 
 /* ===== AUDIO TRANSCRIPTION + CECB v3 GENERATION ===== */
@@ -1172,16 +1190,18 @@ async function processAudioFile(file) {
 
 function fillCecbV3Texts(json) {
     var sections = ['toit','murs-ext','murs-terre','murs-nc','fenetres','sols-terre','sols-nc','ventilation','chauffage','ecs','appareils','pv'];
+    var passagesForRecall = {};
     sections.forEach(function(section) {
         var t = json[section];
         if (!t) return;
         if (typeof t === 'string') {
-            // Simple string → put in EI
             var eiTa = document.getElementById('gen-' + section + '-ei');
             if (eiTa && t) eiTa.value = t;
+            passagesForRecall[section] = { ei: t, ap: '' };
         } else {
             if (t.ei) { var eiTa = document.getElementById('gen-' + section + '-ei'); if (eiTa) eiTa.value = t.ei; }
             if (t.ap) { var apTa = document.getElementById('gen-' + section + '-ap'); if (apTa) apTa.value = t.ap; }
+            passagesForRecall[section] = { ei: t.ei || '', ap: t.ap || '' };
         }
         var outputDiv = document.getElementById('output-' + section);
         if (outputDiv) {
@@ -1193,6 +1213,9 @@ function fillCecbV3Texts(json) {
     // Complement sections
     if (json.comportement) { var ta = document.getElementById('gen-comportement'); if (ta) ta.value = json.comportement; }
     if (json.revalorisation) { var ta = document.getElementById('gen-revalorisation'); if (ta) ta.value = json.revalorisation; }
+    // Save for per-section recall
+    var pid = ProjectStore.getCurrentId();
+    if (pid) ProjectStore.update(pid, 'recueil', { transcriptPassages: passagesForRecall });
 }
 
 function parseCecbV3FreeText(text) {
