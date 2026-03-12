@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>if(window.pdfjsLib)pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
     <style>
 /* ─── Recueil-specific styles (from cecb_generator) ───── */
 :root{--r-primary:#2c5f2d;--r-primary-light:#4a8b4c;--r-secondary:#97bc62;--r-border:#ddd;--r-grey:#888;--r-danger:#c0392b;--r-warning:#e67e22;--r-success:#27ae60;--r-info:#2980b9;--r-radius:8px}
@@ -242,7 +244,7 @@
                         </div>
                     </div>
                     <!-- Hidden file input for transcript import -->
-                    <input type="file" id="transcript-file-input" accept=".txt" style="display:none" onchange="handleTranscriptFile(this)">
+                    <input type="file" id="transcript-file-input" accept=".txt,.pdf" style="display:none" onchange="handleTranscriptFile(this)">
                 </div>
             </div>
 
@@ -251,6 +253,7 @@
                 <button class="btn btn-primary" onclick="manualSave()">Sauvegarder</button>
                 <button class="btn" style="background:#3B82F6;color:#fff" onclick="ouvrirRegbl()" id="btnRegbl">Voir fiche RegBL</button>
                 <button class="btn" style="background:#8B5CF6;color:#fff" onclick="document.getElementById('transcript-file-input').click()" id="btnImportTranscript">Importer Transcript</button>
+                <button class="btn" style="background:#A78BFA;color:#fff" onclick="recallTranscriptPassages()" id="btnRecallTranscript">Rappeler textes transcript</button>
                 <span id="transcript-status" style="font-size:.85em;color:var(--r-grey)"></span>
             </div>
         </div>

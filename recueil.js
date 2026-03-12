@@ -23,13 +23,46 @@ function toggleSection(header) {
 function handleTranscriptFile(input) {
     if (!input.files || !input.files[0]) return;
     var file = input.files[0];
-    var reader = new FileReader();
-    reader.onload = function(e) {
-        var text = e.target.result;
-        if (!text || !text.trim()) { recueilToast('Fichier vide', 'error'); return; }
-        analyzeTranscript(text);
-    };
-    reader.readAsText(file);
+    var isPdf = file.name.toLowerCase().endsWith('.pdf') || file.type === 'application/pdf';
+
+    if (isPdf) {
+        // Extract text from PDF using pdf.js
+        if (typeof pdfjsLib === 'undefined') {
+            recueilToast('Librairie PDF non chargée', 'error');
+            input.value = '';
+            return;
+        }
+        var reader = new FileReader();
+        reader.onload = async function(e) {
+            try {
+                var typedArray = new Uint8Array(e.target.result);
+                var pdf = await pdfjsLib.getDocument({ data: typedArray }).promise;
+                var allText = [];
+                for (var i = 1; i <= pdf.numPages; i++) {
+                    var page = await pdf.getPage(i);
+                    var content = await page.getTextContent();
+                    var pageText = content.items.map(function(item) { return item.str; }).join(' ');
+                    if (pageText.trim()) allText.push(pageText);
+                }
+                var text = allText.join('\n');
+                if (!text.trim()) { recueilToast('PDF vide ou non lisible', 'error'); return; }
+                analyzeTranscript(text);
+            } catch (err) {
+                console.error('PDF read error:', err);
+                recueilToast('Erreur lecture PDF: ' + err.message, 'error');
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    } else {
+        // Plain text file
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var text = e.target.result;
+            if (!text || !text.trim()) { recueilToast('Fichier vide', 'error'); return; }
+            analyzeTranscript(text);
+        };
+        reader.readAsText(file);
+    }
     input.value = '';
 }
 
@@ -893,25 +926,28 @@ async function analyzeTranscript(transcriptText) {
             } catch (e) { console.warn('Transcript fields parse error:', e); }
         }
 
-        // STEP 2: Generate section texts
-        if (status) status.innerHTML = 'Étape 2/2 — Rédaction des textes...';
-        var textesPrompt = 'À partir de cette transcription de visite CECB, rédige les textes descriptifs pour le rapport CECB.\n\nRetourne UNIQUEMENT un objet JSON avec cette structure :\n{"toit":{"ei":"","ap":""},"murs-ext":{"ei":"","ap":""},"murs-terre":{"ei":"","ap":""},"murs-nc":{"ei":"","ap":""},"fenetres":{"ei":"","ap":""},"sols-terre":{"ei":"","ap":""},"sols-nc":{"ei":"","ap":""},"ventilation":{"ei":"","ap":""},"chauffage":{"ei":"","ap":""},"ecs":{"ei":"","ap":""},"appareils":{"ei":"","ap":""},"pv":{"ei":"","ap":""}}\n\nRègles :\n- "ei" = état initial : description technique factuelle de l\'élément tel qu\'observé lors de la visite (2-4 phrases)\n- "ap" = améliorations proposées : recommandations concrètes d\'amélioration énergétique (2-4 phrases)\n- Style professionnel, 3e personne, jamais "nous constatons/observons/notons"\n- Si une section n\'est pas mentionnée dans le transcript, laisser ei et ap vides ""\n- Rédige en français\n\nTranscription :\n' + transcriptText;
+        // STEP 2: Extract raw transcript passages per section
+        if (status) status.innerHTML = 'Étape 2/2 — Extraction des passages...';
+        var passagesPrompt = 'À partir de cette transcription de visite CECB, extrais les passages pertinents pour chaque section du rapport.\n\nRetourne UNIQUEMENT un objet JSON avec cette structure :\n{"toit":"","murs-ext":"","murs-terre":"","murs-nc":"","fenetres":"","sols-terre":"","sols-nc":"","ventilation":"","chauffage":"","ecs":"","appareils":"","pv":""}\n\nRègles :\n- Pour chaque section, copie les passages bruts du transcript qui concernent cet élément constructif\n- Regroupe les passages pertinents même s\'ils sont dispersés dans le transcript\n- Garde le texte tel quel, sans réécrire ni reformuler\n- Si une section n\'est pas mentionnée dans le transcript, laisse la valeur vide ""\n- Sections : toit (toiture, isolation entre/sur chevrons, tuiles, combles), murs-ext (murs contre extérieur, composition, isolation), murs-terre (murs contre terre, sous-sol enterré), murs-nc (murs contre non-chauffé), fenetres (fenêtres, vitrages, cadres, portes), sols-terre (radier, terre-plein, dalle sur sol), sols-nc (dalle contre non-chauffé, plancher), ventilation (VMC, aération), chauffage (chaudière, PAC, distribution, consommations), ecs (eau chaude sanitaire, boiler), appareils (appareils électriques, éclairage), pv (panneaux solaires, photovoltaïque)\n\nTranscription :\n' + transcriptText;
 
         var resp2 = await fetch('https://api.anthropic.com/v1/messages', {
             method: 'POST', headers: headers,
-            body: JSON.stringify({ model: model, max_tokens: 4096, messages: [{ role: 'user', content: textesPrompt }] })
+            body: JSON.stringify({ model: model, max_tokens: 4096, messages: [{ role: 'user', content: passagesPrompt }] })
         });
         if (resp2.ok) {
             var data2 = await resp2.json();
             var text2 = ((data2.content || [])[0] || {}).text || '';
-            console.log('Transcript textes response:', text2.substring(0, 200));
+            console.log('Transcript passages response:', text2.substring(0, 200));
             try {
                 var match2 = text2.match(/\{[\s\S]*\}/);
                 var json2 = JSON.parse(match2 ? match2[0] : text2);
-                fillTextBlocks(json2);
-            } catch (e) { console.warn('Transcript textes parse error:', e, text2.substring(0, 300)); }
+                fillTranscriptPassages(json2);
+                // Save passages for recall
+                var pid = ProjectStore.getCurrentId();
+                if (pid) ProjectStore.update(pid, 'recueil', { transcriptPassages: json2 });
+            } catch (e) { console.warn('Transcript passages parse error:', e, text2.substring(0, 300)); }
         } else {
-            console.warn('Transcript textes API error:', resp2.status);
+            console.warn('Transcript passages API error:', resp2.status);
         }
 
         if (status) status.textContent = '';
@@ -921,27 +957,28 @@ async function analyzeTranscript(transcriptText) {
     finally { if (btn) { btn.disabled = false; btn.textContent = 'Importer Transcript'; } }
 }
 
-function fillTextBlocks(textes) {
+function fillTranscriptPassages(passages) {
     var sections = ['toit','murs-ext','murs-terre','murs-nc','fenetres','sols-terre','sols-nc','ventilation','chauffage','ecs','appareils','pv'];
     sections.forEach(function(section) {
-        var t = textes[section];
-        if (!t) return;
-        if (t.ei) {
-            var eiTa = document.getElementById('gen-' + section + '-ei');
-            if (eiTa) { eiTa.value = t.ei; }
-        }
-        if (t.ap) {
-            var apTa = document.getElementById('gen-' + section + '-ap');
-            if (apTa) { apTa.value = t.ap; }
-        }
-        // Show the output section if any text was set
-        if (t.ei || t.ap) {
-            var outputDiv = document.getElementById('output-' + section);
-            if (outputDiv) outputDiv.style.display = 'block';
-            if (t.ei) updateCharCounter(section, 'ei');
-            if (t.ap) updateCharCounter(section, 'ap');
-        }
+        var text = passages[section];
+        if (!text) return;
+        var eiTa = document.getElementById('gen-' + section + '-ei');
+        if (eiTa) eiTa.value = text;
+        var outputDiv = document.getElementById('output-' + section);
+        if (outputDiv) outputDiv.style.display = 'block';
+        updateCharCounter(section, 'ei');
     });
+}
+
+function recallTranscriptPassages() {
+    var pid = ProjectStore.getCurrentId();
+    if (!pid) { recueilToast('Aucun projet ouvert', 'error'); return; }
+    var project = ProjectStore.get(pid);
+    var passages = project && project.recueil && project.recueil.transcriptPassages;
+    if (!passages) { recueilToast('Aucun transcript importé', 'error'); return; }
+    fillTranscriptPassages(passages);
+    recueilToast('Textes du transcript restaurés');
+    recueilAutoSave();
 }
 
 function fillFromJSON(json) {
