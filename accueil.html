@@ -144,6 +144,11 @@
                     <option value="claude-opus-4-20250514">Claude Opus 4</option>
                 </select>
             </div>
+            <div style="margin-bottom:14px">
+                <label style="display:block;font-size:13px;font-weight:600;color:#475569;margin-bottom:4px">Cle API Groq (transcription audio Whisper)</label>
+                <input type="password" id="groqKeyInput" placeholder="gsk_..." style="width:100%;padding:8px 12px;border:1px solid #CBD5E1;border-radius:6px;font-size:14px">
+                <span style="font-size:11px;color:#94A3B8">Gratuit sur console.groq.com</span>
+            </div>
             <hr style="margin:16px 0;border:none;border-top:1px solid #E2E8F0">
             <h3 style="margin:0 0 10px;font-size:.95em;color:#475569">Notifications email (EmailJS)</h3>
             <div style="margin-bottom:10px">
@@ -399,6 +404,7 @@ function renderProjectsList() {
 function openApiSettings() {
     document.getElementById('apiKeyInput').value = localStorage.getItem('cecb_api_key') || '';
     document.getElementById('apiModelInput').value = localStorage.getItem('cecb_api_model') || 'claude-sonnet-4-20250514';
+    document.getElementById('groqKeyInput').value = localStorage.getItem('cecb_groq_key') || '';
     document.getElementById('emailjsPublicKey').value = localStorage.getItem('cecb_emailjs_public_key') || '';
     document.getElementById('emailjsServiceId').value = localStorage.getItem('cecb_emailjs_service_id') || '';
     document.getElementById('emailjsTemplateId').value = localStorage.getItem('cecb_emailjs_template_id') || '';
@@ -407,6 +413,7 @@ function openApiSettings() {
 function saveApiSettings() {
     localStorage.setItem('cecb_api_key', document.getElementById('apiKeyInput').value);
     localStorage.setItem('cecb_api_model', document.getElementById('apiModelInput').value);
+    localStorage.setItem('cecb_groq_key', document.getElementById('groqKeyInput').value);
     localStorage.setItem('cecb_emailjs_public_key', document.getElementById('emailjsPublicKey').value);
     localStorage.setItem('cecb_emailjs_service_id', document.getElementById('emailjsServiceId').value);
     localStorage.setItem('cecb_emailjs_template_id', document.getElementById('emailjsTemplateId').value);
