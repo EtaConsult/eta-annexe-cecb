@@ -3,7 +3,7 @@
    Cache assets statiques pour mode hors-ligne
    ═══════════════════════════════════════════════════════ */
 
-var CACHE_NAME = 'cecb-plus-v2';
+var CACHE_NAME = 'cecb-plus-v3';
 var ASSETS = [
     './',
     './accueil.html',

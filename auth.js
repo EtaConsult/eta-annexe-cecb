@@ -31,19 +31,43 @@ function saveUsers(users) {
     localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(users));
 }
 
-async function initAdmin() {
+/* ─── Default accounts (provisioned on every browser) ─ */
+
+const DEFAULT_USERS = [
+    { email: 'info@etaconsult.ch', passwordHash: '', isAdmin: true, firstName: 'Gérard', lastName: 'Merminod' },
+    { email: 'axel@etaconsult.ch', passwordHash: 'b59a657462df28db9e52ee64b5d6aba3464f234f6e4ae8b3d7790ead4e0785fc', isAdmin: false, firstName: 'Axel', lastName: 'Merminod' }
+];
+
+function initDefaultUsers() {
     const users = getUsers();
-    const admin = users.find(u => u.email === ADMIN_EMAIL);
-    if (!admin) {
-        users.push({ email: ADMIN_EMAIL, passwordHash: '', isAdmin: true, firstName: 'Gérard', lastName: 'Merminod', name: 'Gérard Merminod' });
-        saveUsers(users);
-    } else if (!admin.firstName) {
-        var parts = (admin.name || 'Gérard Merminod').split(' ');
-        admin.firstName = parts[0] || '';
-        admin.lastName = parts.slice(1).join(' ') || '';
-        saveUsers(users);
-    }
+    let changed = false;
+    DEFAULT_USERS.forEach(function (def) {
+        const existing = users.find(u => u.email.toLowerCase() === def.email.toLowerCase());
+        if (!existing) {
+            users.push({
+                email: def.email,
+                passwordHash: def.passwordHash,
+                isAdmin: def.isAdmin,
+                firstName: def.firstName,
+                lastName: def.lastName,
+                name: (def.firstName + ' ' + def.lastName).trim()
+            });
+            changed = true;
+        } else {
+            // Ensure existing accounts have firstName/lastName
+            if (!existing.firstName && def.firstName) {
+                existing.firstName = def.firstName;
+                existing.lastName = def.lastName;
+                existing.name = (def.firstName + ' ' + def.lastName).trim();
+                changed = true;
+            }
+        }
+    });
+    if (changed) saveUsers(users);
 }
+
+/* backward compat */
+var initAdmin = initDefaultUsers;
 
 /* ─── Session ─────────────────────────────────────────── */
 
