@@ -162,6 +162,7 @@ async function generatePhotoPDF() {
     var pid = ProjectStore.getCurrentId();
     var project = pid ? ProjectStore.get(pid) : null;
     var projectName = project ? project.name : 'Sans titre';
+    var projectAddress = (project && project.address && project.address.label) ? project.address.label : projectName;
 
     var pageWidth = 210, pageHeight = 297;
     var marginTop = 10, marginBottom = 8, marginLeft = 8, marginRight = 8;
@@ -179,7 +180,7 @@ async function generatePhotoPDF() {
         if (page > 0) pdf.addPage();
         var currentTitleHeight = page === 0 ? titleHeight : 0;
         var currentMarginTop = page === 0 ? marginTop : marginTop - 2;
-        if (page === 0) { pdf.setFont('helvetica', 'normal'); pdf.setFontSize(14); pdf.text('D.1 Photo : ' + projectName, marginLeft, marginTop + 4); }
+        if (page === 0) { pdf.setFont('helvetica', 'normal'); pdf.setFontSize(14); pdf.text('D1. Photos : ' + projectAddress, marginLeft, marginTop + 4); }
         var contentHeight = pageHeight - currentMarginTop - marginBottom - currentTitleHeight;
         var cellHeight = (contentHeight - (gapY * (rows - 1))) / rows;
         var photoMaxHeight = cellHeight - captionHeight - 2;
@@ -205,7 +206,7 @@ async function generatePhotoPDF() {
             } catch (error) { console.error('Error loading image:', error); }
         }
     }
-    pdf.save('Annexe_Photos_' + projectName.replace(/[^a-zA-Z0-9]/g, '_') + '.pdf');
+    pdf.save('D1_Photos_' + projectAddress.replace(/[^a-zA-Z0-9]/g, '_') + '.pdf');
 }
 
 /* ─── Image Utilities ─────────────────────────────────── */
