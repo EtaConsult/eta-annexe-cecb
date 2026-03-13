@@ -233,9 +233,10 @@ var BLOCS = {
         ap_sondage: "Nous recommandons de réaliser un sondage de la façade avant d'engager des travaux d'amélioration thermique afin de vérifier l'état et la composition de la paroi existante."
     },
     murs_terre: {
-        ei_sans_isolation: "Les murs du sous-sol adjacents à des locaux non chauffés ne disposent pas d'isolation.",
-        ei_isole_interieur: "Des travaux d'amélioration thermique ont été réalisés après la construction du bâtiment sur les murs du sous-sol en contact avec le terrain. Une couche d'isolation d'environ {cm} cm d'EPS a été ajoutée par l'intérieur. Ces interventions réduisent les déperditions thermiques et améliorent le confort intérieur.",
-        ap_isolation: "Il est recommandé d'isoler les murs du sous-sol en contact avec les locaux non chauffés afin de réduire les déperditions thermiques.",
+        ei_sans_isolation: "Les murs du sous-sol en contact avec le terrain sont constitués de {composition_desc} et ne disposent pas d'isolation thermique. Les déperditions à travers ces parois contribuent aux pertes énergétiques du bâtiment.",
+        ei_isole_interieur: "Les murs du sous-sol en contact avec le terrain sont constitués de {composition_desc}. Des travaux d'amélioration thermique ont été réalisés après la construction du bâtiment, comprenant l'ajout d'une couche d'isolation d'environ {cm} cm par l'intérieur. Ces interventions réduisent les déperditions thermiques et améliorent le confort intérieur.",
+        ei_isole_perimetrique: "Les murs du sous-sol en contact avec le terrain sont constitués de {composition_desc}. Une isolation périmétrique d'environ {cm} cm a été mise en place par l'extérieur. Cette configuration contribue à la réduction des déperditions thermiques à travers ces parois.",
+        ap_isolation: "Il est recommandé d'isoler les murs du sous-sol en contact avec le terrain afin de réduire les déperditions thermiques. Ces travaux ne sont pas éligibles aux subventions du Programme Bâtiments.",
         ap_non_prioritaire: "L'isolation des murs contre terrain ne constitue pas une priorité immédiate, compte tenu de leur état actuel."
     },
     murs_nc: {
@@ -602,14 +603,15 @@ function generateMursTerreText() {
     if (!comp) {
         return { ei: '[DONNÉES MANQUANTES — à compléter]', ap: '[DONNÉES MANQUANTES — à compléter]' };
     }
+    var compDesc = compLabels[comp] || comp;
     if (isol === 'interieur') {
-        ei = fillTemplate(BLOCS.murs_terre.ei_isole_interieur, { cm: cm || '[X]' });
+        ei = fillTemplate(BLOCS.murs_terre.ei_isole_interieur, { composition_desc: compDesc, cm: cm || '[X]' });
         ap = BLOCS.murs_terre.ap_non_prioritaire;
     } else if (isol === 'perimetrique') {
-        ei = fillTemplate(BLOCS.murs_terre.ei_isole_perimetrique, { cm: cm || '[X]' });
+        ei = fillTemplate(BLOCS.murs_terre.ei_isole_perimetrique, { composition_desc: compDesc, cm: cm || '[X]' });
         ap = BLOCS.murs_terre.ap_non_prioritaire;
     } else {
-        ei = fillTemplate(BLOCS.murs_terre.ei_sans_isolation, { composition_desc: compLabels[comp] || comp });
+        ei = fillTemplate(BLOCS.murs_terre.ei_sans_isolation, { composition_desc: compDesc });
         ap = BLOCS.murs_terre.ap_isolation;
     }
     return { ei: ei, ap: ap };
