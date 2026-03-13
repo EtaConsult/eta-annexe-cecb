@@ -354,7 +354,10 @@ function renderAdminPanel() {
     users.forEach(u => {
         var fn = u.firstName || (u.name ? u.name.split(' ')[0] : '');
         var ln = u.lastName || (u.name ? u.name.split(' ').slice(1).join(' ') : '');
-        html += '<tr><td>' + escapeAuthHtml(fn) + '</td><td>' + escapeAuthHtml(ln) + '</td><td>' + escapeAuthHtml(u.email) + '</td><td style="font-family:monospace;font-size:12px;color:#666">' + (u.plainPassword ? escapeAuthHtml(u.plainPassword) : '<em style="color:#aaa">—</em>') + '</td><td>' + (u.isAdmin ? 'Admin' : 'Utilisateur') + '</td>';
+        var pwCell = u.plainPassword
+            ? '<span class="pw-hidden" data-pw="' + escapeAuthHtml(u.plainPassword) + '">••••••</span> <button class="btn-reveal" onclick="this.previousElementSibling.textContent=this.previousElementSibling.dataset.pw;this.textContent=\'\';" style="padding:2px 6px;background:none;border:1px solid #ccc;border-radius:3px;cursor:pointer;font-size:11px;color:#666">Voir</button>'
+            : '<em style="color:#aaa">—</em>';
+        html += '<tr><td>' + escapeAuthHtml(fn) + '</td><td>' + escapeAuthHtml(ln) + '</td><td>' + escapeAuthHtml(u.email) + '</td><td style="font-family:monospace;font-size:12px;color:#666">' + pwCell + '</td><td>' + (u.isAdmin ? 'Admin' : 'Utilisateur') + '</td>';
         if (!u.isAdmin) {
             html += '<td><button class="btn-del" data-email="' + escapeAuthHtml(u.email) + '">Supprimer</button></td>';
         } else {

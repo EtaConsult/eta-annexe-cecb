@@ -98,7 +98,11 @@
         <div class="projects-section" id="viewProjets">
             <div class="projects-header">
                 <h2>Mes projets</h2>
-                <span class="count" id="projectCount">0</span>
+                <div style="display:flex;align-items:center;gap:8px">
+                    <button onclick="ProjectStore.exportAll()" style="padding:5px 12px;background:#10B981;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer" title="Exporter tous les projets en JSON">Exporter</button>
+                    <label style="padding:5px 12px;background:#3B82F6;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer" title="Importer un backup JSON">Importer<input type="file" accept=".json" style="display:none" onchange="if(this.files[0]){ProjectStore.importAll(this.files[0]).then(function(){renderProjectsList()});this.value=''}"></label>
+                    <span class="count" id="projectCount">0</span>
+                </div>
             </div>
             <div id="projectsList"></div>
         </div>
@@ -213,7 +217,7 @@ async function searchAddress() {
     if (q.length < 5) return;
     const sugDiv = document.getElementById('addressSuggestions');
     try {
-        const resp = await fetch('https://api3.geo.admin.ch/rest/services/api/SearchServer?type=locations&origins=address&searchText=' + encodeURIComponent(q) + '&limit=5&sr=2056');
+        const resp = await fetchWithTimeout('https://api3.geo.admin.ch/rest/services/api/SearchServer?type=locations&origins=address&searchText=' + encodeURIComponent(q) + '&limit=5&sr=2056', {}, 10000);
         const data = await resp.json();
         if (data.results && data.results.length > 0) {
             sugDiv.innerHTML = '';
@@ -230,6 +234,7 @@ async function searchAddress() {
         }
     } catch (e) {
         console.error('SearchServer error:', e);
+        showNotification('Erreur recherche: ' + e.message);
     }
 }
 
@@ -279,15 +284,15 @@ async function selectAddress(result) {
 
     // Fetch altitude
     try {
-        const hResp = await fetch('https://api3.geo.admin.ch/rest/services/height?easting=' + E + '&northing=' + N);
+        const hResp = await fetchWithTimeout('https://api3.geo.admin.ch/rest/services/height?easting=' + E + '&northing=' + N, {}, 10000);
         const hData = await hResp.json();
         if (hData.height) selectedAddress.altitude = Math.round(hData.height);
-    } catch (e) { /* ignore */ }
+    } catch (e) { console.warn('Altitude API error:', e); }
 
     // Fetch RegBL via find (by street+number, filtered by NPA)
     if (streetNum) {
         try {
-            const bResp = await fetch('https://api3.geo.admin.ch/rest/services/api/MapServer/find?layer=ch.bfs.gebaeude_wohnungs_register&searchField=strname_deinr&searchText=' + encodeURIComponent(streetNum) + '&returnGeometry=false');
+            const bResp = await fetchWithTimeout('https://api3.geo.admin.ch/rest/services/api/MapServer/find?layer=ch.bfs.gebaeude_wohnungs_register&searchField=strname_deinr&searchText=' + encodeURIComponent(streetNum) + '&returnGeometry=false', {}, 10000);
             const bData = await bResp.json();
             if (bData.results && bData.results.length > 0) {
                 // Filter by NPA and exact street match
@@ -315,7 +320,7 @@ async function selectAddress(result) {
                     }
                 }
             }
-        } catch (e) { /* ignore */ }
+        } catch (e) { console.warn('RegBL API error:', e); }
     }
 
     // Fallback commune/canton from label if RegBL didn't provide them
