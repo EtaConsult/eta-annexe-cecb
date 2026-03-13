@@ -110,7 +110,7 @@ async function fetchRegblHousing() {
     var egid = rv('meta-egid');
     if (!egid) return;
     try {
-        var resp = await fetch('https://api3.geo.admin.ch/rest/services/api/MapServer/find?layer=ch.bfs.gebaeude_wohnungs_register&searchField=egid&searchText=' + egid + '&returnGeometry=false');
+        var resp = await fetchWithTimeout('https://api3.geo.admin.ch/rest/services/api/MapServer/find?layer=ch.bfs.gebaeude_wohnungs_register&searchField=egid&searchText=' + egid + '&returnGeometry=false', {}, 10000);
         var data = await resp.json();
         if (!data.results || data.results.length === 0) return;
         var b = data.results[0].attributes || {};
@@ -211,7 +211,11 @@ var BLOCS = {
         ap_non_prioritaire: "Bien que l'amélioration de l'isolation de la toiture ne constitue pas une priorité immédiate, elle reste une intervention pertinente, à planifier lors des prochains travaux de rénovation lourds, liés à son besoin d'entretien ou quand celle-ci aura atteint sa fin de vie théorique. Pour bénéficier des subventions du Programme Bâtiments, il est nécessaire d'atteindre une valeur U inférieure à 0,20 W/m²K afin de réduire significativement les déperditions thermiques. Avant d'envisager l'installation de panneaux photovoltaïques, il est conseillé de faire vérifier la capacité portante de la charpente par un ingénieur civil.",
         ap_froide: "En vue d'une éventuelle exploitation future des combles en espace habitable, il est recommandé de planifier l'amélioration de la performance isolante de la toiture en coordination avec les échéances d'entretien. Dans cette perspective, une surélévation du bâtiment pourrait s'avérer pertinente, sous réserve des dispositions du règlement communal. Avant toute installation de panneaux photovoltaïques, il convient de faire vérifier la capacité portante de la charpente par un ingénieur civil. À noter que la toiture couvrant un espace de combles non chauffé, les travaux d'isolation en toiture ne bénéficient pas des subventions du Programme Bâtiments.",
         ap_plancher_combles_bois: "Il est recommandé d'envisager l'isolation du plancher des combles. Ces travaux devraient être planifiés à court terme dans le cadre des mesures correctives.",
-        ap_plancher_combles_beton: "Il est recommandé d'optimiser l'isolation du plancher des combles en remplaçant l'isolation existante par une isolation sur dalle présentant de meilleures performances thermiques."
+        ap_plancher_combles_beton: "Il est recommandé d'optimiser l'isolation du plancher des combles en remplaçant l'isolation existante par une isolation sur dalle présentant de meilleures performances thermiques.",
+        ei_vieillissante: "Installée il y a environ {age} ans, la couverture et la charpente montrent des signes de vieillissement avancé, ce qui justifie une rénovation à court terme.",
+        ei_plancher_combles: "Le plancher des combles, constitué de {composition}, sépare l'espace chauffé des combles non chauffés. L'isolation thermique est {isolation_desc}, composée de {materiau}. Les performances thermiques sont inférieures aux exigences actuelles pour les nouvelles constructions.",
+        ap_plancher_combles: "Il est recommandé d'améliorer l'isolation du plancher des combles par la pose d'une couche d'isolant performant sur le plancher existant. Pour réduire significativement les déperditions à travers cette paroi, il est nécessaire d'atteindre une valeur U inférieure à 0,25 W/m²K. Ces travaux ne sont pas couverts par les subventions du Programme Bâtiments.",
+        ap_pv: "La toiture se prête à l'installation de panneaux photovoltaïques, ce qui est recommandé en complément des travaux d'isolation."
     },
     murs: {
         ei_sans_isolation: "Les façades du bâtiment sont composées de maçonnerie en {composition_desc} et n'ont bénéficié d'aucune amélioration thermique depuis leur construction initiale.",
@@ -224,7 +228,9 @@ var BLOCS = {
         ap_ite_sondage: "Sur la base des hypothèses retenues dans cette étude, nous recommandons d'améliorer l'isolation des façades par l'ajout d'une isolation extérieure crépie. Cette intervention peut être planifiée à moyen ou long terme. Pour réduire efficacement les déperditions thermiques et pouvoir bénéficier des subventions du Programme Bâtiments, une valeur U inférieure à 0,20 W/m²K est requise.",
         ap_moellons_protege: "Le bâtiment faisant partie d'un ensemble architectural protégé, toute isolation extérieure périphérique requiert l'accord préalable de la commune. Nous suggérons donc d'étudier la mise en œuvre d'un enduit isolant sur les façades extérieures. L'isolation par l'intérieur constitue une alternative envisageable, à condition de réaliser au préalable des analyses hygrothermiques détaillées pour maîtriser les risques de migration d'humidité dans la paroi. Pour obtenir une réduction notable des pertes thermiques, une valeur U inférieure à 0,20 W/m²K est nécessaire.",
         ap_moellons: "Il est recommandé d'améliorer la performance thermique des façades en installant une isolation extérieure crépie. Ces travaux peuvent être envisagés à moyen terme. Une isolation par l'intérieur constitue également une option possible, sous réserve d'études approfondies en physique du bâtiment pour prévenir les risques de migration d'humidité dans le complexe constructif. Pour réduire efficacement les déperditions thermiques, il convient de viser une valeur U inférieure à 0,20 W/m²K.",
-        ap_double_paroi: "Compte tenu des hypothèses retenues dans le cadre de cette étude, il est recommandé d'améliorer le pouvoir isolant des façades par l'ajout d'une isolation extérieure crépie. Les travaux peuvent être planifiés à moyen terme. Une valeur U inférieure à 0,20 W/m²K est nécessaire pour réduire significativement les déperditions thermiques."
+        ap_double_paroi: "Compte tenu des hypothèses retenues dans le cadre de cette étude, il est recommandé d'améliorer le pouvoir isolant des façades par l'ajout d'une isolation extérieure crépie. Les travaux peuvent être planifiés à moyen terme. Une valeur U inférieure à 0,20 W/m²K est nécessaire pour réduire significativement les déperditions thermiques.",
+        ei_ossature: "Les façades du bâtiment présentent une construction à {type_ossature} avec un revêtement en {revetement}. L'isolation intégrée à l'ossature correspond aux standards de l'époque de construction, mais ne satisfait pas aux exigences actuelles applicables aux bâtiments neufs.",
+        ap_sondage: "Nous recommandons de réaliser un sondage de la façade avant d'engager des travaux d'amélioration thermique afin de vérifier l'état et la composition de la paroi existante."
     },
     murs_terre: {
         ei_sans_isolation: "Les murs du sous-sol adjacents à des locaux non chauffés ne disposent pas d'isolation.",
@@ -402,6 +408,7 @@ function recueilAutoSave() {
             if (ta.id && ta.value) generatedTexts[ta.id] = ta.value;
         });
         ProjectStore.update(pid, 'recueil', { formData: formData, generatedTexts: generatedTexts });
+        if (typeof showSaveIndicator === 'function') showSaveIndicator();
     }, 2000);
 }
 
@@ -441,9 +448,51 @@ function updateCharCounter(section, suffix) {
     }
 }
 
+/* ===== FIELD VALIDATION ===== */
+
+var SECTION_REQUIRED_FIELDS = {
+    'toit': ['meta-year', 'toit-config'],
+    'murs-ext': ['murs-composition'],
+    'fenetres': ['fen-cadre', 'fen-vitrage'],
+    'chauffage': ['chauf-source'],
+    'ecs': ['ecs-type']
+};
+
+function validateSectionFields(section) {
+    var required = SECTION_REQUIRED_FIELDS[section];
+    if (!required) return true;
+    var allOk = true;
+    required.forEach(function (fieldId) {
+        var el = document.getElementById(fieldId);
+        if (!el) return;
+        // Clear previous
+        el.classList.remove('field-missing');
+        var hint = el.parentElement.querySelector('.field-missing-hint');
+        if (hint) hint.remove();
+        // Check
+        if (!el.value || el.value === '') {
+            el.classList.add('field-missing');
+            var h = document.createElement('span');
+            h.className = 'field-missing-hint';
+            h.textContent = 'Requis pour la génération';
+            el.parentElement.appendChild(h);
+            allOk = false;
+            // Auto-clear on change
+            el.addEventListener('change', function clearMissing() {
+                el.classList.remove('field-missing');
+                var hh = el.parentElement.querySelector('.field-missing-hint');
+                if (hh) hh.remove();
+                el.removeEventListener('change', clearMissing);
+            });
+        }
+    });
+    return allOk;
+}
+
 /* ===== PER-SECTION TEXT GENERATION ===== */
 
 function generateSection(section) {
+    validateSectionFields(section);
     var result;
     switch (section) {
         case 'toit': result = generateToitText(); break;
@@ -474,15 +523,17 @@ function generateToitText() {
     var toitIsol = rv('toit-isolation');
     var toitEtat = rv('toit-etat');
     var toitCm = rv('toit-isol-cm');
-    var toitMat = rv('toit-isol-mat');
+    var toitMatEl = document.getElementById('toit-isol-mat');
+    var toitMat = toitMatEl && toitMatEl.selectedIndex > 0 ? toitMatEl.options[toitMatEl.selectedIndex].text : '';
+    if (toitMat === 'Autre') toitMat = '';
     var toitAge = new Date().getFullYear() - (parseInt(toitYear) || new Date().getFullYear());
     var ei = '', ap = '';
 
     // Build isolation detail string (e.g. ", estimée à 12 cm de laine de verre")
     var isolDetail = '';
-    if (toitCm && toitMat) isolDetail = ', estimée à ' + toitCm + ' cm de ' + toitMat;
+    if (toitCm && toitMat) isolDetail = ', estimée à ' + toitCm + ' cm de ' + toitMat.toLowerCase();
     else if (toitCm) isolDetail = ', estimée à ' + toitCm + ' cm';
-    else if (toitMat) isolDetail = ', constituée de ' + toitMat;
+    else if (toitMat) isolDetail = ', constituée de ' + toitMat.toLowerCase();
 
     if (toitConfig === 'toiture_isolee') {
         if (toitIsol === 'conforme') {
@@ -498,11 +549,11 @@ function generateToitText() {
         }
     } else if (toitConfig === 'plancher_combles') {
         var comp = rv('toit-combles-comp') === 'ossature_bois' ? 'une ossature bois' : 'une dalle béton';
-        ei = fillTemplate(BLOCS.toit.ei_plancher_combles, { composition: comp, isolation_desc: toitIsol === 'conforme' ? 'convenablement isolé' : 'faiblement isolé', materiau: rv('toit-isol-mat') || 'laine minérale' });
+        ei = fillTemplate(BLOCS.toit.ei_plancher_combles, { composition: comp, isolation_desc: toitIsol === 'conforme' ? 'convenablement isolé' : 'faiblement isolé', materiau: (toitMat || 'laine minérale').toLowerCase() });
         ap = toitIsol === 'conforme' ? BLOCS.toit.ap_non_prioritaire : BLOCS.toit.ap_plancher_combles;
     } else if (toitConfig === 'plafond_non_chauffe') {
-        ei = fillTemplate(BLOCS.toit.ei_plafond_nc, { isolation_desc: toitIsol === 'conforme' ? 'moyenne' : 'insuffisante' });
-        ap = BLOCS.toit.ap_plafond_nc;
+        ei = fillTemplate(BLOCS.toit.ei_plancher_combles, { composition: 'un plafond', isolation_desc: toitIsol === 'conforme' ? 'convenable' : 'insuffisante', materiau: (toitMat || 'laine minérale').toLowerCase() });
+        ap = toitIsol === 'conforme' ? BLOCS.toit.ap_non_prioritaire : BLOCS.toit.ap_plancher_combles;
     } else {
         ei = '[DONNÉES MANQUANTES — à compléter]';
         ap = '[DONNÉES MANQUANTES — à compléter]';
@@ -742,11 +793,21 @@ function generateAppareilsText() {
 
 function generatePvText() {
     var chaufSrc = rv('chauf-source');
+    var pvExist = rv('pv-existant');
+    var pvBatterie = rv('pv-batterie');
+    var pvPuissance = rv('pv-puissance') || '[X]';
     var ei = '', ap = '';
-    if (rv('pv-existant') === 'oui') {
-        ei = fillTemplate(BLOCS.pv.ei_oui, { puissance: rv('pv-puissance') || '[X]' });
-        ap = "L'extension de l'installation existante peut être envisagée pour augmenter la couverture des besoins électriques.";
-    } else { ei = BLOCS.pv.ei_non; ap = BLOCS.pv.ap_installation; }
+    if (pvExist === 'oui') {
+        if (pvBatterie === 'oui') {
+            ei = fillTemplate(BLOCS.pv.ei_oui_batterie, { puissance: pvPuissance, year_pv: '[année]' });
+        } else {
+            ei = fillTemplate(BLOCS.pv.ei_oui_sans_batterie, { puissance: pvPuissance, year_pv: '[année]' });
+        }
+        ap = BLOCS.pv.ap_extension;
+    } else {
+        ei = BLOCS.pv.ei_non;
+        ap = BLOCS.pv.ap_installation;
+    }
     if (chaufSrc && chaufSrc.startsWith('pac_')) ap += ' ' + BLOCS.pv.ap_pac;
     return { ei: ei, ap: ap };
 }
@@ -757,6 +818,52 @@ function generateText() {
     var allSections = ['toit', 'murs-ext', 'murs-terre', 'murs-nc', 'fenetres', 'sols-terre', 'sols-nc', 'ventilation', 'chauffage', 'ecs', 'appareils', 'pv'];
     allSections.forEach(function (s) { generateSection(s); });
     recueilToast('Tous les textes générés');
+}
+
+/* ===== GENERATE ALL WITH PROGRESS BAR ===== */
+
+function generateAllWithProgress() {
+    var sections = ['toit', 'murs-ext', 'murs-terre', 'murs-nc', 'fenetres', 'sols-terre', 'sols-nc', 'ponts-thermiques', 'ventilation', 'chauffage', 'ecs', 'appareils', 'pv'];
+    var sectionLabels = {
+        'toit': 'Toit', 'murs-ext': 'Murs extérieurs', 'murs-terre': 'Murs c/ terre',
+        'murs-nc': 'Murs c/ non chauffé', 'fenetres': 'Fenêtres', 'sols-terre': 'Sols c/ terre',
+        'sols-nc': 'Sols c/ non chauffé', 'ponts-thermiques': 'Ponts thermiques',
+        'ventilation': 'Ventilation', 'chauffage': 'Chauffage', 'ecs': 'ECS',
+        'appareils': 'Appareils', 'pv': 'Photovoltaïque'
+    };
+
+    var btn = document.getElementById('btnGenerateAll');
+    var progressDiv = document.getElementById('generateAllProgress');
+    var bar = document.getElementById('generateAllBar');
+    var label = document.getElementById('generateAllLabel');
+    if (!btn) return;
+
+    btn.disabled = true;
+    btn.textContent = 'Génération en cours...';
+    if (progressDiv) progressDiv.style.display = 'block';
+
+    var i = 0;
+    function nextSection() {
+        if (i >= sections.length) {
+            btn.disabled = false;
+            btn.textContent = 'Générer toutes les sections';
+            if (bar) bar.style.width = '100%';
+            if (label) label.textContent = 'Terminé !';
+            recueilToast('Toutes les sections générées');
+            setTimeout(function () {
+                if (progressDiv) progressDiv.style.display = 'none';
+                if (bar) bar.style.width = '0';
+            }, 2000);
+            return;
+        }
+        var pct = Math.round(((i + 1) / sections.length) * 100);
+        if (bar) bar.style.width = pct + '%';
+        if (label) label.textContent = (i + 1) + '/' + sections.length + ' — ' + sectionLabels[sections[i]];
+        generateSection(sections[i]);
+        i++;
+        setTimeout(nextSection, 100); // Small delay for visual feedback
+    }
+    nextSection();
 }
 
 /* ===== COPY ALL ===== */
@@ -813,13 +920,13 @@ async function enhanceField(fieldId, fieldLabel) {
     var outputField = ta.closest('.output-field');
     var btn = outputField.querySelector('.btn-warning');
     var btnOrig = btn ? btn.innerHTML : '';
-    if (btn) { btn.innerHTML = 'En cours...'; btn.disabled = true; }
+    if (btn) { btn.innerHTML = '<span class="spinner"></span>En cours...'; btn.disabled = true; }
 
     var systemPrompt = "Tu es un rédacteur technique pour des rapports CECB/CECB Plus. Améliore le texte en corrigeant la grammaire et l'orthographe, et en reformulant légèrement pour une meilleure fluidité et clarté. Règles : conserve le sens exact et toutes les données techniques (valeurs, années, mesures). Ne rajoute aucune information ni aucune phrase nouvelle. N'utilise jamais 'nous constatons', 'nous observons', 'nous notons', 'il est à noter', 'il convient de'. Supprime les passages entre crochets [...] marqués 'à compléter'. Retourne UNIQUEMENT le texte amélioré.";
     var userMsg = 'Améliore le texte ci-dessous : corrige la grammaire et l\'orthographe, reformule légèrement les phrases pour plus de fluidité et de clarté. Ne change pas le sens, ne rajoute aucune information nouvelle. Conserve toutes les données techniques. Envoie uniquement le texte amélioré.\n\n' + ta.value;
 
     try {
-        var resp = await fetch('https://api.anthropic.com/v1/messages', {
+        var resp = await fetchWithTimeout('https://api.anthropic.com/v1/messages', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
             body: JSON.stringify({ model: model, max_tokens: 2048, system: systemPrompt, messages: [{ role: 'user', content: userMsg }] })
@@ -878,13 +985,13 @@ async function enrichField(fieldId, fieldLabel) {
     var model = localStorage.getItem('cecb_api_model') || 'claude-sonnet-4-20250514';
     var btn = ta.parentElement.querySelector('.btn-warning');
     var btnOrig = btn ? btn.innerHTML : '';
-    if (btn) { btn.innerHTML = 'En cours...'; btn.disabled = true; }
+    if (btn) { btn.innerHTML = '<span class="spinner"></span>En cours...'; btn.disabled = true; }
 
     var systemPrompt = "Tu es un rédacteur technique pour des rapports CECB/CECB Plus. Améliore le texte en corrigeant la grammaire et l'orthographe, et en reformulant légèrement pour une meilleure fluidité et clarté. Règles : conserve le sens exact et toutes les données techniques (valeurs, années, mesures). Ne rajoute aucune information ni aucune phrase nouvelle. N'utilise jamais 'nous constatons', 'nous observons', 'nous notons', 'il est à noter', 'il convient de'. Supprime les passages entre crochets [...] marqués 'à compléter'. Retourne UNIQUEMENT le texte amélioré.";
     var userMsg = instruction.trim() ? 'Consigne : ' + instruction + '\n\nTexte :\n\n' + ta.value : 'Améliore le texte ci-dessous : corrige la grammaire et l\'orthographe, reformule légèrement les phrases pour plus de fluidité et de clarté. Ne change pas le sens, ne rajoute aucune information nouvelle. Envoie uniquement le texte amélioré.\n\n' + ta.value;
 
     try {
-        var resp = await fetch('https://api.anthropic.com/v1/messages', {
+        var resp = await fetchWithTimeout('https://api.anthropic.com/v1/messages', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
             body: JSON.stringify({ model: model, max_tokens: 2048, system: systemPrompt, messages: [{ role: 'user', content: userMsg }] })
@@ -916,7 +1023,7 @@ async function analyzeTranscript(transcriptText) {
         // STEP 1: Extract structured fields
         var fieldsPrompt = 'Analyse cette transcription de visite CECB et extrais les informations structurées au format JSON.\n\nRetourne UNIQUEMENT un objet JSON valide avec cette structure :\n{"meta":{"canton":"","commune":"","adresse":"","annee_construction":null,"type":"","sre":null},"toit":{"config":"","type":"","annee":null,"isolation":"","isolation_cm":null,"materiau":"","etat":"","pv":"","combles_comp":""},"murs":{"composition":"","revetement":"","isolation":"","isolation_cm":null,"mitoyen":"non"},"murs_terre":{"composition":"","isolation":"","isol_cm":null,"etat":""},"murs_nc":{"composition":"","isolation":"","isol_cm":null,"etat":""},"fenetres":{"cadre":"","vitrage":"","annee":null,"cadres_renov":"","porte":""},"sols_terre":{"config":"","isolation":"","isol_cm":null},"sols_nc":{"config":"","isolation":"","isol_cm":null,"soussol":"","usage":""},"ventilation":{"vmc":"","extraction":""},"chauffage":{"source":"","puissance":null,"annee":null,"distribution":"","conso":"","conso_years":null,"appoint":""},"ecs":{"type":"","annee":null,"volume":null},"appareils":{"conso":""},"pv":{"existant":"","puissance":null,"batterie":"non"}}\n\nTranscription :\n' + transcriptText;
 
-        var resp1 = await fetch('https://api.anthropic.com/v1/messages', {
+        var resp1 = await fetchWithTimeout('https://api.anthropic.com/v1/messages', {
             method: 'POST', headers: headers,
             body: JSON.stringify({ model: model, max_tokens: 2048, messages: [{ role: 'user', content: fieldsPrompt }] })
         });
@@ -934,7 +1041,7 @@ async function analyzeTranscript(transcriptText) {
         if (status) status.innerHTML = 'Étape 2/2 — Extraction des passages...';
         var passagesPrompt = 'À partir de cette transcription de visite CECB, extrais les passages pertinents pour chaque section du rapport.\n\nRetourne UNIQUEMENT un objet JSON avec cette structure :\n{"toit":"","murs-ext":"","murs-terre":"","murs-nc":"","fenetres":"","sols-terre":"","sols-nc":"","ventilation":"","chauffage":"","ecs":"","appareils":"","pv":""}\n\nRègles :\n- Pour chaque section, copie les passages bruts du transcript qui concernent cet élément constructif\n- Regroupe les passages pertinents même s\'ils sont dispersés dans le transcript\n- Garde le texte tel quel, sans réécrire ni reformuler\n- Si une section n\'est pas mentionnée dans le transcript, laisse la valeur vide ""\n- Sections : toit (toiture, isolation entre/sur chevrons, tuiles, combles), murs-ext (murs contre extérieur, composition, isolation), murs-terre (murs contre terre, sous-sol enterré), murs-nc (murs contre non-chauffé), fenetres (fenêtres, vitrages, cadres, portes), sols-terre (radier, terre-plein, dalle sur sol), sols-nc (dalle contre non-chauffé, plancher), ventilation (VMC, aération), chauffage (chaudière, PAC, distribution, consommations), ecs (eau chaude sanitaire, boiler), appareils (appareils électriques, éclairage), pv (panneaux solaires, photovoltaïque)\n\nTranscription :\n' + transcriptText;
 
-        var resp2 = await fetch('https://api.anthropic.com/v1/messages', {
+        var resp2 = await fetchWithTimeout('https://api.anthropic.com/v1/messages', {
             method: 'POST', headers: headers,
             body: JSON.stringify({ model: model, max_tokens: 4096, messages: [{ role: 'user', content: passagesPrompt }] })
         });
@@ -1112,7 +1219,7 @@ async function processAudioFile(file) {
         formData.append('language', 'fr');
         formData.append('response_format', 'text');
 
-        var whisperResp = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
+        var whisperResp = await fetchWithTimeout('https://api.groq.com/openai/v1/audio/transcriptions', {
             method: 'POST',
             headers: { 'Authorization': 'Bearer ' + groqKey },
             body: formData
@@ -1138,7 +1245,7 @@ async function processAudioFile(file) {
 
         var fieldsPrompt = 'Analyse cette transcription de visite CECB et extrais les informations structurées au format JSON.\n\nRetourne UNIQUEMENT un objet JSON valide avec cette structure :\n{"meta":{"canton":"","commune":"","adresse":"","annee_construction":null,"type":"","sre":null},"toit":{"config":"","type":"","annee":null,"isolation":"","isolation_cm":null,"materiau":"","etat":"","pv":"","combles_comp":""},"murs":{"composition":"","revetement":"","isolation":"","isolation_cm":null,"mitoyen":"non"},"murs_terre":{"composition":"","isolation":"","isol_cm":null,"etat":""},"murs_nc":{"composition":"","isolation":"","isol_cm":null,"etat":""},"fenetres":{"cadre":"","vitrage":"","annee":null,"cadres_renov":"","porte":""},"sols_terre":{"config":"","isolation":"","isol_cm":null},"sols_nc":{"config":"","isolation":"","isol_cm":null,"soussol":"","usage":""},"ventilation":{"vmc":"","extraction":""},"chauffage":{"source":"","puissance":null,"annee":null,"distribution":"","conso":"","conso_years":null,"appoint":""},"ecs":{"type":"","annee":null,"volume":null},"appareils":{"conso":""},"pv":{"existant":"","puissance":null,"batterie":"non"}}\n\nTranscription :\n' + transcriptText;
 
-        var resp1 = await fetch('https://api.anthropic.com/v1/messages', {
+        var resp1 = await fetchWithTimeout('https://api.anthropic.com/v1/messages', {
             method: 'POST', headers: clHeaders,
             body: JSON.stringify({ model: model, max_tokens: 2048, messages: [{ role: 'user', content: fieldsPrompt }] })
         });
@@ -1157,7 +1264,7 @@ async function processAudioFile(file) {
         if (btn) btn.textContent = 'Rédaction...';
         var cecbPrompt = CECB_V3_PROMPT + '\n\n=== TRANSCRIPTION DE LA VISITE ===\n' + transcriptText;
 
-        var resp2 = await fetch('https://api.anthropic.com/v1/messages', {
+        var resp2 = await fetchWithTimeout('https://api.anthropic.com/v1/messages', {
             method: 'POST', headers: clHeaders,
             body: JSON.stringify({ model: model, max_tokens: 8192, messages: [{ role: 'user', content: cecbPrompt }] })
         });
@@ -1347,6 +1454,152 @@ function recueilExportPDF() {
     win.document.write(html);
     win.document.close();
     setTimeout(function () { win.print(); }, 500);
+}
+
+/* ===== UNIFIED PDF REPORT (text + photos) ===== */
+
+async function exportFullReport() {
+    var jsPDF = window.jspdf && window.jspdf.jsPDF;
+    if (!jsPDF) { recueilToast('jsPDF non chargé', 'error'); return; }
+
+    var pid = ProjectStore.getCurrentId();
+    var project = pid ? ProjectStore.get(pid) : null;
+    var projectName = project ? project.name : 'Sans titre';
+    var address = project && project.address ? project.address.label || '' : '';
+
+    var pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    var marginL = 15, marginR = 15, marginT = 20, marginB = 15;
+    var contentW = 210 - marginL - marginR;
+    var y = marginT;
+
+    // Cover page
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(22);
+    pdf.text('Rapport CECB', marginL, y + 20);
+    pdf.setFontSize(14);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text(projectName, marginL, y + 32);
+    if (address) pdf.text(address, marginL, y + 40);
+    pdf.setFontSize(10);
+    pdf.text('EGID: ' + (rv('meta-egid') || '—') + '   |   Canton: ' + (rv('meta-canton') || '—') + '   |   Année: ' + (rv('meta-year') || '—'), marginL, y + 52);
+    pdf.text('Généré le ' + new Date().toLocaleDateString('fr-CH'), marginL, y + 62);
+    pdf.setFontSize(9);
+    pdf.text('Êta Consult Sàrl — Assistant CECB Plus', marginL, 280);
+
+    // Text sections
+    var sections = ['toit', 'murs-ext', 'murs-terre', 'murs-nc', 'fenetres', 'sols-terre', 'sols-nc', 'ponts-thermiques', 'ventilation', 'chauffage', 'ecs', 'appareils', 'pv'];
+    var sectionLabels = {
+        'toit': '1. Toit', 'murs-ext': '2. Murs contre extérieur', 'murs-terre': '3. Murs contre terre',
+        'murs-nc': '4. Murs c/ non chauffé', 'fenetres': '5. Fenêtres et portes',
+        'sols-terre': '6. Sols c/ terre', 'sols-nc': '7. Sols c/ non chauffé',
+        'ponts-thermiques': '8. Ponts thermiques',
+        'ventilation': '9. Ventilation', 'chauffage': '10. Chauffage', 'ecs': '11. Eau chaude sanitaire',
+        'appareils': '12. Appareils et éclairage', 'pv': '13. Photovoltaïque'
+    };
+
+    var hasText = false;
+    sections.forEach(function (s) {
+        var eiTa = document.getElementById('gen-' + s + '-ei');
+        var apTa = document.getElementById('gen-' + s + '-ap');
+        var ei = eiTa ? eiTa.value.trim() : '';
+        var ap = apTa ? apTa.value.trim() : '';
+        if (!ei && !ap) return;
+        hasText = true;
+
+        pdf.addPage();
+        y = marginT;
+        pdf.setFont('helvetica', 'bold');
+        pdf.setFontSize(13);
+        pdf.setTextColor(44, 95, 45);
+        pdf.text(sectionLabels[s] || s, marginL, y);
+        y += 8;
+        pdf.setTextColor(0, 0, 0);
+
+        if (ei) {
+            pdf.setFont('helvetica', 'bold');
+            pdf.setFontSize(10);
+            pdf.text('État initial', marginL, y);
+            y += 5;
+            pdf.setFont('helvetica', 'normal');
+            pdf.setFontSize(9);
+            var eiLines = pdf.splitTextToSize(ei, contentW);
+            eiLines.forEach(function (line) {
+                if (y > 280) { pdf.addPage(); y = marginT; }
+                pdf.text(line, marginL, y);
+                y += 4;
+            });
+            y += 3;
+        }
+        if (ap) {
+            pdf.setFont('helvetica', 'bold');
+            pdf.setFontSize(10);
+            pdf.text('Améliorations', marginL, y);
+            y += 5;
+            pdf.setFont('helvetica', 'normal');
+            pdf.setFontSize(9);
+            var apLines = pdf.splitTextToSize(ap, contentW);
+            apLines.forEach(function (line) {
+                if (y > 280) { pdf.addPage(); y = marginT; }
+                pdf.text(line, marginL, y);
+                y += 4;
+            });
+        }
+    });
+
+    if (!hasText) { recueilToast('Aucun texte à exporter', 'error'); return; }
+
+    // Photos annex
+    if (typeof photosState !== 'undefined' && photosState.length > 0) {
+        var cols = 2, rows = 3, photosPerPage = cols * rows;
+        var gapX = 5, gapY = 4;
+        var cellW = (contentW - gapX) / cols;
+        var captionH = 6;
+        var totalPhotoPages = Math.ceil(photosState.length / photosPerPage);
+
+        for (var page = 0; page < totalPhotoPages; page++) {
+            pdf.addPage();
+            y = marginT;
+            if (page === 0) {
+                pdf.setFont('helvetica', 'bold');
+                pdf.setFontSize(13);
+                pdf.setTextColor(44, 95, 45);
+                pdf.text('D.1 Annexe Photos', marginL, y);
+                y += 10;
+                pdf.setTextColor(0, 0, 0);
+            }
+            var availH = 297 - y - marginB;
+            var cellH = (availH - (gapY * (rows - 1))) / rows;
+            var photoMaxH = cellH - captionH - 2;
+            var startIdx = page * photosPerPage;
+            var endIdx = Math.min(startIdx + photosPerPage, photosState.length);
+
+            for (var i = startIdx; i < endIdx; i++) {
+                var photo = photosState[i];
+                var posOnPage = i - startIdx;
+                var col = posOnPage % cols;
+                var row = Math.floor(posOnPage / cols);
+                var cellX = marginL + col * (cellW + gapX);
+                var cellY = y + row * (cellH + gapY);
+                try {
+                    var compressed = typeof compressImageForPDF === 'function' ? await compressImageForPDF(photo.src) : photo.src;
+                    var dims = await loadImageDimensions(photo.src);
+                    var imgRatio = dims.width / dims.height;
+                    var imgW = cellW, imgH = imgW / imgRatio;
+                    if (imgH > photoMaxH) { imgH = photoMaxH; imgW = imgH * imgRatio; }
+                    var imgX = cellX + (cellW - imgW) / 2;
+                    pdf.addImage(compressed, 'JPEG', imgX, cellY, imgW, imgH);
+                    if (photo.caption) {
+                        pdf.setFontSize(8);
+                        pdf.setFont('helvetica', 'normal');
+                        pdf.text(photo.caption, cellX, cellY + imgH + 3, { maxWidth: cellW });
+                    }
+                } catch (err) { console.error('Photo export error:', err); }
+            }
+        }
+    }
+
+    pdf.save('Rapport_CECB_' + projectName.replace(/[^a-zA-Z0-9\u00e0\u00e2\u00e4\u00e9\u00e8\u00ea\u00eb\u00ef\u00ee\u00f4\u00f9\u00fb\u00fc\u00ff\u00e7]/gi, '_') + '.pdf');
+    recueilToast('Rapport complet exporté');
 }
 
 /* ===== INIT RECUEIL ===== */

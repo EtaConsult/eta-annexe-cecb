@@ -9,6 +9,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script>if(window.pdfjsLib)pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
+    <script src="api-handler.js"></script>
     <style>
 /* ─── Recueil-specific styles (from cecb_generator) ───── */
 :root{--r-primary:#2c5f2d;--r-primary-light:#4a8b4c;--r-secondary:#97bc62;--r-border:#ddd;--r-grey:#888;--r-danger:#c0392b;--r-warning:#e67e22;--r-success:#27ae60;--r-info:#2980b9;--r-radius:8px}
@@ -59,6 +60,20 @@
 .toast{position:fixed;bottom:20px;right:20px;padding:12px 20px;border-radius:var(--r-radius);color:#fff;font-weight:500;z-index:2000;animation:slideIn .3s ease}
 .toast-success{background:var(--r-success)}.toast-error{background:var(--r-danger)}.toast-info{background:var(--r-info)}
 @keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+.toast-warning{background:var(--r-warning)}
+
+/* ─── Spinner ──────────────────────────────────────── */
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;margin-right:6px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+.btn:disabled{opacity:.6;cursor:not-allowed;transform:none !important}
+
+/* ─── Save confirmation toast (auto-save) ──────────── */
+.save-indicator{position:fixed;bottom:20px;left:20px;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:500;color:#10B981;background:#ECFDF5;border:1px solid #A7F3D0;z-index:2000;animation:fadeInOut 2s ease forwards;pointer-events:none}
+@keyframes fadeInOut{0%{opacity:0;transform:translateY(10px)}15%{opacity:1;transform:translateY(0)}85%{opacity:1}100%{opacity:0}}
+
+/* ─── Required field validation ────────────────────── */
+.field-missing{border-color:#c0392b !important;box-shadow:0 0 0 2px rgba(192,57,43,.15) !important}
+.field-missing-hint{font-size:.7em;color:#c0392b;margin-top:2px}
 
 /* ─── Nav override for projet page ─────────────────── */
 .main-nav .brand{margin-right:0}
@@ -95,9 +110,10 @@
 .matrix-wrap{overflow-x:auto}
 .matrix-table{width:100%;border-collapse:collapse;font-size:13px}
 .matrix-table th{background:#f5f5f5;padding:10px 8px;text-align:center;font-weight:700;border-bottom:2px solid #333;font-size:12px}
-.matrix-table th:first-child{text-align:left;min-width:300px}
+.matrix-table th:first-child{text-align:left;min-width:260px}
+.matrix-table th:not(:first-child){min-width:140px}
 .matrix-table td{padding:8px;border-bottom:1px solid #E3DAD1;vertical-align:middle}
-.matrix-table td:not(:first-child){text-align:center;width:100px}
+.matrix-table td:not(:first-child){text-align:center;width:140px}
 .matrix-table tr.category-row td{font-weight:700;background:#f9fafb;color:#333;padding:10px 8px;border-bottom:1px solid #ccc}
 .matrix-table tr.item-row:hover{background:#ECFDF5}
 .matrix-table input[type=checkbox]{width:18px;height:18px;accent-color:#10B981;cursor:pointer}
@@ -117,8 +133,6 @@
 .bloc-category{margin-bottom:12px}.bloc-category-title{font-weight:700;font-size:13px;color:#059669;margin-bottom:4px}
 .bloc-measure{font-size:13px;color:#444;padding-left:8px;margin-bottom:3px}.bloc-empty{color:#999;font-style:italic;font-size:13px}
 .report-box{border:1px solid #ddd;border-radius:8px;padding:16px;background:#fff;white-space:pre-wrap;font-size:13px;line-height:1.7;max-height:500px;overflow-y:auto}
-.copy-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid #ddd;background:#fff;border-radius:6px;font-size:13px;font-weight:500;color:#444;transition:all .2s;margin-top:10px}
-.copy-btn:hover{background:#ECFDF5;border-color:#10B981;color:#059669}
 .summary-table{width:525px;border-collapse:collapse;font-family:Urbanist,Arial,sans-serif;font-size:9.5pt;background:#fff;table-layout:fixed}
 .summary-table th{padding:6px 8px;font-weight:700;text-align:center;border-bottom:2px solid #333;background:#fff}
 .summary-table th .st-sub{font-weight:400;font-size:8pt;color:#555;display:block}
@@ -129,12 +143,7 @@
 .summary-table .st-check{color:#10B981;font-weight:700;font-size:14px}
 .summary-table tr.st-cost td{border-top:2px solid #333;font-weight:600;background:#fafafa}
 .export-buttons{display:flex;gap:10px;margin-bottom:14px}
-.export-buttons button{padding:8px 16px;border:1px solid #ddd;background:#fff;border-radius:6px;font-size:13px;font-weight:500;color:#444;transition:all .2s}
-.export-buttons button:hover{background:#ECFDF5;border-color:#10B981;color:#059669}
 .toolbar{display:flex;gap:10px;justify-content:center;margin:12px 0 20px}
-.toolbar button{padding:8px 18px;border:none;border-radius:6px;font-size:13px;font-weight:600;transition:all .2s}
-.btn-example{background:#ECFDF5;color:#059669;border-radius:8px}.btn-example:hover{background:#D1FAE5}
-.btn-reset{background:#fce4ec;color:#c62828}.btn-reset:hover{background:#f8bbd0}
 /* ─── Inline section output ─────────────────────────── */
 .section-output{background:#f8faf8;border:1px solid #e0e0d8;border-radius:6px;padding:12px;margin-top:12px}
 .gen-textarea{width:100%;min-height:100px;padding:10px;border:1px solid var(--r-border);border-radius:4px;font-family:inherit;font-size:.9em;line-height:1.5;resize:vertical}
@@ -280,14 +289,14 @@
                 <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> Toit</h3><span id="life-toit"></span></div>
                 <div class="section-body">
                     <div class="form-row">
-                        <div class="form-group"><label>Configuration</label><select id="toit-config" onchange="updateToitFields()"><option value="">—</option><option value="toiture_isolee">Cas A : Toiture isolée</option><option value="plancher_combles">Cas B : Plancher des combles</option><option value="plafond_non_chauffe">Cas C : Plafond c/ non-chauffé</option></select></div>
+                        <div class="form-group"><label>Configuration</label><select id="toit-config" onchange="updateToitFields()"><option value="">—</option><option value="toiture_isolee">Toit contre extérieur</option><option value="plancher_combles">Plancher des combles</option><option value="plafond_non_chauffe">Plafond contre non chauffé</option></select></div>
                         <div class="form-group"><label>Type de toiture</label><select id="toit-type"><option value="">—</option><option value="inclinee">Inclinée</option><option value="plate">Plate</option></select></div>
                         <div class="form-group"><label>Année (rénovation/construction)</label><input type="number" id="toit-year" placeholder="Année" min="1800" max="2030" onchange="updateLifeIndicator('toit',40)"></div>
                     </div>
                     <div class="form-row">
                         <div class="form-group"><label>Isolation</label><select id="toit-isolation"><option value="">—</option><option value="aucune">Aucune</option><option value="partielle">Partielle / insuffisante</option><option value="conforme">Conforme / bonne</option></select></div>
                         <div class="form-group"><label>Épaisseur isolation (cm)</label><input type="number" id="toit-isol-cm" placeholder="Ex: 12" min="0"></div>
-                        <div class="form-group"><label>Matériau isolation</label><input type="text" id="toit-isol-mat" placeholder="Laine de verre, XPS..."></div>
+                        <div class="form-group"><label>Matériau isolation</label><select id="toit-isol-mat"><option value="">—</option><option value="laine_verre">Laine de verre</option><option value="laine_roche">Laine de roche</option><option value="laine_minerale">Laine minérale</option><option value="eps">EPS (polystyrène expansé)</option><option value="xps">XPS (polystyrène extrudé)</option><option value="pur_pir">PUR/PIR (polyuréthane)</option><option value="fibre_bois">Fibre de bois</option><option value="cellulose">Cellulose</option><option value="autre">Autre</option></select></div>
                     </div>
                     <div class="form-row">
                         <div class="form-group"><label>État</label><select id="toit-etat"><option value="">—</option><option value="intact">Intact / bon état</option><option value="use">Légèrement usé</option><option value="vetuste">Vétuste / fin de vie</option></select></div>
@@ -441,9 +450,17 @@
 
             <!-- Save + Export -->
             <div class="btn-group" style="justify-content:center;padding:15px">
+                <button class="btn btn-purple" id="btnGenerateAll" onclick="generateAllWithProgress()">Générer toutes les sections</button>
                 <button class="btn btn-success" onclick="recueilCopyAll()">Tout copier</button>
-                <button class="btn btn-info" onclick="recueilExportPDF()">Export PDF</button>
+                <button class="btn btn-info" onclick="recueilExportPDF()">Export PDF textes</button>
+                <button class="btn btn-blue" onclick="exportFullReport()">Rapport complet PDF</button>
                 <button class="btn btn-primary" onclick="manualSave()">Sauvegarder</button>
+            </div>
+            <div id="generateAllProgress" style="display:none;text-align:center;margin:10px 0">
+                <div style="background:#E2E8F0;border-radius:8px;height:8px;max-width:400px;margin:0 auto">
+                    <div id="generateAllBar" style="background:#8B5CF6;height:100%;border-radius:8px;width:0;transition:width .3s"></div>
+                </div>
+                <span id="generateAllLabel" style="font-size:13px;color:#64748B;margin-top:4px;display:block"></span>
             </div>
         </div>
 
@@ -556,7 +573,7 @@
                     <div class="output-field-btns" style="margin-top:8px">
                         <button class="btn btn-sm btn-success" onclick="recueilCopyField('gen-revalorisation')">Copier</button>
                         <button class="btn btn-sm btn-warning" onclick="enhanceField('gen-revalorisation','Revalorisation')">Enhance</button>
-                        <button class="btn btn-sm btn-reset" onclick="resetComplementField('revalorisation')">Revenir au texte original</button>
+                        <button class="btn btn-sm btn-purple" onclick="resetComplementField('revalorisation')">Revenir</button>
                     </div>
                 </div>
             </div>
@@ -569,7 +586,7 @@
                     <div class="output-field-btns" style="margin-top:8px">
                         <button class="btn btn-sm btn-success" onclick="recueilCopyField('gen-comportement')">Copier</button>
                         <button class="btn btn-sm btn-warning" onclick="enhanceField('gen-comportement','Comportement occupant')">Enhance</button>
-                        <button class="btn btn-sm btn-reset" onclick="resetComplementField('comportement')">Revenir au texte original</button>
+                        <button class="btn btn-sm btn-purple" onclick="resetComplementField('comportement')">Revenir</button>
                     </div>
                 </div>
             </div>
@@ -668,8 +685,8 @@
 
         <div class="photos-grid" id="photosGrid"></div>
 
-        <button class="generate-btn" id="photoGenerateBtn" disabled>Générer le PDF</button>
-        <div style="text-align:center;padding:15px"><button class="btn btn-success" onclick="manualSave()">Sauvegarder le projet</button></div>
+        <div style="text-align:center;margin:15px 0"><button class="btn btn-primary" id="photoGenerateBtn" disabled style="padding:12px 32px;font-size:15px">Générer le PDF</button></div>
+        <div style="text-align:center;padding:15px"><button class="btn btn-success" onclick="manualSave()">Sauvegarder</button></div>
     </div>
 
     <!-- ═══════════════════════════════════════════════════
@@ -678,8 +695,8 @@
     <div id="tab-variantes" class="projet-panel">
         <h1>Variantes d'assainissement énergétique</h1>
         <div class="toolbar">
-            <button class="btn-example" id="varLoadExample">Charger l'exemple</button>
-            <button class="btn-reset" id="varResetAll">Réinitialiser</button>
+            <button class="btn btn-success" id="varLoadExample">Charger l'exemple</button>
+            <button class="btn btn-reset" id="varResetAll">Réinitialiser</button>
         </div>
 
         <section class="variantes-section">
@@ -698,25 +715,25 @@
             <div class="bloc-tabs" id="varBlocTabs"></div>
             <div class="bloc-content" id="varBlocContent"></div>
             <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
-                <button class="copy-btn copy-bloc-btn" data-v="0">Copier Variante 1</button>
-                <button class="copy-btn copy-bloc-btn" data-v="1">Copier Variante 2</button>
-                <button class="copy-btn copy-bloc-btn" data-v="2">Copier Variante 3</button>
+                <button class="btn btn-success copy-bloc-btn" data-v="0">Copier Variante 1</button>
+                <button class="btn btn-success copy-bloc-btn" data-v="1">Copier Variante 2</button>
+                <button class="btn btn-success copy-bloc-btn" data-v="2">Copier Variante 3</button>
             </div>
             <h3>Rapport final</h3>
             <div class="report-box" id="varReportPreview"></div>
-            <button class="copy-btn" id="varCopyReport">Copier le texte du rapport</button>
+            <button class="btn btn-success" id="varCopyReport" style="margin-top:10px">Copier le texte du rapport</button>
         </section>
 
         <section class="variantes-section">
             <h2>Tableau récapitulatif</h2>
             <div class="export-buttons">
-                <button id="varCopyTable">Copier le tableau</button>
-                <button id="varDownloadPNG">Télécharger PNG</button>
-                <button id="varDownloadHTML">Télécharger HTML</button>
+                <button class="btn btn-success" id="varCopyTable">Copier le tableau</button>
+                <button class="btn btn-blue" id="varDownloadPNG">Télécharger PNG</button>
+                <button class="btn btn-blue" id="varDownloadHTML">Télécharger HTML</button>
             </div>
             <div id="varSummaryTableContainer"></div>
         </section>
-        <div style="text-align:center;padding:15px"><button class="btn btn-success" onclick="manualSave()">Sauvegarder le projet</button></div>
+        <div style="text-align:center;padding:15px"><button class="btn btn-success" onclick="manualSave()">Sauvegarder</button></div>
     </div>
 
     <!-- ═══════════════════════════════════════════════════
@@ -799,6 +816,52 @@
         el.textContent = 'Projet sauvegardé';
         el.classList.add('show');
         setTimeout(function () { el.classList.remove('show'); }, 2500);
+    }
+
+    /* ═══════ KEYBOARD SHORTCUTS ═══════ */
+
+    document.addEventListener('keydown', function (e) {
+        // Ctrl+S: Manual save
+        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+            e.preventDefault();
+            manualSave();
+        }
+        // Ctrl+G: Generate current section (find visible section with a generate button)
+        if ((e.ctrlKey || e.metaKey) && e.key === 'g' && !e.shiftKey) {
+            e.preventDefault();
+            // Find the first visible generate button
+            var visibleBtns = document.querySelectorAll('.recueil-tab-content.active .btn-primary');
+            for (var i = 0; i < visibleBtns.length; i++) {
+                var onclick = visibleBtns[i].getAttribute('onclick');
+                if (onclick && onclick.indexOf('generateSection') !== -1) {
+                    visibleBtns[i].click();
+                    break;
+                }
+            }
+        }
+        // Ctrl+Shift+G: Generate all sections
+        if ((e.ctrlKey || e.metaKey) && e.key === 'G') {
+            e.preventDefault();
+            if (typeof generateAllWithProgress === 'function') generateAllWithProgress();
+        }
+    });
+
+    /* ═══════ AUTO-SAVE VISUAL FEEDBACK ═══════ */
+
+    // Patch recueilAutoSave to show save indicator
+    var _origRecueilAutoSave = null;
+    function patchAutoSaveIndicator() {
+        if (typeof recueilAutoSave !== 'function' || _origRecueilAutoSave) return;
+        _origRecueilAutoSave = recueilAutoSave;
+        // The auto-save already has debounce; just show a subtle indicator when it fires
+    }
+
+    function showSaveIndicator() {
+        var ind = document.createElement('div');
+        ind.className = 'save-indicator';
+        ind.textContent = 'Sauvegardé';
+        document.body.appendChild(ind);
+        setTimeout(function () { ind.remove(); }, 2000);
     }
 
     /* ═══════ CLASSES CECB TAB ═══════ */
