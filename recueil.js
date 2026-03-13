@@ -240,9 +240,8 @@ var BLOCS = {
         ap_non_prioritaire: "L'isolation des murs contre terrain ne constitue pas une priorité immédiate, compte tenu de leur état actuel."
     },
     murs_nc: {
-        ei_beton: "Les murs du sous-sol adjacents à des locaux non chauffés sont constitués de béton armé et ne disposent d'aucune isolation.",
-        ei_maconnerie: "Les murs du sous-sol adjacents à des locaux non chauffés sont constitués de maçonnerie creuse et ne disposent d'aucune isolation.",
-        ei_isole: "Les murs adjacents aux locaux non chauffés disposent d'une isolation de {cm} cm. Cette configuration offre une protection thermique acceptable.",
+        ei_sans_isolation: "Les murs adjacents aux locaux non chauffés sont constitués de {composition_desc} et ne disposent d'aucune isolation thermique.",
+        ei_isole: "Les murs adjacents aux locaux non chauffés sont constitués de {composition_desc} et disposent d'une isolation de {cm} cm. Cette configuration offre une protection thermique acceptable.",
         ap_isolation: "Nous préconisons l'isolation des parois adjacentes aux locaux non chauffés du sous-sol. L'ajout d'isolation entraînera une diminution de la température au sous-sol, ce qui pourrait nécessiter une aération régulière en cas d'humidité élevée. Ces travaux ne sont pas éligibles aux subventions du Programme Bâtiments. Pour réduire de manière significative les déperditions thermiques à travers ces parois, une valeur U inférieure à 0,25 W/m²K est recommandée.",
         ap_non_prioritaire: "L'isolation des murs c/ non chauffé ne constitue pas une priorité immédiate, les performances actuelles étant jugées acceptables."
     },
@@ -627,11 +626,12 @@ function generateMursNcText() {
     if (!comp) {
         return { ei: '[DONNÉES MANQUANTES — à compléter]', ap: '[DONNÉES MANQUANTES — à compléter]' };
     }
+    var compDesc = compLabels[comp] || comp;
     if (isol === 'oui' || isol === 'interieur') {
-        ei = fillTemplate(BLOCS.murs_nc.ei_isole, { cm: cm || '[X]' });
+        ei = fillTemplate(BLOCS.murs_nc.ei_isole, { composition_desc: compDesc, cm: cm || '[X]' });
         ap = BLOCS.murs_nc.ap_non_prioritaire;
     } else {
-        ei = fillTemplate(BLOCS.murs_nc.ei_sans_isolation, { composition_desc: compLabels[comp] || comp });
+        ei = fillTemplate(BLOCS.murs_nc.ei_sans_isolation, { composition_desc: compDesc });
         ap = BLOCS.murs_nc.ap_isolation;
     }
     return { ei: ei, ap: ap };
