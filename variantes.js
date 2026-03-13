@@ -331,7 +331,7 @@ function varRenderSummaryTable() {
     var container = document.getElementById('varSummaryTableContainer');
     if (!container) return;
     var html = '<table class="summary-table" id="varSummaryTable">';
-    html += '<colgroup><col style="width:300px"><col style="width:75px"><col style="width:75px"><col style="width:75px"></colgroup>';
+    html += '<colgroup><col style="width:50%"><col style="width:16.6%"><col style="width:16.6%"><col style="width:16.6%"></colgroup>';
     html += '<thead><tr><th rowspan="2" style="text-align:left">Poste</th>';
     for (var v = 0; v < 3; v++) html += '<th>Variante ' + (v + 1) + '</th>';
     html += '</tr><tr>';
