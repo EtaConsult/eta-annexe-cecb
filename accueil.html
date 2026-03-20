@@ -60,6 +60,7 @@
         <a href="#" class="nav-view active" data-view="nouveau" onclick="showView('nouveau');return false">Nouveau projet</a>
         <a href="#" class="nav-view" data-view="projets" onclick="showView('projets');return false">Mes projets</a>
         <a href="relecture.html" style="margin-left:auto">Relecture CECB</a>
+        <span id="issueBadge" style="display:none;background:#EF4444;color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;margin-left:8px;cursor:pointer" onclick="showView('projets');scrollToFeedback()" title="Issues ouvertes"></span>
     </nav>
 
     <div class="container">
@@ -155,18 +156,11 @@
                 <span style="font-size:11px;color:#94A3B8">Gratuit sur console.groq.com</span>
             </div>
             <hr style="margin:16px 0;border:none;border-top:1px solid #E2E8F0">
-            <h3 style="margin:0 0 10px;font-size:.95em;color:#475569">Notifications email (EmailJS)</h3>
-            <div style="margin-bottom:10px">
-                <label style="display:block;font-size:13px;font-weight:600;color:#475569;margin-bottom:4px">Public Key</label>
-                <input type="text" id="emailjsPublicKey" placeholder="ex: AbCdEfGhIjK" style="width:100%;padding:8px 12px;border:1px solid #CBD5E1;border-radius:6px;font-size:14px">
-            </div>
-            <div style="margin-bottom:10px">
-                <label style="display:block;font-size:13px;font-weight:600;color:#475569;margin-bottom:4px">Service ID</label>
-                <input type="text" id="emailjsServiceId" placeholder="ex: service_xxxxx" style="width:100%;padding:8px 12px;border:1px solid #CBD5E1;border-radius:6px;font-size:14px">
-            </div>
+            <h3 style="margin:0 0 10px;font-size:.95em;color:#475569">GitHub (retours utilisateurs)</h3>
             <div style="margin-bottom:14px">
-                <label style="display:block;font-size:13px;font-weight:600;color:#475569;margin-bottom:4px">Template ID</label>
-                <input type="text" id="emailjsTemplateId" placeholder="ex: template_xxxxx" style="width:100%;padding:8px 12px;border:1px solid #CBD5E1;border-radius:6px;font-size:14px">
+                <label style="display:block;font-size:13px;font-weight:600;color:#475569;margin-bottom:4px">Token GitHub (scope: repo)</label>
+                <input type="password" id="ghTokenInput" placeholder="ghp_..." style="width:100%;padding:8px 12px;border:1px solid #CBD5E1;border-radius:6px;font-size:14px">
+                <span style="font-size:11px;color:#94A3B8">github.com/settings/tokens — scope "repo" requis</span>
             </div>
             <div style="display:flex;gap:8px">
                 <button onclick="saveApiSettings()" style="padding:8px 18px;background:#10B981;color:#fff;border:none;border-radius:6px;font-weight:600">Enregistrer</button>
@@ -175,7 +169,6 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <script src="auth.js"></script>
     <script src="project-store.js"></script>
     <script>
@@ -427,18 +420,14 @@ function openApiSettings() {
     document.getElementById('apiKeyInput').value = localStorage.getItem('cecb_api_key') || '';
     document.getElementById('apiModelInput').value = localStorage.getItem('cecb_api_model') || 'claude-sonnet-4-20250514';
     document.getElementById('groqKeyInput').value = localStorage.getItem('cecb_groq_key') || '';
-    document.getElementById('emailjsPublicKey').value = localStorage.getItem('cecb_emailjs_public_key') || '';
-    document.getElementById('emailjsServiceId').value = localStorage.getItem('cecb_emailjs_service_id') || '';
-    document.getElementById('emailjsTemplateId').value = localStorage.getItem('cecb_emailjs_template_id') || '';
+    document.getElementById('ghTokenInput').value = localStorage.getItem('cecb_gh_token') || '';
     document.getElementById('settingsModal').style.display = 'flex';
 }
 function saveApiSettings() {
     localStorage.setItem('cecb_api_key', document.getElementById('apiKeyInput').value);
     localStorage.setItem('cecb_api_model', document.getElementById('apiModelInput').value);
     localStorage.setItem('cecb_groq_key', document.getElementById('groqKeyInput').value);
-    localStorage.setItem('cecb_emailjs_public_key', document.getElementById('emailjsPublicKey').value);
-    localStorage.setItem('cecb_emailjs_service_id', document.getElementById('emailjsServiceId').value);
-    localStorage.setItem('cecb_emailjs_template_id', document.getElementById('emailjsTemplateId').value);
+    localStorage.setItem('cecb_gh_token', document.getElementById('ghTokenInput').value);
     closeSettings();
     showNotification('Parametres enregistres');
 }
@@ -459,8 +448,8 @@ function showNotification(msg) {
     setTimeout(function () { el.classList.remove('show'); }, 2500);
 }
 
-/* ─── Feedback System ─────────────────────────────── */
-var FEEDBACK_KEY = 'cecb-feedback';
+/* ─── Feedback System (GitHub Issues) ─────────────── */
+var GH_REPO = 'EtaConsult/eta-annexe-cecb';
 
 function toggleFeedbackForm() {
     var form = document.getElementById('feedbackForm');
@@ -474,100 +463,142 @@ function toggleFeedbackForm() {
     }
 }
 
-function getFeedback() {
-    try { return JSON.parse(localStorage.getItem(FEEDBACK_KEY)) || []; }
-    catch (e) { return []; }
-}
-
-function saveFeedback(list) {
-    localStorage.setItem(FEEDBACK_KEY, JSON.stringify(list));
-}
-
-function submitFeedback() {
+async function submitFeedback() {
     var text = document.getElementById('feedbackText').value.trim();
     if (!text) { showNotification('Veuillez décrire le problème'); return; }
     var type = document.querySelector('input[name="fbType"]:checked').value;
     var session = getSession();
-    var entry = {
-        id: Date.now().toString(36),
-        type: type,
-        text: text,
-        user: session ? session.email : 'anonyme',
-        date: new Date().toISOString(),
-        status: 'nouveau'
-    };
-    var list = getFeedback();
-    list.unshift(entry);
-    saveFeedback(list);
-    document.getElementById('feedbackText').value = '';
-    showNotification('Merci pour votre retour !');
-    if (isAdmin()) renderFeedbackAdmin();
-    sendFeedbackEmail(entry);
-}
+    var user = session ? session.email : 'anonyme';
+    var ghToken = localStorage.getItem('cecb_gh_token');
 
-function sendFeedbackEmail(entry) {
-    var publicKey = localStorage.getItem('cecb_emailjs_public_key');
-    var serviceId = localStorage.getItem('cecb_emailjs_service_id');
-    var templateId = localStorage.getItem('cecb_emailjs_template_id');
-    if (!publicKey || !serviceId || !templateId || typeof emailjs === 'undefined') return;
-    var typeLabel = entry.type === 'bug' ? 'Bug' : 'Amélioration';
-    emailjs.init(publicKey);
-    emailjs.send(serviceId, templateId, {
-        to_email: 'info@etaconsult.ch',
-        subject: '[Assistant CECB] Nouveau retour : ' + typeLabel,
-        from_name: entry.user,
-        message: typeLabel + ' signalé(e) par ' + entry.user + ' le ' + new Date(entry.date).toLocaleDateString('fr-CH') + ' :\n\n' + entry.text + '\n\n---\nPour consulter tous les retours, demandez à Claude de lire localStorage.getItem(\'cecb-feedback\') dans le navigateur.'
-    }).catch(function(err) {
-        console.warn('EmailJS error:', err);
-    });
-}
-
-function renderFeedbackAdmin() {
-    var section = document.getElementById('feedbackAdminSection');
-    var list = getFeedback();
-    if (list.length === 0) {
-        section.style.display = 'none';
+    if (!ghToken) {
+        showNotification('Token GitHub non configuré (Paramètres)');
         return;
     }
+
+    var typeLabel = type === 'bug' ? 'Bug' : 'Amélioration';
+    var label = type === 'bug' ? 'bug' : 'enhancement';
+    var title = '[' + typeLabel + '] ' + text.substring(0, 80) + (text.length > 80 ? '...' : '');
+    var body = '**Type :** ' + typeLabel + '\n**Signalé par :** ' + user + '\n**Date :** ' + new Date().toLocaleDateString('fr-CH') + '\n\n---\n\n' + text;
+
+    try {
+        var resp = await fetch('https://api.github.com/repos/' + GH_REPO + '/issues', {
+            method: 'POST',
+            headers: { 'Authorization': 'token ' + ghToken, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
+            body: JSON.stringify({ title: title, body: body, labels: [label] })
+        });
+        if (!resp.ok) throw new Error('GitHub ' + resp.status);
+        document.getElementById('feedbackText').value = '';
+        showNotification('Retour envoyé sur GitHub !');
+        if (isAdmin()) fetchGitHubIssues();
+    } catch (err) {
+        console.error('GitHub issue error:', err);
+        showNotification('Erreur: ' + err.message);
+    }
+}
+
+async function fetchGitHubIssues() {
+    var ghToken = localStorage.getItem('cecb_gh_token');
+    if (!ghToken) return;
+
+    try {
+        var resp = await fetch('https://api.github.com/repos/' + GH_REPO + '/issues?state=all&labels=bug,enhancement&per_page=30&sort=created&direction=desc', {
+            headers: { 'Authorization': 'token ' + ghToken, 'Accept': 'application/vnd.github.v3+json' }
+        });
+        if (!resp.ok) return;
+        var issues = await resp.json();
+        // Filter out pull requests
+        issues = issues.filter(function(i) { return !i.pull_request; });
+
+        // Update badge
+        var openCount = issues.filter(function(i) { return i.state === 'open'; }).length;
+        var badge = document.getElementById('issueBadge');
+        if (badge) {
+            if (openCount > 0) {
+                badge.textContent = openCount + ' retour' + (openCount > 1 ? 's' : '');
+                badge.style.display = 'inline-block';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        renderGitHubIssues(issues);
+    } catch (err) {
+        console.warn('GitHub issues fetch error:', err);
+    }
+}
+
+function renderGitHubIssues(issues) {
+    var section = document.getElementById('feedbackAdminSection');
+    if (issues.length === 0) { section.style.display = 'none'; return; }
     section.style.display = 'block';
     var container = document.getElementById('feedbackList');
     var html = '<table style="width:100%;border-collapse:collapse;font-size:.85em;margin-top:8px">';
-    html += '<thead><tr style="text-align:left;border-bottom:2px solid #e2e8f0"><th style="padding:6px">Type</th><th style="padding:6px">Description</th><th style="padding:6px">Utilisateur</th><th style="padding:6px">Date</th><th style="padding:6px">Statut</th><th style="padding:6px"></th></tr></thead><tbody>';
-    list.forEach(function(fb) {
-        var typeLabel = fb.type === 'bug' ? '<span style="color:#c0392b;font-weight:600">Bug</span>' : '<span style="color:#2980b9;font-weight:600">Amélioration</span>';
-        var statusColor = fb.status === 'nouveau' ? '#e67e22' : fb.status === 'traite' ? '#27ae60' : '#95a5a6';
-        var statusLabel = fb.status === 'nouveau' ? 'Nouveau' : fb.status === 'traite' ? 'Traité' : 'Rejeté';
-        var date = new Date(fb.date).toLocaleDateString('fr-CH');
+    html += '<thead><tr style="text-align:left;border-bottom:2px solid #e2e8f0"><th style="padding:6px">Type</th><th style="padding:6px">Description</th><th style="padding:6px">Date</th><th style="padding:6px">Statut</th><th style="padding:6px"></th></tr></thead><tbody>';
+    issues.forEach(function(issue) {
+        var isBug = issue.labels.some(function(l) { return l.name === 'bug'; });
+        var typeLabel = isBug ? '<span style="color:#c0392b;font-weight:600">Bug</span>' : '<span style="color:#2980b9;font-weight:600">Amélioration</span>';
+        var isOpen = issue.state === 'open';
+        var statusColor = isOpen ? '#e67e22' : '#27ae60';
+        var statusLabel = isOpen ? 'Ouvert' : 'Fermé';
+        var date = new Date(issue.created_at).toLocaleDateString('fr-CH');
+        var title = issue.title.replace(/^\[(Bug|Amélioration)\]\s*/i, '');
         html += '<tr style="border-bottom:1px solid #f1f5f9">';
         html += '<td style="padding:6px">' + typeLabel + '</td>';
-        html += '<td style="padding:6px;max-width:300px;word-break:break-word">' + escapeHtml(fb.text) + '</td>';
-        html += '<td style="padding:6px;font-size:.8em">' + escapeHtml(fb.user) + '</td>';
+        html += '<td style="padding:6px;max-width:350px;word-break:break-word">' + escapeHtml(title) + '</td>';
         html += '<td style="padding:6px;white-space:nowrap">' + date + '</td>';
         html += '<td style="padding:6px"><span style="color:' + statusColor + ';font-weight:600">' + statusLabel + '</span></td>';
         html += '<td style="padding:6px;white-space:nowrap">';
-        if (fb.status === 'nouveau') {
-            html += '<button onclick="updateFeedbackStatus(\'' + fb.id + '\',\'traite\')" style="padding:3px 8px;background:#27ae60;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:.8em;margin-right:4px">Traité</button>';
-            html += '<button onclick="updateFeedbackStatus(\'' + fb.id + '\',\'rejete\')" style="padding:3px 8px;background:#95a5a6;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:.8em">Rejeté</button>';
+        if (isOpen) {
+            html += '<button onclick="closeGitHubIssue(' + issue.number + ',this)" style="padding:3px 8px;background:#27ae60;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:.8em">Fermer</button>';
+        } else {
+            html += '<button onclick="reopenGitHubIssue(' + issue.number + ',this)" style="padding:3px 8px;background:#e67e22;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:.8em">Rouvrir</button>';
         }
+        html += ' <a href="' + issue.html_url + '" target="_blank" style="font-size:.75em;color:#3B82F6;text-decoration:none" title="Voir sur GitHub">#' + issue.number + '</a>';
         html += '</td></tr>';
     });
     html += '</tbody></table>';
     container.innerHTML = html;
 }
 
-function updateFeedbackStatus(id, status) {
-    var list = getFeedback();
-    var item = list.find(function(f) { return f.id === id; });
-    if (item) { item.status = status; saveFeedback(list); renderFeedbackAdmin(); }
+async function closeGitHubIssue(num, btn) {
+    var ghToken = localStorage.getItem('cecb_gh_token');
+    if (!ghToken) return;
+    btn.disabled = true; btn.textContent = '...';
+    try {
+        await fetch('https://api.github.com/repos/' + GH_REPO + '/issues/' + num, {
+            method: 'PATCH',
+            headers: { 'Authorization': 'token ' + ghToken, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ state: 'closed' })
+        });
+        fetchGitHubIssues();
+    } catch (err) { showNotification('Erreur: ' + err.message); btn.disabled = false; btn.textContent = 'Fermer'; }
+}
+
+async function reopenGitHubIssue(num, btn) {
+    var ghToken = localStorage.getItem('cecb_gh_token');
+    if (!ghToken) return;
+    btn.disabled = true; btn.textContent = '...';
+    try {
+        await fetch('https://api.github.com/repos/' + GH_REPO + '/issues/' + num, {
+            method: 'PATCH',
+            headers: { 'Authorization': 'token ' + ghToken, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ state: 'open' })
+        });
+        fetchGitHubIssues();
+    } catch (err) { showNotification('Erreur: ' + err.message); btn.disabled = false; btn.textContent = 'Rouvrir'; }
+}
+
+function scrollToFeedback() {
+    var el = document.getElementById('feedbackAdminSection');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
 }
 
 /* ─── Auth override ───────────────────────────────── */
 function onAuthSuccess() {
     showUserBar();
     document.querySelectorAll('.container').forEach(function (el) { el.style.display = ''; });
-    if (isAdmin()) {
-        renderFeedbackAdmin();
-    }
+    fetchGitHubIssues();
     renderProjectsList();
     showView('nouveau');
 }
