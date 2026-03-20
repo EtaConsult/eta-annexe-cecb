@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assistant CECB — Relecture CECB</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>if(window.pdfjsLib)pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
+    <style>
+/* ─── Relecture-specific styles ────────────────────── */
+.upload-card{background:#fff;border-radius:12px;padding:28px;margin-bottom:24px;box-shadow:0 1px 4px rgba(0,0,0,.06);border:1px solid #E2E8F0}
+.upload-card h2{margin-top:0;font-size:1.1rem}
+
+.pdf-dropzone{border:2px dashed #CBD5E1;border-radius:10px;padding:40px 24px;text-align:center;cursor:pointer;transition:all .3s;background:#F8FAFC;margin-bottom:16px}
+.pdf-dropzone:hover,.pdf-dropzone.dragover{border-color:#10B981;background:#ECFDF5}
+.pdf-dropzone p{color:#64748B;font-size:15px;margin:8px 0 0}
+.pdf-dropzone .icon{font-size:32px;color:#94A3B8}
+
+.file-info{display:none;background:#ECFDF5;border:1px solid #6EE7B7;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:14px;color:#065F46;display:none;align-items:center;gap:10px}
+.file-info .fname{font-weight:600;flex:1}
+.file-info .remove-btn{background:none;border:none;color:#DC2626;font-size:18px;cursor:pointer;padding:2px 6px}
+
+.btn-analyze{padding:12px 28px;background:linear-gradient(135deg,#059669,#10B981);color:#fff;border:none;border-radius:8px;font-weight:600;font-size:15px;transition:all .2s;display:none}
+.btn-analyze:hover:not(:disabled){background:#059669;transform:translateY(-1px);box-shadow:0 2px 8px rgba(16,185,129,.2)}
+.btn-analyze:disabled{background:#CBD5E1;cursor:not-allowed;transform:none;box-shadow:none}
+
+.progress-bar{display:none;margin:16px 0;background:#E2E8F0;border-radius:8px;height:6px;overflow:hidden}
+.progress-bar .fill{height:100%;background:linear-gradient(90deg,#10B981,#059669);border-radius:8px;transition:width .4s;width:0%}
+.status-msg{display:none;font-size:13px;color:#64748B;margin-bottom:16px}
+
+/* Results */
+.results-panel{display:none;margin-top:24px}
+.result-section{background:#fff;border-radius:12px;padding:0;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.06);border:1px solid #E2E8F0;overflow:hidden}
+.result-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;cursor:pointer;user-select:none;transition:background .15s;border-bottom:1px solid #E2E8F0}
+.result-header:hover{background:#F8FAFC}
+.result-header h3{margin:0;font-size:.95rem;font-weight:600;color:#1E293B;display:flex;align-items:center;gap:8px}
+.result-header .badge{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600}
+.badge-error{background:#FEE2E2;color:#DC2626}
+.badge-warn{background:#FEF3C7;color:#D97706}
+.badge-ok{background:#D1FAE5;color:#059669}
+.result-header .arrow{transition:transform .2s;color:#94A3B8}
+.result-header .arrow.open{transform:rotate(90deg)}
+.result-body{padding:20px;display:none}
+.result-body.open{display:block}
+
+.review-item{padding:10px 14px;border-radius:8px;margin-bottom:8px;font-size:13.5px;line-height:1.6}
+.review-item.ortho{background:#FEF2F2;border-left:3px solid #EF4444}
+.review-item.grammar{background:#FFFBEB;border-left:3px solid #F59E0B}
+.review-item.style{background:#EFF6FF;border-left:3px solid #3B82F6}
+.review-item.coherence{background:#FDF4FF;border-left:3px solid #A855F7}
+.review-item .original{color:#64748B;font-size:12px;margin-bottom:2px}
+.review-item .correction{font-weight:600;color:#1E293B}
+.review-item .explanation{color:#64748B;font-size:12px;margin-top:2px;font-style:italic}
+
+.section-tag{display:inline-block;padding:1px 8px;border-radius:4px;font-size:11px;font-weight:600;background:#F1F5F9;color:#475569;margin-left:6px}
+
+.summary-card{background:linear-gradient(135deg,#F8FAFC,#F1F5F9);border-radius:12px;padding:20px;margin-bottom:20px;border:1px solid #E2E8F0}
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-top:12px}
+.summary-stat{text-align:center;padding:12px;background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.summary-stat .num{font-size:1.5rem;font-weight:700;color:#1E293B}
+.summary-stat .lbl{font-size:11px;color:#64748B;text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+
+.extracted-text-toggle{margin-top:12px;font-size:13px;color:#64748B;cursor:pointer;user-select:none}
+.extracted-text-toggle:hover{color:#10B981}
+.extracted-text-preview{display:none;margin-top:8px;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:8px;padding:14px;font-size:12px;line-height:1.5;max-height:300px;overflow-y:auto;white-space:pre-wrap;color:#475569}
+    </style>
+</head>
+<body>
+    <nav class="main-nav">
+        <span class="brand" style="cursor:pointer" onclick="window.location.href='accueil.html'">Assistant CECB</span>
+        <a href="accueil.html">Accueil</a>
+        <a href="relecture.html" class="active">Relecture CECB</a>
+    </nav>
+
+    <div class="container">
+        <div style="text-align:center;padding:30px 0 10px">
+            <h1 style="font-size:1.8rem;margin-bottom:4px">Relecture CECB</h1>
+            <p class="subtitle">Importez un rapport CECB draft pour obtenir une relecture automatique</p>
+        </div>
+
+        <!-- Upload Card -->
+        <div class="upload-card">
+            <h2>Importer le rapport CECB</h2>
+            <div class="pdf-dropzone" id="pdfDropzone">
+                <div class="icon">&#128196;</div>
+                <p>Glissez-deposez un fichier PDF ici ou cliquez pour selectionner</p>
+                <input type="file" id="pdfFileInput" accept=".pdf" hidden>
+            </div>
+            <div class="file-info" id="fileInfo">
+                <span class="fname" id="fileName"></span>
+                <span id="filePages" style="font-size:12px;color:#64748B"></span>
+                <button class="remove-btn" onclick="removePdf()" title="Retirer">&times;</button>
+            </div>
+            <div class="status-msg" id="statusMsg"></div>
+            <div class="progress-bar" id="progressBar"><div class="fill" id="progressFill"></div></div>
+            <button class="btn-analyze" id="btnAnalyze" onclick="launchReview()">Analyser le rapport</button>
+
+            <!-- Extracted text preview -->
+            <div class="extracted-text-toggle" id="textToggle" style="display:none" onclick="toggleExtractedText()">&#9654; Voir le texte extrait</div>
+            <div class="extracted-text-preview" id="extractedTextPreview"></div>
+        </div>
+
+        <!-- Results Panel -->
+        <div class="results-panel" id="resultsPanel">
+            <!-- Summary -->
+            <div class="summary-card" id="summaryCard"></div>
+            <!-- Sections -->
+            <div id="resultSections"></div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <script src="auth.js"></script>
+    <script src="project-store.js"></script>
+    <script src="api-handler.js"></script>
+    <script src="relecture.js"></script>
+    <script>
+function onAuthSuccess() {
+    showUserBar();
+    document.querySelectorAll('.container').forEach(function(el) { el.style.display = ''; });
+}
+    </script>
+</body>
+</html>
