@@ -198,7 +198,7 @@
         <button class="projet-tab" data-tab="classes" onclick="switchProjetTab('classes')">Classes CECB</button>
         <button class="projet-tab" data-tab="variantes" onclick="switchProjetTab('variantes')">Variantes</button>
         <button class="projet-tab" data-tab="photos" onclick="switchProjetTab('photos')">Annexe Photos</button>
-        <button class="projet-tab" data-tab="textes" onclick="switchProjetTab('textes')">Textes (ancienne version)</button>
+        <button class="projet-tab" data-tab="textes" onclick="switchProjetTab('textes')" id="tabBtnTextes" style="display:none">Textes (ancienne version)</button>
         <button class="projet-tab" data-tab="relecture" onclick="switchProjetTab('relecture')">Relecture</button>
     </div>
 
@@ -834,6 +834,12 @@
         var navAddr = document.getElementById('navProjectAddress');
         if (navAddr) navAddr.textContent = addrLabel || '';
         document.title = 'Assistant CECB — ' + (addrLabel || 'Projet');
+
+        // Show "Textes (ancienne version)" tab only for admins
+        if (isAdmin()) {
+            var txtBtn = document.getElementById('tabBtnTextes');
+            if (txtBtn) txtBtn.style.display = '';
+        }
 
         // Init first tab
         _tabsInitialized.recueil = true;

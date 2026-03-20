@@ -206,8 +206,10 @@ async function launchReview() {
     setStatus('Envoi au modèle Claude pour analyse...');
     showProgress(50);
 
+    var today = new Date().toLocaleDateString('fr-CH');
     var systemPrompt = [
         'Tu es un expert en relecture de rapports CECB (Certificat énergétique cantonal des bâtiments) en Suisse.',
+        'Nous sommes en ' + new Date().getFullYear() + ' (date du jour : ' + today + ').',
         'Tu maîtrises parfaitement le français technique du domaine du bâtiment et de l\'énergie.',
         'Ta tâche est d\'analyser le texte d\'un rapport CECB et de fournir un rapport de relecture structuré.',
         '',
@@ -224,16 +226,22 @@ async function launchReview() {
         '- correction : la version corrigée proposée',
         '- explication : brève explication du problème',
         '',
+        'De plus, pour CHAQUE section CECB contenant des remarques, fournis un champ "sections_corrigees" avec le texte complet corrigé de la section (État initial + Améliorations possibles), prêt à copier-coller. Applique toutes les corrections (orthographe, grammaire, cohérence, style) dans ce texte.',
+        '',
         'Réponds UNIQUEMENT avec un objet JSON valide de la forme :',
         '{',
         '  "summary": "Résumé global en 2-3 phrases",',
+        '  "sections_corrigees": {',
+        '    "toit": "Texte complet corrigé de la section toit...",',
+        '    "murs": "Texte complet corrigé de la section murs..."',
+        '  },',
         '  "items": [',
         '    { "section": "murs", "type": "ortho", "original": "...", "correction": "...", "explication": "..." },',
         '    ...',
         '  ]',
         '}',
         '',
-        'Si le texte est parfait, retourne un JSON avec un summary positif et un tableau items vide.',
+        'Si le texte est parfait, retourne un JSON avec un summary positif, sections_corrigees vide et un tableau items vide.',
         'Ne retourne RIEN d\'autre que le JSON.'
     ].join('\n');
 
@@ -243,7 +251,7 @@ async function launchReview() {
         var result = await CecbApi.callClaude({
             system: systemPrompt,
             userMessage: userMsg,
-            maxTokens: 4096,
+            maxTokens: 8192,
             timeoutMs: 120000
         });
 

@@ -132,8 +132,10 @@ async function relLaunchReview() {
     relSetStatus('Envoi au modèle Claude pour analyse...');
     relShowProgress(50);
 
+    var today = new Date().toLocaleDateString('fr-CH');
     var systemPrompt = [
         'Tu es un expert en relecture de rapports CECB (Certificat énergétique cantonal des bâtiments) en Suisse.',
+        'Nous sommes en ' + new Date().getFullYear() + ' (date du jour : ' + today + ').',
         'Tu maîtrises parfaitement le français technique du domaine du bâtiment et de l\'énergie.',
         'Ta tâche est d\'analyser le texte d\'un rapport CECB et de fournir un rapport de relecture structuré.',
         '',
@@ -150,16 +152,22 @@ async function relLaunchReview() {
         '- correction : la version corrigée proposée',
         '- explication : brève explication du problème',
         '',
+        'De plus, pour CHAQUE section CECB contenant des remarques, fournis un champ "sections_corrigees" avec le texte complet corrigé de la section (État initial + Améliorations possibles), prêt à copier-coller. Applique toutes les corrections (orthographe, grammaire, cohérence, style) dans ce texte.',
+        '',
         'Réponds UNIQUEMENT avec un objet JSON valide de la forme :',
         '{',
         '  "summary": "Résumé global en 2-3 phrases",',
+        '  "sections_corrigees": {',
+        '    "toit": "Texte complet corrigé de la section toit (État initial + Améliorations possibles)...",',
+        '    "murs": "Texte complet corrigé de la section murs..."',
+        '  },',
         '  "items": [',
         '    { "section": "murs", "type": "ortho", "original": "...", "correction": "...", "explication": "..." },',
         '    ...',
         '  ]',
         '}',
         '',
-        'Si le texte est parfait, retourne un JSON avec un summary positif et un tableau items vide.',
+        'Si le texte est parfait, retourne un JSON avec un summary positif, sections_corrigees vide et un tableau items vide.',
         'Ne retourne RIEN d\'autre que le JSON.'
     ].join('\n');
 
@@ -167,7 +175,7 @@ async function relLaunchReview() {
         var result = await CecbApi.callClaude({
             system: systemPrompt,
             userMessage: 'Voici le texte extrait d\'un rapport CECB à relire :\n\n' + _relExtractedText,
-            maxTokens: 4096,
+            maxTokens: 8192,
             timeoutMs: 120000
         });
 
@@ -221,9 +229,11 @@ function relDisplayResults(data) {
         bySection[sec].push(it);
     });
 
+    var corrected = data.sections_corrigees || {};
     var sectionsHtml = '';
     var orderedKeys = REL_SECTIONS.map(function (s) { return s.key; });
     orderedKeys.push('general');
+    var copyIdx = 0;
 
     orderedKeys.forEach(function (key) {
         if (!bySection[key]) return;
@@ -249,6 +259,18 @@ function relDisplayResults(data) {
             if (it.explication) sectionsHtml += '<div style="color:#64748B;font-size:12px;margin-top:2px;font-style:italic">' + relEsc(it.explication) + '</div>';
             sectionsHtml += '</div>';
         });
+
+        // Corrected full section text
+        if (corrected[key]) {
+            var cid = 'relCorrected' + copyIdx++;
+            sectionsHtml += '<div style="margin-top:16px;border-top:1px solid #E2E8F0;padding-top:16px">';
+            sectionsHtml += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">';
+            sectionsHtml += '<span style="font-weight:600;font-size:13px;color:#059669">Texte corrigé — prêt à copier</span>';
+            sectionsHtml += '<button onclick="relCopyText(\'' + cid + '\',this)" style="padding:5px 14px;background:#10B981;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">Copier</button>';
+            sectionsHtml += '</div>';
+            sectionsHtml += '<div id="' + cid + '" style="background:linear-gradient(135deg,#ECFDF5,#D1FAE5);border:1px solid #6EE7B7;border-radius:8px;padding:14px 16px;font-size:13px;line-height:1.65;white-space:pre-wrap;color:#065F46">' + relEsc(corrected[key]) + '</div>';
+            sectionsHtml += '</div>';
+        }
 
         sectionsHtml += '</div></div>';
     });
@@ -280,6 +302,16 @@ function relToggleSection(headerEl) {
         body.style.display = 'block';
         if (arrow) arrow.style.transform = 'rotate(90deg)';
     }
+}
+
+function relCopyText(id, btn) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    navigator.clipboard.writeText(el.textContent).then(function () {
+        btn.textContent = 'Copié !';
+        btn.style.background = '#064E3B';
+        setTimeout(function () { btn.textContent = 'Copier'; btn.style.background = '#10B981'; }, 1500);
+    });
 }
 
 /* ─── UI Helpers ─────────────────────────────────────── */
