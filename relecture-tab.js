@@ -19,6 +19,30 @@ var REL_SECTIONS = [
     { key: 'revalorisation', label: 'Revalorisation',       patterns: ['revalorisation', 'surélévation', 'extension', 'confort'] }
 ];
 
+/* ─── CECB Validation ────────────────────────────────── */
+function isCecbReport(text) {
+    var lower = text.toLowerCase();
+    // Must contain "cecb" and at least 3 of these CECB-specific markers
+    var markers = [
+        'certificat énergétique cantonal',
+        'enveloppe du bâtiment',
+        'efficacité énergétique',
+        'émissions directes de co',
+        'état initial',
+        'améliorations possibles',
+        'technique du bâtiment',
+        'programme bâtiments',
+        'valeur u',
+        'kwh/(m²a)'
+    ];
+    if (lower.indexOf('cecb') === -1) return false;
+    var found = 0;
+    for (var i = 0; i < markers.length; i++) {
+        if (lower.indexOf(markers[i]) !== -1) found++;
+    }
+    return found >= 3;
+}
+
 /* ─── Init (lazy, called on first tab click) ─────────── */
 function initRelecture() {
     var dz = document.getElementById('relPdfDropzone');
@@ -79,6 +103,14 @@ async function relHandlePdf(file) {
         if (!_relExtractedText) { relNotify('PDF vide ou non lisible'); relHideProgress(); return; }
 
         document.getElementById('relFileInfo').style.display = 'flex';
+        // Validate CECB content
+        if (!isCecbReport(_relExtractedText)) {
+            _relExtractedText = '';
+            relHideProgress();
+            relNotify('Ce PDF ne semble pas être un rapport CECB');
+            return;
+        }
+
         document.getElementById('relFileName').textContent = file.name;
         document.getElementById('relFilePages').textContent = pdf.numPages + ' pages';
         document.getElementById('relPdfDropzone').style.display = 'none';

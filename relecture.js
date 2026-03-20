@@ -23,6 +23,29 @@ var CECB_SECTIONS = [
 ];
 
 /* ─── PDF Upload ─────────────────────────────────────── */
+/* ─── CECB Validation ────────────────────────────────── */
+function isCecbReport(text) {
+    var lower = text.toLowerCase();
+    var markers = [
+        'certificat énergétique cantonal',
+        'enveloppe du bâtiment',
+        'efficacité énergétique',
+        'émissions directes de co',
+        'état initial',
+        'améliorations possibles',
+        'technique du bâtiment',
+        'programme bâtiments',
+        'valeur u',
+        'kwh/(m²a)'
+    ];
+    if (lower.indexOf('cecb') === -1) return false;
+    var found = 0;
+    for (var i = 0; i < markers.length; i++) {
+        if (lower.indexOf(markers[i]) !== -1) found++;
+    }
+    return found >= 3;
+}
+
 (function initDropzone() {
     var dz = document.getElementById('pdfDropzone');
     var input = document.getElementById('pdfFileInput');
@@ -88,6 +111,14 @@ async function handlePdfFile(file) {
         if (!_extractedText) {
             showNotification('PDF vide ou non lisible');
             hideProgress();
+            return;
+        }
+
+        // Validate CECB content
+        if (!isCecbReport(_extractedText)) {
+            _extractedText = '';
+            hideProgress();
+            showNotification('Ce PDF ne semble pas être un rapport CECB');
             return;
         }
 
