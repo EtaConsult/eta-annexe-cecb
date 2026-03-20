@@ -152,14 +152,17 @@ async function relLaunchReview() {
         '- correction : la version corrigée proposée',
         '- explication : brève explication du problème',
         '',
-        'De plus, pour CHAQUE section CECB contenant des remarques, fournis un champ "sections_corrigees" avec le texte complet corrigé de la section (État initial + Améliorations possibles), prêt à copier-coller. Applique toutes les corrections (orthographe, grammaire, cohérence, style) dans ce texte.',
+        'De plus, pour CHAQUE section CECB contenant des remarques, fournis "sections_corrigees" avec DEUX clés par section :',
+        '- "ei" : le texte corrigé de l\'état initial, SANS le titre "État initial :" — uniquement le contenu prêt à coller',
+        '- "ap" : le texte corrigé des améliorations possibles, SANS le titre "Améliorations possibles :" — uniquement le contenu prêt à coller',
+        'Applique toutes les corrections (orthographe, grammaire, cohérence, style) dans ces textes.',
         '',
         'Réponds UNIQUEMENT avec un objet JSON valide de la forme :',
         '{',
         '  "summary": "Résumé global en 2-3 phrases",',
         '  "sections_corrigees": {',
-        '    "toit": "Texte complet corrigé de la section toit (État initial + Améliorations possibles)...",',
-        '    "murs": "Texte complet corrigé de la section murs..."',
+        '    "toit": { "ei": "Texte corrigé état initial...", "ap": "Texte corrigé améliorations..." },',
+        '    "murs": { "ei": "...", "ap": "..." }',
         '  },',
         '  "items": [',
         '    { "section": "murs", "type": "ortho", "original": "...", "correction": "...", "explication": "..." },',
@@ -260,15 +263,34 @@ function relDisplayResults(data) {
             sectionsHtml += '</div>';
         });
 
-        // Corrected full section text
+        // Corrected section text — EI and AP separately
         if (corrected[key]) {
-            var cid = 'relCorrected' + copyIdx++;
+            var sec = corrected[key];
+            // Handle both formats: object {ei, ap} or plain string (fallback)
+            var eiText = typeof sec === 'object' ? (sec.ei || '') : sec;
+            var apText = typeof sec === 'object' ? (sec.ap || '') : '';
+
             sectionsHtml += '<div style="margin-top:16px;border-top:1px solid #E2E8F0;padding-top:16px">';
-            sectionsHtml += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">';
-            sectionsHtml += '<span style="font-weight:600;font-size:13px;color:#059669">Texte corrigé — prêt à copier</span>';
-            sectionsHtml += '<button onclick="relCopyText(\'' + cid + '\',this)" style="padding:5px 14px;background:#10B981;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">Copier</button>';
-            sectionsHtml += '</div>';
-            sectionsHtml += '<div id="' + cid + '" style="background:linear-gradient(135deg,#ECFDF5,#D1FAE5);border:1px solid #6EE7B7;border-radius:8px;padding:14px 16px;font-size:13px;line-height:1.65;white-space:pre-wrap;color:#065F46">' + relEsc(corrected[key]) + '</div>';
+
+            if (eiText) {
+                var cidEi = 'relCorrEI' + copyIdx;
+                sectionsHtml += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">';
+                sectionsHtml += '<span style="font-weight:600;font-size:13px;color:#065F46">EI corrigé</span>';
+                sectionsHtml += '<button onclick="relCopyText(\'' + cidEi + '\',this)" style="padding:4px 12px;background:#10B981;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">Copier</button>';
+                sectionsHtml += '</div>';
+                sectionsHtml += '<div id="' + cidEi + '" style="background:linear-gradient(135deg,#ECFDF5,#D1FAE5);border:1px solid #6EE7B7;border-radius:8px;padding:14px 16px;font-size:13px;line-height:1.65;white-space:pre-wrap;color:#065F46;margin-bottom:12px">' + relEsc(eiText) + '</div>';
+            }
+
+            if (apText) {
+                var cidAp = 'relCorrAP' + copyIdx;
+                sectionsHtml += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">';
+                sectionsHtml += '<span style="font-weight:600;font-size:13px;color:#1E40AF">AP corrigé</span>';
+                sectionsHtml += '<button onclick="relCopyText(\'' + cidAp + '\',this)" style="padding:4px 12px;background:#3B82F6;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">Copier</button>';
+                sectionsHtml += '</div>';
+                sectionsHtml += '<div id="' + cidAp + '" style="background:linear-gradient(135deg,#EFF6FF,#DBEAFE);border:1px solid #93C5FD;border-radius:8px;padding:14px 16px;font-size:13px;line-height:1.65;white-space:pre-wrap;color:#1E40AF">' + relEsc(apText) + '</div>';
+            }
+
+            copyIdx++;
             sectionsHtml += '</div>';
         }
 
