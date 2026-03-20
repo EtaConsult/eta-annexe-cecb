@@ -326,15 +326,15 @@ function showUserBar() {
         adminBtn.textContent = 'Gestion des accès';
         adminBtn.addEventListener('click', toggleAdminPanel);
         bar.appendChild(adminBtn);
+    }
 
-        // Paramètres button (opens settings modal if available)
-        if (typeof openApiSettings === 'function') {
-            const settingsBtn = document.createElement('button');
-            settingsBtn.className = 'auth-admin-link';
-            settingsBtn.textContent = 'Paramètres';
-            settingsBtn.addEventListener('click', openApiSettings);
-            bar.appendChild(settingsBtn);
-        }
+    // Paramètres button — visible for all users
+    if (typeof openApiSettings === 'function') {
+        const settingsBtn = document.createElement('button');
+        settingsBtn.className = 'auth-admin-link';
+        settingsBtn.textContent = 'Paramètres';
+        settingsBtn.addEventListener('click', openApiSettings);
+        bar.appendChild(settingsBtn);
     }
 
     const logoutBtn = document.createElement('button');

@@ -3,7 +3,7 @@
    Cache assets statiques pour mode hors-ligne
    ═══════════════════════════════════════════════════════ */
 
-var CACHE_NAME = 'cecb-plus-v3';
+var CACHE_NAME = 'cecb-plus-v4';
 var ASSETS = [
     './',
     './accueil.html',
@@ -15,7 +15,8 @@ var ASSETS = [
     './recueil.js',
     './photos.js',
     './variantes.js',
-    './textes.js'
+    './textes.js',
+    './relecture-tab.js'
 ];
 
 // Install: cache static assets
@@ -49,6 +50,7 @@ self.addEventListener('fetch', function (e) {
     if (url.hostname === 'api.anthropic.com' ||
         url.hostname === 'api.groq.com' ||
         url.hostname.endsWith('geo.admin.ch') ||
+        url.hostname === 'api.github.com' ||
         url.hostname === 'cdn.jsdelivr.net' ||
         url.hostname === 'cdnjs.cloudflare.com') {
         return;
