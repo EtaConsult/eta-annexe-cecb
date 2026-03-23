@@ -911,7 +911,7 @@ var ENHANCE_SYSTEM_PROMPT = "Tu es un rédacteur technique pour des rapports CEC
 var _enhanceOriginals = {};
 
 async function enhanceField(fieldId, fieldLabel) {
-    if (!CecbApi.getApiKey()) { recueilToast('Configurez votre clé API dans les paramètres (page d\'accueil)', 'error'); return; }
+    if (!CecbApi.useProxy() && !CecbApi.getApiKey()) { recueilToast('Configurez votre clé API ou l\'URL proxy dans les paramètres (page d\'accueil)', 'error'); return; }
 
     var ta = document.getElementById(fieldId);
     if (!ta || !ta.value.trim()) { recueilToast('Aucun texte à enrichir', 'error'); return; }
@@ -971,7 +971,7 @@ function showUndoEnhance(fieldId, fieldLabel, outputField) {
 /* ===== TRANSCRIPT ANALYSIS ===== */
 
 async function analyzeTranscript(transcriptText) {
-    if (!CecbApi.getApiKey()) { recueilToast('Configurez votre clé API', 'error'); return; }
+    if (!CecbApi.useProxy() && !CecbApi.getApiKey()) { recueilToast('Configurez votre clé API ou l\'URL proxy', 'error'); return; }
     if (!transcriptText || !transcriptText.trim()) { recueilToast('Transcript vide', 'error'); return; }
 
     var status = document.getElementById('transcript-status');
@@ -1144,8 +1144,8 @@ var CECB_V3_PROMPT = 'Tu es Gérard Merminod, expert CECB, directeur d\'Êta Con
 + 'Ne JAMAIS inventer de données non présentes dans le transcript. Marquer les hypothèses.';
 
 async function processAudioFile(file) {
-    if (!CecbApi.getGroqKey()) { recueilToast('Configurez votre clé API Groq dans Paramètres', 'error'); return; }
-    if (!CecbApi.getApiKey()) { recueilToast('Configurez votre clé API Claude dans Paramètres', 'error'); return; }
+    if (!CecbApi.useProxy() && !CecbApi.getGroqKey()) { recueilToast('Configurez votre clé API Groq ou l\'URL proxy dans Paramètres', 'error'); return; }
+    if (!CecbApi.useProxy() && !CecbApi.getApiKey()) { recueilToast('Configurez votre clé API Claude ou l\'URL proxy dans Paramètres', 'error'); return; }
 
     var status = document.getElementById('transcript-status');
     var btn = document.getElementById('btnImportTranscript');

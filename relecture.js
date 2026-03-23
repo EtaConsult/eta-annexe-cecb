@@ -399,9 +399,8 @@ RelectureContext.prototype.toggleText = function () {
 /* ─── Launch Claude Review ───────────────────────────── */
 
 RelectureContext.prototype.launchReview = async function () {
-    var apiKey = CecbApi.getApiKey();
-    if (!apiKey) {
-        this.notify('Clé API Claude non configurée. Allez dans Paramètres sur la page Accueil.');
+    if (!CecbApi.useProxy() && !CecbApi.getApiKey()) {
+        this.notify('Clé API Claude non configurée (et aucun proxy défini). Allez dans Paramètres sur la page Accueil.');
         return;
     }
 

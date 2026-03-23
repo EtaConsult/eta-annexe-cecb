@@ -1018,23 +1018,18 @@
     }
 
     async function classeEnhanceField(fieldId, label) {
-        var apiKey = localStorage.getItem('cecb_api_key');
-        if (!apiKey) { alert('Configurez votre clé API dans les paramètres (page d\'accueil)'); return; }
+        if (!CecbApi.getProxyUrl() && !CecbApi.getApiKey()) { alert('Configurez votre clé API ou l\'URL proxy dans les paramètres (page d\'accueil)'); return; }
         var ta = document.getElementById(fieldId);
         if (!ta || !ta.value.trim()) return;
-        var model = localStorage.getItem('cecb_api_model') || 'claude-sonnet-4-20250514';
         var btn = ta.parentElement.querySelector('.btn-warning');
         var orig = btn ? btn.innerHTML : '';
         if (btn) { btn.innerHTML = 'En cours...'; btn.disabled = true; }
         try {
-            var resp = await fetch('https://api.anthropic.com/v1/messages', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
-                body: JSON.stringify({ model: model, max_tokens: 1024, system: "Tu es un rédacteur technique pour des rapports CECB. Améliore le texte en corrigeant la grammaire et l'orthographe, et en reformulant légèrement pour une meilleure fluidité et clarté. Conserve le sens exact et toutes les données techniques. Retourne UNIQUEMENT le texte amélioré.", messages: [{ role: 'user', content: 'Améliore ce texte :\n\n' + ta.value }] })
+            var enriched = await CecbApi.callClaude({
+                system: "Tu es un rédacteur technique pour des rapports CECB. Améliore le texte en corrigeant la grammaire et l'orthographe, et en reformulant légèrement pour une meilleure fluidité et clarté. Conserve le sens exact et toutes les données techniques. Retourne UNIQUEMENT le texte amélioré.",
+                userMessage: 'Améliore ce texte :\n\n' + ta.value,
+                maxTokens: 1024
             });
-            if (!resp.ok) { alert('Erreur API: ' + resp.status); return; }
-            var data = await resp.json();
-            var enriched = ((data.content || [])[0] || {}).text || '';
             if (enriched.trim()) ta.value = enriched.trim();
         } catch (e) { alert('Erreur: ' + e.message); }
         finally { if (btn) { btn.innerHTML = orig; btn.disabled = false; } }
