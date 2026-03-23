@@ -141,21 +141,8 @@
             <h3 style="margin:0 0 10px;font-size:.95em;color:#475569">Proxy API</h3>
             <div style="margin-bottom:14px">
                 <label style="display:block;font-size:13px;font-weight:600;color:#475569;margin-bottom:4px">URL du proxy Cloudflare Worker</label>
-                <input type="text" id="proxyUrlInput" placeholder="https://cecb-api.xxx.workers.dev" style="width:100%;padding:8px 12px;border:1px solid #CBD5E1;border-radius:6px;font-size:14px" oninput="toggleApiKeyFields()">
+                <input type="text" id="proxyUrlInput" placeholder="https://cecb-api.xxx.workers.dev" style="width:100%;padding:8px 12px;border:1px solid #CBD5E1;border-radius:6px;font-size:14px">
                 <span style="font-size:11px;color:#94A3B8">Les clés API sont gérées côté serveur</span>
-            </div>
-            <div id="directApiSection" style="display:none">
-                <hr style="margin:16px 0;border:none;border-top:1px solid #E2E8F0">
-                <h3 style="margin:0 0 10px;font-size:.95em;color:#475569">Clés API (mode direct, sans proxy)</h3>
-                <div style="margin-bottom:14px">
-                    <label style="display:block;font-size:13px;font-weight:600;color:#475569;margin-bottom:4px">Clé API Claude (Anthropic)</label>
-                    <input type="password" id="apiKeyInput" placeholder="sk-ant-..." style="width:100%;padding:8px 12px;border:1px solid #CBD5E1;border-radius:6px;font-size:14px">
-                </div>
-                <div style="margin-bottom:14px">
-                    <label style="display:block;font-size:13px;font-weight:600;color:#475569;margin-bottom:4px">Clé API Groq (transcription audio Whisper)</label>
-                    <input type="password" id="groqKeyInput" placeholder="gsk_..." style="width:100%;padding:8px 12px;border:1px solid #CBD5E1;border-radius:6px;font-size:14px">
-                    <span style="font-size:11px;color:#94A3B8">Gratuit sur console.groq.com</span>
-                </div>
             </div>
             <div style="margin-bottom:14px">
                 <label style="display:block;font-size:13px;font-weight:600;color:#475569;margin-bottom:4px">Modèle Claude</label>
@@ -426,26 +413,17 @@ function renderProjectsList() {
 
 /* ─── API Settings ────────────────────────────────── */
 function openApiSettings() {
-    document.getElementById('apiKeyInput').value = localStorage.getItem('cecb_api_key') || '';
-    document.getElementById('apiModelInput').value = localStorage.getItem('cecb_api_model') || 'claude-sonnet-4-20250514';
-    document.getElementById('groqKeyInput').value = localStorage.getItem('cecb_groq_key') || '';
     document.getElementById('proxyUrlInput').value = localStorage.getItem('cecb_proxy_url') || '';
+    document.getElementById('apiModelInput').value = localStorage.getItem('cecb_api_model') || 'claude-sonnet-4-20250514';
     document.getElementById('ghTokenInput').value = localStorage.getItem('cecb_gh_token') || '';
     document.getElementById('settingsModal').style.display = 'flex';
-    toggleApiKeyFields();
 }
 function saveApiSettings() {
-    localStorage.setItem('cecb_api_key', document.getElementById('apiKeyInput').value);
-    localStorage.setItem('cecb_api_model', document.getElementById('apiModelInput').value);
-    localStorage.setItem('cecb_groq_key', document.getElementById('groqKeyInput').value);
     localStorage.setItem('cecb_proxy_url', document.getElementById('proxyUrlInput').value.replace(/\/+$/, ''));
+    localStorage.setItem('cecb_api_model', document.getElementById('apiModelInput').value);
     localStorage.setItem('cecb_gh_token', document.getElementById('ghTokenInput').value);
     closeSettings();
     showNotification('Parametres enregistres');
-}
-function toggleApiKeyFields() {
-    var hasProxy = !!document.getElementById('proxyUrlInput').value.trim();
-    document.getElementById('directApiSection').style.display = hasProxy ? 'none' : 'block';
 }
 function closeSettings() {
     document.getElementById('settingsModal').style.display = 'none';
