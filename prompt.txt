@@ -249,6 +249,6 @@ Fichiers anciens (standalone, remplaces par projet.html) :
 
 SERVEUR LOCAL
 -------------
-Lancement : python -m http.server 8080 --directory "202601_Annexe photo CECB final"
+Lancement : python -m http.server 8080 --directory "202603_CECB Assistant"
 URL : http://localhost:8080/accueil.html
 Raccourci Bureau : "CECB Plus.bat" (tue les anciens serveurs, lance, ouvre navigateur)

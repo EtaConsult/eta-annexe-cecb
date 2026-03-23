@@ -903,14 +903,15 @@ function recueilCopyAll() {
     }
 }
 
-/* ===== CLAUDE API — ENHANCE (simplified wrapper) ===== */
+/* ===== CLAUDE API — ENHANCE ===== */
+
+var ENHANCE_SYSTEM_PROMPT = "Tu es un rédacteur technique pour des rapports CECB/CECB Plus. Améliore le texte en corrigeant la grammaire et l'orthographe, et en reformulant légèrement pour une meilleure fluidité et clarté. Règles : conserve le sens exact et toutes les données techniques (valeurs, années, mesures). Ne rajoute aucune information ni aucune phrase nouvelle. N'utilise jamais 'nous constatons', 'nous observons', 'nous notons', 'il est à noter', 'il convient de'. Supprime les passages entre crochets [...] marqués 'à compléter'. Retourne UNIQUEMENT le texte amélioré.";
 
 // Store original texts before enhance (keyed by fieldId)
 var _enhanceOriginals = {};
 
 async function enhanceField(fieldId, fieldLabel) {
-    var apiKey = localStorage.getItem('cecb_api_key');
-    if (!apiKey) { recueilToast('Configurez votre clé API dans les paramètres (page d\'accueil)', 'error'); return; }
+    if (!CecbApi.getApiKey()) { recueilToast('Configurez votre clé API dans les paramètres (page d\'accueil)', 'error'); return; }
 
     var ta = document.getElementById(fieldId);
     if (!ta || !ta.value.trim()) { recueilToast('Aucun texte à enrichir', 'error'); return; }
@@ -918,24 +919,19 @@ async function enhanceField(fieldId, fieldLabel) {
     // Save original text before enhancing
     _enhanceOriginals[fieldId] = ta.value;
 
-    var model = localStorage.getItem('cecb_api_model') || 'claude-sonnet-4-20250514';
     var outputField = ta.closest('.output-field');
     var btn = outputField.querySelector('.btn-warning');
     var btnOrig = btn ? btn.innerHTML : '';
     if (btn) { btn.innerHTML = '<span class="spinner"></span>En cours...'; btn.disabled = true; }
 
-    var systemPrompt = "Tu es un rédacteur technique pour des rapports CECB/CECB Plus. Améliore le texte en corrigeant la grammaire et l'orthographe, et en reformulant légèrement pour une meilleure fluidité et clarté. Règles : conserve le sens exact et toutes les données techniques (valeurs, années, mesures). Ne rajoute aucune information ni aucune phrase nouvelle. N'utilise jamais 'nous constatons', 'nous observons', 'nous notons', 'il est à noter', 'il convient de'. Supprime les passages entre crochets [...] marqués 'à compléter'. Retourne UNIQUEMENT le texte amélioré.";
     var userMsg = 'Améliore le texte ci-dessous : corrige la grammaire et l\'orthographe, reformule légèrement les phrases pour plus de fluidité et de clarté. Ne change pas le sens, ne rajoute aucune information nouvelle. Conserve toutes les données techniques. Envoie uniquement le texte amélioré.\n\n' + ta.value;
 
     try {
-        var resp = await fetchWithTimeout('https://api.anthropic.com/v1/messages', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
-            body: JSON.stringify({ model: model, max_tokens: 2048, system: systemPrompt, messages: [{ role: 'user', content: userMsg }] })
+        var enriched = await CecbApi.callClaude({
+            system: ENHANCE_SYSTEM_PROMPT,
+            userMessage: userMsg,
+            maxTokens: 2048
         });
-        if (!resp.ok) { recueilToast('Erreur API: ' + resp.status, 'error'); return; }
-        var data = await resp.json();
-        var enriched = ((data.content || [])[0] || {}).text || '';
         // Remove any remaining [... à compléter] markers
         enriched = enriched.replace(/\s*\[[^\]]*(?:compléter|manquant)[^\]]*\]\s*/gi, ' ').replace(/\s{2,}/g, ' ');
         if (enriched.trim()) {
@@ -972,101 +968,46 @@ function showUndoEnhance(fieldId, fieldLabel, outputField) {
     btnsDiv.appendChild(undoBtn);
 }
 
-/* Keep enrichField for backward compatibility */
-async function enrichField(fieldId, fieldLabel) {
-    var apiKey = localStorage.getItem('cecb_api_key');
-    if (!apiKey) { recueilToast('Configurez votre clé API dans les paramètres (page d\'accueil)', 'error'); return; }
-
-    var ta = document.getElementById(fieldId);
-    if (!ta || !ta.value.trim()) { recueilToast('Aucun texte à enrichir', 'error'); return; }
-
-    var preview = ta.value.length > 120 ? ta.value.substring(0, 120) + '...' : ta.value;
-    var instruction = prompt('Enrichir avec Claude :\n\n' + fieldLabel + '\n« ' + preview + ' »\n\nInstruction (vide = amélioration stylistique) :');
-    if (instruction === null) return;
-
-    var model = localStorage.getItem('cecb_api_model') || 'claude-sonnet-4-20250514';
-    var btn = ta.parentElement.querySelector('.btn-warning');
-    var btnOrig = btn ? btn.innerHTML : '';
-    if (btn) { btn.innerHTML = '<span class="spinner"></span>En cours...'; btn.disabled = true; }
-
-    var systemPrompt = "Tu es un rédacteur technique pour des rapports CECB/CECB Plus. Améliore le texte en corrigeant la grammaire et l'orthographe, et en reformulant légèrement pour une meilleure fluidité et clarté. Règles : conserve le sens exact et toutes les données techniques (valeurs, années, mesures). Ne rajoute aucune information ni aucune phrase nouvelle. N'utilise jamais 'nous constatons', 'nous observons', 'nous notons', 'il est à noter', 'il convient de'. Supprime les passages entre crochets [...] marqués 'à compléter'. Retourne UNIQUEMENT le texte amélioré.";
-    var userMsg = instruction.trim() ? 'Consigne : ' + instruction + '\n\nTexte :\n\n' + ta.value : 'Améliore le texte ci-dessous : corrige la grammaire et l\'orthographe, reformule légèrement les phrases pour plus de fluidité et de clarté. Ne change pas le sens, ne rajoute aucune information nouvelle. Envoie uniquement le texte amélioré.\n\n' + ta.value;
-
-    try {
-        var resp = await fetchWithTimeout('https://api.anthropic.com/v1/messages', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
-            body: JSON.stringify({ model: model, max_tokens: 2048, system: systemPrompt, messages: [{ role: 'user', content: userMsg }] })
-        });
-        if (!resp.ok) { recueilToast('Erreur API: ' + resp.status, 'error'); return; }
-        var data = await resp.json();
-        var enriched = ((data.content || [])[0] || {}).text || '';
-        if (enriched.trim()) { ta.value = enriched.trim(); recueilToast(fieldLabel + ' enrichi'); recueilAutoSave(); }
-    } catch (e) { recueilToast('Erreur: ' + e.message, 'error'); }
-    finally { if (btn) { btn.innerHTML = btnOrig; btn.disabled = false; } }
-}
-
 /* ===== TRANSCRIPT ANALYSIS ===== */
 
 async function analyzeTranscript(transcriptText) {
-    var apiKey = localStorage.getItem('cecb_api_key');
-    if (!apiKey) { recueilToast('Configurez votre clé API', 'error'); return; }
-
+    if (!CecbApi.getApiKey()) { recueilToast('Configurez votre clé API', 'error'); return; }
     if (!transcriptText || !transcriptText.trim()) { recueilToast('Transcript vide', 'error'); return; }
 
     var status = document.getElementById('transcript-status');
     var btn = document.getElementById('btnImportTranscript');
     if (status) status.innerHTML = 'Étape 1/2 — Extraction des données...';
     if (btn) { btn.disabled = true; btn.textContent = 'Analyse...'; }
-    var model = localStorage.getItem('cecb_api_model') || 'claude-sonnet-4-20250514';
-    var headers = { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' };
 
     try {
         // STEP 1: Extract structured fields
         var fieldsPrompt = 'Analyse cette transcription de visite CECB et extrais les informations structurées au format JSON.\n\nRetourne UNIQUEMENT un objet JSON valide avec cette structure :\n{"meta":{"canton":"","commune":"","adresse":"","annee_construction":null,"type":"","sre":null},"toit":{"config":"","type":"","annee":null,"isolation":"","isolation_cm":null,"materiau":"","etat":"","pv":"","combles_comp":""},"murs":{"composition":"","revetement":"","isolation":"","isolation_cm":null,"mitoyen":"non"},"murs_terre":{"composition":"","isolation":"","isol_cm":null,"etat":""},"murs_nc":{"composition":"","isolation":"","isol_cm":null,"etat":""},"fenetres":{"cadre":"","vitrage":"","annee":null,"cadres_renov":"","porte":""},"sols_terre":{"config":"","isolation":"","isol_cm":null},"sols_nc":{"config":"","isolation":"","isol_cm":null,"soussol":"","usage":""},"ventilation":{"vmc":"","extraction":""},"chauffage":{"source":"","puissance":null,"annee":null,"distribution":"","conso":"","conso_years":null,"appoint":""},"ecs":{"type":"","annee":null,"volume":null},"appareils":{"conso":""},"pv":{"existant":"","puissance":null,"batterie":"non"}}\n\nTranscription :\n' + transcriptText;
 
-        var resp1 = await fetchWithTimeout('https://api.anthropic.com/v1/messages', {
-            method: 'POST', headers: headers,
-            body: JSON.stringify({ model: model, max_tokens: 2048, messages: [{ role: 'user', content: fieldsPrompt }] })
-        });
-        if (resp1.ok) {
-            var data1 = await resp1.json();
-            var text1 = ((data1.content || [])[0] || {}).text || '';
-            try {
-                var match1 = text1.match(/\{[\s\S]*\}/);
-                var json1 = JSON.parse(match1 ? match1[0] : text1);
-                fillFromJSON(json1);
-            } catch (e) { console.warn('Transcript fields parse error:', e); }
-        }
+        try {
+            var text1 = await CecbApi.callClaude({ userMessage: fieldsPrompt, maxTokens: 2048 });
+            var json1 = CecbApi.parseJsonResponse(text1);
+            fillFromJSON(json1);
+        } catch (e) { recueilToast('Extraction des champs partielle', 'error'); console.warn('Transcript fields error:', e); }
 
         // STEP 2: Extract raw transcript passages per section
         if (status) status.innerHTML = 'Étape 2/2 — Extraction des passages...';
         var passagesPrompt = 'À partir de cette transcription de visite CECB, extrais les passages pertinents pour chaque section du rapport.\n\nRetourne UNIQUEMENT un objet JSON avec cette structure :\n{"toit":"","murs-ext":"","murs-terre":"","murs-nc":"","fenetres":"","sols-terre":"","sols-nc":"","ventilation":"","chauffage":"","ecs":"","appareils":"","pv":""}\n\nRègles :\n- Pour chaque section, copie les passages bruts du transcript qui concernent cet élément constructif\n- Regroupe les passages pertinents même s\'ils sont dispersés dans le transcript\n- Garde le texte tel quel, sans réécrire ni reformuler\n- Si une section n\'est pas mentionnée dans le transcript, laisse la valeur vide ""\n- Sections : toit (toiture, isolation entre/sur chevrons, tuiles, combles), murs-ext (murs contre extérieur, composition, isolation), murs-terre (murs contre terre, sous-sol enterré), murs-nc (murs contre non-chauffé), fenetres (fenêtres, vitrages, cadres, portes), sols-terre (radier, terre-plein, dalle sur sol), sols-nc (dalle contre non-chauffé, plancher), ventilation (VMC, aération), chauffage (chaudière, PAC, distribution, consommations), ecs (eau chaude sanitaire, boiler), appareils (appareils électriques, éclairage), pv (panneaux solaires, photovoltaïque)\n\nTranscription :\n' + transcriptText;
 
-        var resp2 = await fetchWithTimeout('https://api.anthropic.com/v1/messages', {
-            method: 'POST', headers: headers,
-            body: JSON.stringify({ model: model, max_tokens: 4096, messages: [{ role: 'user', content: passagesPrompt }] })
-        });
-        if (resp2.ok) {
-            var data2 = await resp2.json();
-            var text2 = ((data2.content || [])[0] || {}).text || '';
-            console.log('Transcript passages response:', text2.substring(0, 200));
-            try {
-                var match2 = text2.match(/\{[\s\S]*\}/);
-                var json2 = JSON.parse(match2 ? match2[0] : text2);
-                fillTranscriptPassages(json2);
-                // Save passages for recall
-                var pid = ProjectStore.getCurrentId();
-                if (pid) ProjectStore.update(pid, 'recueil', { transcriptPassages: json2 });
-            } catch (e) { console.warn('Transcript passages parse error:', e, text2.substring(0, 300)); }
-        } else {
-            console.warn('Transcript passages API error:', resp2.status);
-        }
+        try {
+            var text2 = await CecbApi.callClaude({ userMessage: passagesPrompt, maxTokens: 4096 });
+            var json2 = CecbApi.parseJsonResponse(text2);
+            fillTranscriptPassages(json2);
+            var pid = ProjectStore.getCurrentId();
+            if (pid) ProjectStore.update(pid, 'recueil', { transcriptPassages: json2 });
+        } catch (e) { recueilToast('Extraction des passages partielle', 'error'); console.warn('Transcript passages error:', e); }
 
         if (status) status.textContent = '';
         recueilToast('Fichier importé');
         recueilAutoSave();
-    } catch (e) { if (status) status.textContent = 'Erreur: ' + e.message; }
+    } catch (e) {
+        if (status) status.textContent = '';
+        recueilToast('Erreur: ' + e.message, 'error');
+    }
     finally { if (btn) { btn.disabled = false; btn.textContent = 'Importer Transcript'; } }
 }
 
@@ -1203,10 +1144,8 @@ var CECB_V3_PROMPT = 'Tu es Gérard Merminod, expert CECB, directeur d\'Êta Con
 + 'Ne JAMAIS inventer de données non présentes dans le transcript. Marquer les hypothèses.';
 
 async function processAudioFile(file) {
-    var groqKey = localStorage.getItem('cecb_groq_key');
-    if (!groqKey) { recueilToast('Configurez votre clé API Groq dans Paramètres', 'error'); return; }
-    var apiKey = localStorage.getItem('cecb_api_key');
-    if (!apiKey) { recueilToast('Configurez votre clé API Claude dans Paramètres', 'error'); return; }
+    if (!CecbApi.getGroqKey()) { recueilToast('Configurez votre clé API Groq dans Paramètres', 'error'); return; }
+    if (!CecbApi.getApiKey()) { recueilToast('Configurez votre clé API Claude dans Paramètres', 'error'); return; }
 
     var status = document.getElementById('transcript-status');
     var btn = document.getElementById('btnImportTranscript');
@@ -1215,25 +1154,7 @@ async function processAudioFile(file) {
     try {
         // STEP 1: Transcribe audio via Groq Whisper
         if (status) status.innerHTML = 'Étape 1/3 — Transcription audio (Whisper)...';
-        var formData = new FormData();
-        formData.append('file', file);
-        formData.append('model', 'whisper-large-v3');
-        formData.append('language', 'fr');
-        formData.append('response_format', 'text');
-
-        var whisperResp = await fetchWithTimeout('https://api.groq.com/openai/v1/audio/transcriptions', {
-            method: 'POST',
-            headers: { 'Authorization': 'Bearer ' + groqKey },
-            body: formData
-        });
-
-        if (!whisperResp.ok) {
-            var errText = await whisperResp.text();
-            throw new Error('Whisper: ' + whisperResp.status + ' — ' + errText.substring(0, 200));
-        }
-
-        var transcriptText = await whisperResp.text();
-        console.log('Whisper transcription (' + transcriptText.length + ' chars):', transcriptText.substring(0, 300));
+        var transcriptText = await CecbApi.callWhisper(file);
         if (!transcriptText.trim()) { recueilToast('Transcription vide', 'error'); return; }
 
         // Save raw transcript
@@ -1242,49 +1163,29 @@ async function processAudioFile(file) {
 
         // STEP 2: Extract structured fields
         if (status) status.innerHTML = 'Étape 2/3 — Extraction des données...';
-        var model = localStorage.getItem('cecb_api_model') || 'claude-sonnet-4-20250514';
-        var clHeaders = { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' };
-
         var fieldsPrompt = 'Analyse cette transcription de visite CECB et extrais les informations structurées au format JSON.\n\nRetourne UNIQUEMENT un objet JSON valide avec cette structure :\n{"meta":{"canton":"","commune":"","adresse":"","annee_construction":null,"type":"","sre":null},"toit":{"config":"","type":"","annee":null,"isolation":"","isolation_cm":null,"materiau":"","etat":"","pv":"","combles_comp":""},"murs":{"composition":"","revetement":"","isolation":"","isolation_cm":null,"mitoyen":"non"},"murs_terre":{"composition":"","isolation":"","isol_cm":null,"etat":""},"murs_nc":{"composition":"","isolation":"","isol_cm":null,"etat":""},"fenetres":{"cadre":"","vitrage":"","annee":null,"cadres_renov":"","porte":""},"sols_terre":{"config":"","isolation":"","isol_cm":null},"sols_nc":{"config":"","isolation":"","isol_cm":null,"soussol":"","usage":""},"ventilation":{"vmc":"","extraction":""},"chauffage":{"source":"","puissance":null,"annee":null,"distribution":"","conso":"","conso_years":null,"appoint":""},"ecs":{"type":"","annee":null,"volume":null},"appareils":{"conso":""},"pv":{"existant":"","puissance":null,"batterie":"non"}}\n\nTranscription :\n' + transcriptText;
 
-        var resp1 = await fetchWithTimeout('https://api.anthropic.com/v1/messages', {
-            method: 'POST', headers: clHeaders,
-            body: JSON.stringify({ model: model, max_tokens: 2048, messages: [{ role: 'user', content: fieldsPrompt }] })
-        });
-        if (resp1.ok) {
-            var data1 = await resp1.json();
-            var text1 = ((data1.content || [])[0] || {}).text || '';
-            try {
-                var match1 = text1.match(/\{[\s\S]*\}/);
-                var json1 = JSON.parse(match1 ? match1[0] : text1);
-                fillFromJSON(json1);
-            } catch (e) { console.warn('Audio fields parse error:', e); }
-        }
+        try {
+            var text1 = await CecbApi.callClaude({ userMessage: fieldsPrompt, maxTokens: 2048 });
+            var json1 = CecbApi.parseJsonResponse(text1);
+            fillFromJSON(json1);
+        } catch (e) { recueilToast('Extraction des champs partielle', 'error'); console.warn('Audio fields error:', e); }
 
         // STEP 3: Generate CECB texts with full CECB v3 prompt
         if (status) status.innerHTML = 'Étape 3/3 — Rédaction des textes CECB...';
         if (btn) btn.textContent = 'Rédaction...';
-        var cecbPrompt = CECB_V3_PROMPT + '\n\n=== TRANSCRIPTION DE LA VISITE ===\n' + transcriptText;
 
-        var resp2 = await fetchWithTimeout('https://api.anthropic.com/v1/messages', {
-            method: 'POST', headers: clHeaders,
-            body: JSON.stringify({ model: model, max_tokens: 8192, messages: [{ role: 'user', content: cecbPrompt }] })
-        });
-        if (resp2.ok) {
-            var data2 = await resp2.json();
-            var fullText = ((data2.content || [])[0] || {}).text || '';
-            console.log('CECB v3 response (' + fullText.length + ' chars)');
+        try {
+            var cecbPrompt = CECB_V3_PROMPT + '\n\n=== TRANSCRIPTION DE LA VISITE ===\n' + transcriptText;
+            var fullText = await CecbApi.callClaude({ userMessage: cecbPrompt, maxTokens: 8192, timeoutMs: 120000 });
             try {
-                var match2 = fullText.match(/\{[\s\S]*\}/);
-                var json2 = JSON.parse(match2 ? match2[0] : fullText);
+                var json2 = CecbApi.parseJsonResponse(fullText);
                 fillCecbV3Texts(json2);
             } catch (e) {
                 console.warn('CECB v3 JSON parse error, trying text parse:', e);
                 parseCecbV3FreeText(fullText);
             }
-        } else {
-            console.warn('CECB v3 API error:', resp2.status);
-        }
+        } catch (e) { recueilToast('Erreur génération textes: ' + e.message, 'error'); console.warn('CECB v3 error:', e); }
 
         if (status) status.textContent = '';
         recueilToast('Audio importé et textes générés');

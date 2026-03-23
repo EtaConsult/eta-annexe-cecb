@@ -17,6 +17,14 @@ var CecbApi = (function () {
         return localStorage.getItem('cecb_groq_key') || '';
     }
 
+    function getProxyUrl() {
+        return (localStorage.getItem('cecb_proxy_url') || '').replace(/\/+$/, '');
+    }
+
+    function useProxy() {
+        return !!getProxyUrl();
+    }
+
     function getHeaders() {
         return {
             'Content-Type': 'application/json',
@@ -28,12 +36,12 @@ var CecbApi = (function () {
 
     /**
      * Call Claude API with timeout and error handling
-     * @param {Object} opts - { system, userMessage, maxTokens, timeoutMs }
-     * @returns {Promise<string>} Response text
+     * Supports proxy mode (no local API key needed) or direct mode
      */
     async function callClaude(opts) {
-        var apiKey = getApiKey();
-        if (!apiKey) throw new Error('Clé API Claude non configurée');
+        var proxy = getProxyUrl();
+
+        if (!proxy && !getApiKey()) throw new Error('Clé API Claude non configurée (et aucun proxy défini)');
 
         var body = {
             model: getModel(),
@@ -42,9 +50,18 @@ var CecbApi = (function () {
         };
         if (opts.system) body.system = opts.system;
 
-        var resp = await fetchWithTimeout('https://api.anthropic.com/v1/messages', {
+        var url, headers;
+        if (proxy) {
+            url = proxy + '/claude';
+            headers = { 'Content-Type': 'application/json' };
+        } else {
+            url = 'https://api.anthropic.com/v1/messages';
+            headers = getHeaders();
+        }
+
+        var resp = await fetchWithTimeout(url, {
             method: 'POST',
-            headers: getHeaders(),
+            headers: headers,
             body: JSON.stringify(body)
         }, opts.timeoutMs || 60000);
 
@@ -60,13 +77,12 @@ var CecbApi = (function () {
 
     /**
      * Call Groq Whisper for audio transcription
-     * @param {File} file - Audio file
-     * @param {number} timeoutMs - Timeout in ms
-     * @returns {Promise<string>} Transcript text
+     * Supports proxy mode (no local API key needed) or direct mode
      */
     async function callWhisper(file, timeoutMs) {
-        var groqKey = getGroqKey();
-        if (!groqKey) throw new Error('Clé API Groq non configurée');
+        var proxy = getProxyUrl();
+
+        if (!proxy && !getGroqKey()) throw new Error('Clé API Groq non configurée (et aucun proxy défini)');
 
         var formData = new FormData();
         formData.append('file', file);
@@ -74,9 +90,18 @@ var CecbApi = (function () {
         formData.append('language', 'fr');
         formData.append('response_format', 'text');
 
-        var resp = await fetchWithTimeout('https://api.groq.com/openai/v1/audio/transcriptions', {
+        var url, headers;
+        if (proxy) {
+            url = proxy + '/whisper';
+            headers = {};
+        } else {
+            url = 'https://api.groq.com/openai/v1/audio/transcriptions';
+            headers = { 'Authorization': 'Bearer ' + getGroqKey() };
+        }
+
+        var resp = await fetchWithTimeout(url, {
             method: 'POST',
-            headers: { 'Authorization': 'Bearer ' + groqKey },
+            headers: headers,
             body: formData
         }, timeoutMs || 60000);
 
@@ -102,6 +127,8 @@ var CecbApi = (function () {
         getApiKey: getApiKey,
         getModel: getModel,
         getGroqKey: getGroqKey,
+        getProxyUrl: getProxyUrl,
+        useProxy: useProxy,
         callClaude: callClaude,
         callWhisper: callWhisper,
         parseJsonResponse: parseJsonResponse
