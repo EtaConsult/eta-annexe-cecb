@@ -2,9 +2,10 @@
    CECB Assistant — Cloudflare Worker API Proxy
    Forward Claude & Groq requests with server-side API keys
 
-   Secrets (set via `wrangler secret put`):
+   Secrets (set via dashboard Settings > Variables and Secrets):
      ANTHROPIC_API_KEY
      GROQ_API_KEY
+     GITHUB_TOKEN
    ═══════════════════════════════════════════════════════ */
 
 const ALLOWED_ORIGINS = [
@@ -32,7 +33,7 @@ export default {
       return new Response(null, { status: 204, headers: cors });
     }
 
-    if (request.method !== 'POST') {
+    if (request.method !== 'POST' && request.method !== 'GET') {
       return new Response('Method not allowed', { status: 405, headers: cors });
     }
 
@@ -44,6 +45,8 @@ export default {
         return await proxyClaude(request, env, cors);
       } else if (path === '/whisper') {
         return await proxyWhisper(request, env, cors);
+      } else if (path === '/github' || path.startsWith('/github/')) {
+        return await proxyGitHub(request, env, cors);
       } else {
         return new Response('Not found', { status: 404, headers: cors });
       }
@@ -69,6 +72,32 @@ async function proxyClaude(request, env, cors) {
     body: body
   });
 
+  const data = await resp.text();
+  return new Response(data, {
+    status: resp.status,
+    headers: { ...cors, 'Content-Type': 'application/json' }
+  });
+}
+
+async function proxyGitHub(request, env, cors) {
+  // /github/repos/Owner/Repo/issues → https://api.github.com/repos/Owner/Repo/issues
+  const url = new URL(request.url);
+  const ghPath = url.pathname.replace(/^\/github/, '');
+  const ghUrl = 'https://api.github.com' + ghPath + url.search;
+
+  const headers = {
+    'Authorization': 'token ' + env.GITHUB_TOKEN,
+    'Accept': 'application/vnd.github.v3+json',
+    'User-Agent': 'CECB-Worker'
+  };
+
+  const opts = { method: request.method, headers: headers };
+  if (request.method === 'POST') {
+    opts.body = await request.text();
+    headers['Content-Type'] = 'application/json';
+  }
+
+  const resp = await fetch(ghUrl, opts);
   const data = await resp.text();
   return new Response(data, {
     status: resp.status,

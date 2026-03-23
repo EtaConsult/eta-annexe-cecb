@@ -151,13 +151,6 @@
                     <option value="claude-opus-4-20250514">Claude Opus 4</option>
                 </select>
             </div>
-            <hr style="margin:16px 0;border:none;border-top:1px solid #E2E8F0">
-            <h3 style="margin:0 0 10px;font-size:.95em;color:#475569">GitHub (retours utilisateurs)</h3>
-            <div style="margin-bottom:14px">
-                <label style="display:block;font-size:13px;font-weight:600;color:#475569;margin-bottom:4px">Token GitHub (scope: repo)</label>
-                <input type="password" id="ghTokenInput" placeholder="ghp_..." style="width:100%;padding:8px 12px;border:1px solid #CBD5E1;border-radius:6px;font-size:14px">
-                <span style="font-size:11px;color:#94A3B8">github.com/settings/tokens — scope "repo" requis</span>
-            </div>
             <div style="display:flex;gap:8px">
                 <button onclick="saveApiSettings()" style="padding:8px 18px;background:#10B981;color:#fff;border:none;border-radius:6px;font-weight:600">Enregistrer</button>
                 <button onclick="closeSettings()" style="padding:8px 18px;background:#64748B;color:#fff;border:none;border-radius:6px;font-weight:600">Fermer</button>
@@ -415,15 +408,16 @@ function renderProjectsList() {
 function openApiSettings() {
     document.getElementById('proxyUrlInput').value = localStorage.getItem('cecb_proxy_url') || '';
     document.getElementById('apiModelInput').value = localStorage.getItem('cecb_api_model') || 'claude-sonnet-4-20250514';
-    document.getElementById('ghTokenInput').value = localStorage.getItem('cecb_gh_token') || '';
     document.getElementById('settingsModal').style.display = 'flex';
 }
 function saveApiSettings() {
     localStorage.setItem('cecb_proxy_url', document.getElementById('proxyUrlInput').value.replace(/\/+$/, ''));
     localStorage.setItem('cecb_api_model', document.getElementById('apiModelInput').value);
-    localStorage.setItem('cecb_gh_token', document.getElementById('ghTokenInput').value);
     closeSettings();
     showNotification('Parametres enregistres');
+}
+function getProxyUrl() {
+    return (localStorage.getItem('cecb_proxy_url') || '').replace(/\/+$/, '');
 }
 function closeSettings() {
     document.getElementById('settingsModal').style.display = 'none';
@@ -460,15 +454,11 @@ function toggleFeedbackForm() {
 async function submitFeedback() {
     var text = document.getElementById('feedbackText').value.trim();
     if (!text) { showNotification('Veuillez décrire le problème'); return; }
+    var proxy = getProxyUrl();
+    if (!proxy) { showNotification('Proxy non configuré (Paramètres)'); return; }
     var type = document.querySelector('input[name="fbType"]:checked').value;
     var session = getSession();
     var user = session ? session.email : 'anonyme';
-    var ghToken = localStorage.getItem('cecb_gh_token');
-
-    if (!ghToken) {
-        showNotification('Token GitHub non configuré (Paramètres)');
-        return;
-    }
 
     var typeLabel = type === 'bug' ? 'Bug' : 'Amélioration';
     var label = type === 'bug' ? 'bug' : 'enhancement';
@@ -476,9 +466,9 @@ async function submitFeedback() {
     var body = '**Type :** ' + typeLabel + '\n**Signalé par :** ' + user + '\n**Date :** ' + new Date().toLocaleDateString('fr-CH') + '\n\n---\n\n' + text;
 
     try {
-        var resp = await fetch('https://api.github.com/repos/' + GH_REPO + '/issues', {
+        var resp = await fetch(proxy + '/github/repos/' + GH_REPO + '/issues', {
             method: 'POST',
-            headers: { 'Authorization': 'token ' + ghToken, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ title: title, body: body, labels: [label] })
         });
         if (!resp.ok) throw new Error('GitHub ' + resp.status);
@@ -492,13 +482,11 @@ async function submitFeedback() {
 }
 
 async function fetchGitHubIssues() {
-    var ghToken = localStorage.getItem('cecb_gh_token');
-    if (!ghToken) return;
+    var proxy = getProxyUrl();
+    if (!proxy) return;
 
     try {
-        var resp = await fetch('https://api.github.com/repos/' + GH_REPO + '/issues?state=all&labels=bug,enhancement&per_page=30&sort=created&direction=desc', {
-            headers: { 'Authorization': 'token ' + ghToken, 'Accept': 'application/vnd.github.v3+json' }
-        });
+        var resp = await fetch(proxy + '/github/repos/' + GH_REPO + '/issues?state=all&labels=bug,enhancement&per_page=30&sort=created&direction=desc');
         if (!resp.ok) return;
         var issues = await resp.json();
         // Filter out pull requests
