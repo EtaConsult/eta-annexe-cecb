@@ -138,10 +138,24 @@
     <div class="modal-overlay" id="settingsModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center">
         <div style="background:#fff;border-radius:12px;padding:28px;width:400px;max-width:90vw;max-height:90vh;overflow-y:auto">
             <h2 style="margin-top:0">Paramètres</h2>
-            <h3 style="margin:0 0 10px;font-size:.95em;color:#475569">Clés API</h3>
+            <h3 style="margin:0 0 10px;font-size:.95em;color:#475569">Proxy API</h3>
             <div style="margin-bottom:14px">
-                <label style="display:block;font-size:13px;font-weight:600;color:#475569;margin-bottom:4px">Clé API Claude (Anthropic)</label>
-                <input type="password" id="apiKeyInput" placeholder="sk-ant-..." style="width:100%;padding:8px 12px;border:1px solid #CBD5E1;border-radius:6px;font-size:14px">
+                <label style="display:block;font-size:13px;font-weight:600;color:#475569;margin-bottom:4px">URL du proxy Cloudflare Worker</label>
+                <input type="text" id="proxyUrlInput" placeholder="https://cecb-api.xxx.workers.dev" style="width:100%;padding:8px 12px;border:1px solid #CBD5E1;border-radius:6px;font-size:14px" oninput="toggleApiKeyFields()">
+                <span style="font-size:11px;color:#94A3B8">Les clés API sont gérées côté serveur</span>
+            </div>
+            <div id="directApiSection" style="display:none">
+                <hr style="margin:16px 0;border:none;border-top:1px solid #E2E8F0">
+                <h3 style="margin:0 0 10px;font-size:.95em;color:#475569">Clés API (mode direct, sans proxy)</h3>
+                <div style="margin-bottom:14px">
+                    <label style="display:block;font-size:13px;font-weight:600;color:#475569;margin-bottom:4px">Clé API Claude (Anthropic)</label>
+                    <input type="password" id="apiKeyInput" placeholder="sk-ant-..." style="width:100%;padding:8px 12px;border:1px solid #CBD5E1;border-radius:6px;font-size:14px">
+                </div>
+                <div style="margin-bottom:14px">
+                    <label style="display:block;font-size:13px;font-weight:600;color:#475569;margin-bottom:4px">Clé API Groq (transcription audio Whisper)</label>
+                    <input type="password" id="groqKeyInput" placeholder="gsk_..." style="width:100%;padding:8px 12px;border:1px solid #CBD5E1;border-radius:6px;font-size:14px">
+                    <span style="font-size:11px;color:#94A3B8">Gratuit sur console.groq.com</span>
+                </div>
             </div>
             <div style="margin-bottom:14px">
                 <label style="display:block;font-size:13px;font-weight:600;color:#475569;margin-bottom:4px">Modèle Claude</label>
@@ -149,18 +163,6 @@
                     <option value="claude-sonnet-4-20250514">Claude Sonnet 4</option>
                     <option value="claude-opus-4-20250514">Claude Opus 4</option>
                 </select>
-            </div>
-            <div style="margin-bottom:14px">
-                <label style="display:block;font-size:13px;font-weight:600;color:#475569;margin-bottom:4px">Clé API Groq (transcription audio Whisper)</label>
-                <input type="password" id="groqKeyInput" placeholder="gsk_..." style="width:100%;padding:8px 12px;border:1px solid #CBD5E1;border-radius:6px;font-size:14px">
-                <span style="font-size:11px;color:#94A3B8">Gratuit sur console.groq.com</span>
-            </div>
-            <hr style="margin:16px 0;border:none;border-top:1px solid #E2E8F0">
-            <h3 style="margin:0 0 10px;font-size:.95em;color:#475569">Proxy API (optionnel)</h3>
-            <div style="margin-bottom:14px">
-                <label style="display:block;font-size:13px;font-weight:600;color:#475569;margin-bottom:4px">URL du proxy Cloudflare Worker</label>
-                <input type="text" id="proxyUrlInput" placeholder="https://cecb-api.xxx.workers.dev" style="width:100%;padding:8px 12px;border:1px solid #CBD5E1;border-radius:6px;font-size:14px" oninput="toggleApiKeyFields()">
-                <span style="font-size:11px;color:#94A3B8">Si rempli, les clés API ci-dessus ne sont pas nécessaires</span>
             </div>
             <hr style="margin:16px 0;border:none;border-top:1px solid #E2E8F0">
             <h3 style="margin:0 0 10px;font-size:.95em;color:#475569">GitHub (retours utilisateurs)</h3>
@@ -443,11 +445,7 @@ function saveApiSettings() {
 }
 function toggleApiKeyFields() {
     var hasProxy = !!document.getElementById('proxyUrlInput').value.trim();
-    var opacity = hasProxy ? '0.5' : '1';
-    document.getElementById('apiKeyInput').style.opacity = opacity;
-    document.getElementById('groqKeyInput').style.opacity = opacity;
-    document.getElementById('apiKeyInput').placeholder = hasProxy ? '(géré par le proxy)' : 'sk-ant-...';
-    document.getElementById('groqKeyInput').placeholder = hasProxy ? '(géré par le proxy)' : 'gsk_...';
+    document.getElementById('directApiSection').style.display = hasProxy ? 'none' : 'block';
 }
 function closeSettings() {
     document.getElementById('settingsModal').style.display = 'none';
