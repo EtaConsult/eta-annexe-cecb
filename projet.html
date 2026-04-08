@@ -198,6 +198,7 @@
         <button class="projet-tab" data-tab="classes" onclick="switchProjetTab('classes')">Classes CECB</button>
         <button class="projet-tab" data-tab="variantes" onclick="switchProjetTab('variantes')">Variantes</button>
         <button class="projet-tab" data-tab="photos" onclick="switchProjetTab('photos')">Annexe Photos</button>
+        <button class="projet-tab" data-tab="redaction" onclick="switchProjetTab('redaction')">Rédaction CECB</button>
         <button class="projet-tab" data-tab="textes" onclick="switchProjetTab('textes')" id="tabBtnTextes" style="display:none">Textes (ancienne version)</button>
         <button class="projet-tab" data-tab="relecture" onclick="switchProjetTab('relecture')">Relecture</button>
     </div>
@@ -758,6 +759,245 @@
     </div>
 
     <!-- ═══════════════════════════════════════════════════
+         TAB 5: RÉDACTION CECB (skill cecb-redaction)
+         ═══════════════════════════════════════════════════ -->
+    <div id="tab-redaction" class="projet-panel">
+        <h1>Rédaction CECB</h1>
+        <p class="subtitle">Formulaire bâtiment → génération automatique des textes d'évaluation et remarques (style Êta Consult)</p>
+
+        <style>
+            #redaction-form .r-card{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:16px 18px;margin-bottom:14px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+            #redaction-form .r-card h3{font-size:13px;text-transform:uppercase;letter-spacing:1px;margin:0 0 12px;color:#2c5f2d;border-bottom:1px solid #e2e8f0;padding-bottom:6px}
+            #redaction-form .r-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px}
+            #redaction-form .r-field{display:flex;flex-direction:column;gap:3px}
+            #redaction-form .r-field.full{grid-column:1 / -1}
+            #redaction-form label{font-size:11px;color:#64748b;font-weight:500}
+            #redaction-form input[type=text],#redaction-form input[type=number],#redaction-form select,#redaction-form textarea{width:100%;padding:7px 9px;border:1px solid #cbd5e1;border-radius:5px;background:#fff;font:inherit;font-size:13px;color:#1e293b}
+            #redaction-form textarea{resize:vertical;min-height:52px;font-family:inherit}
+            #redaction-form input:focus,#redaction-form select:focus,#redaction-form textarea:focus{outline:none;border-color:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,.15)}
+            #redaction-action-bar{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:14px 18px;margin-bottom:20px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;position:sticky;bottom:0;z-index:5;box-shadow:0 -2px 8px rgba(0,0,0,.04)}
+            #redaction-status{font-size:12px;color:#64748b;flex:1}
+            #redaction-output{display:none}
+            #redaction-output .red-section{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:14px 18px;margin-bottom:12px}
+            #redaction-output .red-section h3{font-size:13px;text-transform:uppercase;letter-spacing:1px;margin:0 0 10px;color:#1e293b;display:flex;justify-content:space-between;align-items:center}
+            #redaction-output .red-section textarea{width:100%;min-height:140px;padding:10px 12px;border:1px solid #cbd5e1;border-radius:6px;font:inherit;font-size:13px;line-height:1.55;color:#1e293b;resize:vertical;font-family:inherit}
+            #redaction-output .red-section textarea:focus{outline:none;border-color:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,.15)}
+            #redaction-output .red-copy{background:#f1f5f9;color:#1e293b;border:1px solid #cbd5e1;padding:5px 12px;border-radius:5px;font-size:11px;cursor:pointer;font-weight:500}
+            #redaction-output .red-copy:hover{background:#e2e8f0}
+        </style>
+
+        <form id="redaction-form" autocomplete="off" onsubmit="return false">
+
+            <div class="r-card">
+                <h3>Identité</h3>
+                <div class="r-grid">
+                    <div class="r-field full"><label>Adresse, commune</label><input type="text" name="adresse" placeholder="Rue, n°, NPA commune"></div>
+                    <div class="r-field"><label>Canton</label>
+                        <select name="canton">
+                            <option value="">—</option>
+                            <option>Vaud (VD)</option><option>Genève (GE)</option><option>Fribourg (FR)</option>
+                            <option>Valais (VS)</option><option>Neuchâtel (NE)</option><option>Jura (JU)</option><option>Berne (BE)</option>
+                        </select>
+                    </div>
+                    <div class="r-field"><label>Année de construction</label><input type="number" name="annee_constr" placeholder="ex. 1975"></div>
+                    <div class="r-field"><label>Année(s) de rénovation principale(s)</label><input type="text" name="annee_reno" placeholder="ex. 2008, 2019"></div>
+                    <div class="r-field"><label>Affectation</label>
+                        <select name="affectation">
+                            <option value="">—</option>
+                            <option>Cat. I — Habitat collectif</option>
+                            <option>Cat. II — Habitat individuel</option>
+                            <option>Autre</option>
+                        </select>
+                    </div>
+                    <div class="r-field full"><label>Nb étages / nb appartements</label><input type="text" name="etages" placeholder="ex. R+2 / 6 appts"></div>
+                </div>
+            </div>
+
+            <div class="r-card">
+                <h3>Toiture</h3>
+                <div class="r-grid">
+                    <div class="r-field"><label>Type</label>
+                        <select name="toit_type"><option value="">—</option><option>Inclinée tuiles</option><option>Inclinée ardoise</option><option>Inclinée bac acier</option><option>Plate</option><option>Mansardée</option><option>Mixte</option></select>
+                    </div>
+                    <div class="r-field"><label>Combles</label>
+                        <select name="combles"><option value="">—</option><option>Aménagés chauffés</option><option>Froids</option><option>Partiellement aménagés</option><option>Sans objet (toit plat)</option></select>
+                    </div>
+                    <div class="r-field"><label>Matériau isolation</label>
+                        <select name="toit_iso_mat"><option value="">—</option><option>Laine minérale</option><option>Laine de verre</option><option>Laine de roche</option><option>EPS</option><option>XPS</option><option>PUR/PIR</option><option>Fibre de bois</option><option>Aucune</option></select>
+                    </div>
+                    <div class="r-field"><label>Épaisseur isolation (cm)</label><input type="text" name="toit_iso_ep" placeholder="ex. 16"></div>
+                    <div class="r-field"><label>Position isolation</label>
+                        <select name="toit_iso_pos"><option value="">—</option><option>Entre chevrons</option><option>Sur chevrons (sarking)</option><option>Sous chevrons</option><option>Sous dalle (plancher combles)</option><option>Sur dalle (toit plat)</option></select>
+                    </div>
+                    <div class="r-field"><label>État</label>
+                        <select name="toit_etat"><option value="">—</option><option>Neuf / récent</option><option>Bon</option><option>Usé</option><option>Abîmé</option><option>Fin de vie</option></select>
+                    </div>
+                    <div class="r-field full"><label>Année des derniers travaux</label><input type="text" name="toit_annee" placeholder="ex. 2005"></div>
+                    <div class="r-field full"><label>Particularités</label><textarea name="toit_notes" placeholder="Vélux remplacés, ferblanterie HS, sur-toiture, charpente à vérifier…"></textarea></div>
+                </div>
+            </div>
+
+            <div class="r-card">
+                <h3>Murs</h3>
+                <div class="r-grid">
+                    <div class="r-field"><label>Composition</label>
+                        <select name="murs_comp"><option value="">—</option><option>Maçonnerie homogène</option><option>Brique creuse (TC)</option><option>Béton armé</option><option>Moellon</option><option>Ossature bois</option><option>Mixte</option></select>
+                    </div>
+                    <div class="r-field"><label>Isolation extérieure (type / cm / année)</label><input type="text" name="murs_iso_ext" placeholder="ex. EPS 14 cm, 2012"></div>
+                    <div class="r-field"><label>Isolation intérieure (type / cm / année)</label><input type="text" name="murs_iso_int" placeholder="ex. laine minérale 8 cm, 1998"></div>
+                    <div class="r-field"><label>Murs S-S contre terrain</label>
+                        <select name="murs_ss_terrain"><option value="">—</option><option>Non isolés</option><option>XPS 6 cm</option><option>XPS 10 cm</option><option>XPS 14 cm</option></select>
+                    </div>
+                    <div class="r-field full"><label>Murs S-S contre locaux non chauffés</label>
+                        <select name="murs_ss_lnc"><option value="">—</option><option>Non isolés</option><option>Isolés</option><option>Sans objet</option></select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="r-card">
+                <h3>Fenêtres et porte d'entrée</h3>
+                <div class="r-grid">
+                    <div class="r-field"><label>Cadre</label>
+                        <select name="fen_cadre"><option value="">—</option><option>PVC</option><option>Bois</option><option>Bois-métal</option><option>Aluminium</option><option>Métal</option><option>Mixte</option></select>
+                    </div>
+                    <div class="r-field"><label>Vitrage</label>
+                        <select name="fen_vit"><option value="">—</option><option>Simple vitrage</option><option>Double vitrage — intercalaire alu</option><option>Double vitrage — warm-edge</option><option>Triple vitrage</option><option>Mixte</option></select>
+                    </div>
+                    <div class="r-field full"><label>Année de pose ou remplacement</label><input type="text" name="fen_annee" placeholder="ex. 2015"></div>
+                    <div class="r-field full"><label>Porte d'entrée (matériau, vitrage, état, année)</label><textarea name="porte" placeholder="ex. Métal, simple vitrage, usée, d'origine 1962"></textarea></div>
+                </div>
+            </div>
+
+            <div class="r-card">
+                <h3>Sol</h3>
+                <div class="r-grid">
+                    <div class="r-field"><label>Type plancher rez</label>
+                        <select name="sol_type"><option value="">—</option><option>Dalle béton sur sous-sol non chauffé</option><option>Dalle béton sur sous-sol chauffé</option><option>Dalle contre terrain (radier)</option><option>Sur vide sanitaire</option><option>Mixte</option></select>
+                    </div>
+                    <div class="r-field"><label>Isolation (épaisseur / position / année)</label><input type="text" name="sol_iso" placeholder="ex. EPS 6 cm sous chape, 2008"></div>
+                    <div class="r-field full"><label>Distribution chauffage au rez</label>
+                        <select name="sol_distrib"><option value="">—</option><option>Chauffage au sol hydraulique</option><option>Radiateurs</option><option>Convecteurs électriques</option><option>Mixte</option></select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="r-card">
+                <h3>Ventilation</h3>
+                <div class="r-grid">
+                    <div class="r-field"><label>Système</label>
+                        <select name="vent_sys"><option value="">—</option><option>Naturelle</option><option>VMC simple flux</option><option>VMC double flux avec récup. de chaleur</option><option>Extraction simple (locaux humides)</option></select>
+                    </div>
+                    <div class="r-field"><label>Année de pose (si VMC)</label><input type="text" name="vent_annee" placeholder="ex. 2020"></div>
+                    <div class="r-field full"><label>Particularités</label><textarea name="vent_notes" placeholder="hotte, extraction WC/SDB temporisée…"></textarea></div>
+                </div>
+            </div>
+
+            <div class="r-card">
+                <h3>Chauffage</h3>
+                <div class="r-grid">
+                    <div class="r-field"><label>Producteur</label>
+                        <select name="ch_type"><option value="">—</option><option>Chaudière mazout à condensation</option><option>Chaudière mazout atmosphérique</option><option>Chaudière gaz à condensation</option><option>Chaudière gaz atmosphérique</option><option>PAC air-eau</option><option>PAC géothermique (sondes)</option><option>PAC eau glycolée</option><option>Chauffage électrique direct</option><option>Chaudière à pellets</option><option>Chaudière à bûches</option><option>Chauffage à distance (CAD)</option></select>
+                    </div>
+                    <div class="r-field"><label>Marque / modèle</label><input type="text" name="ch_marque" placeholder="ex. Viessmann Vitocrossal"></div>
+                    <div class="r-field"><label>Puissance (kW)</label><input type="text" name="ch_puiss" placeholder="ex. 24"></div>
+                    <div class="r-field"><label>Année d'installation</label><input type="text" name="ch_annee" placeholder="ex. 2011"></div>
+                    <div class="r-field"><label>État</label>
+                        <select name="ch_etat"><option value="">—</option><option>Neuf / récent</option><option>Bon état de fonctionnement</option><option>Fonctionne mais à surveiller</option><option>Fin de vie</option><option>Hors service</option></select>
+                    </div>
+                    <div class="r-field"><label>Distribution</label>
+                        <select name="ch_distrib"><option value="">—</option><option>Radiateurs avec vannes thermostatiques</option><option>Radiateurs sans vannes thermostatiques</option><option>Sol hydraulique avec régulation par pièce</option><option>Sol hydraulique sans régulation par pièce</option><option>Convecteurs électriques</option><option>Plinthes chauffantes</option><option>Mixte</option></select>
+                    </div>
+                    <div class="r-field full"><label>Cheminée ou poêle d'appoint</label><input type="text" name="ch_appoint" placeholder="ex. cheminée foyer ouvert d'agrément"></div>
+                    <div class="r-field"><label>Données de consommation transmises</label>
+                        <select name="ch_conso"><option value="">—</option><option>Oui — 1 an</option><option>Oui — 2 ans</option><option>Oui — 3 ans consécutifs</option><option>Non — estimées</option></select>
+                    </div>
+                    <div class="r-field"><label>CAD — réseau / opérateur / mix</label><input type="text" name="ch_cad" placeholder="ex. CAD SIG, biomasse + gaz"></div>
+                </div>
+            </div>
+
+            <div class="r-card">
+                <h3>Eau chaude sanitaire</h3>
+                <div class="r-grid">
+                    <div class="r-field"><label>Production</label>
+                        <select name="ecs_type"><option value="">—</option><option>Par système de chauffage</option><option>Chauffe-eau électrique</option><option>Chauffe-eau thermodynamique (PAC)</option><option>Solaire thermique + appoint</option><option>Instantané gaz</option></select>
+                    </div>
+                    <div class="r-field"><label>Année</label><input type="text" name="ecs_annee" placeholder="ex. 2019"></div>
+                    <div class="r-field full"><label>Détails (marque, modèle, volume L, m² capteurs…)</label><input type="text" name="ecs_details" placeholder="ex. Stiebel-Eltron WWK 300, 300 L"></div>
+                </div>
+            </div>
+
+            <div class="r-card">
+                <h3>Appareils et éclairage</h3>
+                <div class="r-grid">
+                    <div class="r-field full"><label>Particularités</label><textarea name="app_notes" placeholder="borne recharge VE, induction, bâtiment vide à la visite…"></textarea></div>
+                </div>
+            </div>
+
+            <div class="r-card">
+                <h3>Photovoltaïque</h3>
+                <div class="r-grid">
+                    <div class="r-field"><label>Installation PV</label>
+                        <select name="pv_presence"><option value="">—</option><option>Non</option><option>Oui</option></select>
+                    </div>
+                    <div class="r-field"><label>Puissance (kWc)</label><input type="text" name="pv_kwc" placeholder="ex. 9.6"></div>
+                    <div class="r-field"><label>Nombre × puissance unitaire (W)</label><input type="text" name="pv_panneaux" placeholder="ex. 24 × 400 W"></div>
+                    <div class="r-field"><label>Année mise en service</label><input type="text" name="pv_annee" placeholder="ex. 2022"></div>
+                    <div class="r-field"><label>Batterie</label>
+                        <select name="pv_batterie"><option value="">—</option><option>Aucune</option><option>Oui</option></select>
+                    </div>
+                    <div class="r-field"><label>Batterie — kWh / marque / modèle</label><input type="text" name="pv_bat_detail" placeholder="ex. 10 kWh Sonnen eco"></div>
+                    <div class="r-field full"><label>Charpente (capacité portante)</label>
+                        <select name="pv_charpente"><option value="">—</option><option>Connue / vérifiée</option><option>À vérifier par ingénieur civil</option><option>Sans objet</option></select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="r-card">
+                <h3>Contexte général</h3>
+                <div class="r-grid">
+                    <div class="r-field"><label>Classe CECB® enveloppe attendue</label>
+                        <select name="cl_env"><option value="">—</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option></select>
+                    </div>
+                    <div class="r-field"><label>Classe efficacité globale attendue</label>
+                        <select name="cl_eff"><option value="">—</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option></select>
+                    </div>
+                    <div class="r-field"><label>Classe CO₂ direct attendue</label>
+                        <select name="cl_co2"><option value="">—</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option></select>
+                    </div>
+                    <div class="r-field"><label>Rénové globalement et exemplairement ?</label>
+                        <select name="reno_exemplaire"><option value="">—</option><option>Non</option><option>Oui</option></select>
+                    </div>
+                    <div class="r-field full"><label>Année de la rénovation exemplaire (si applicable)</label><input type="text" name="reno_annee" placeholder="ex. 2020"></div>
+                    <div class="r-field full"><label>Notes libres / particularités à mentionner</label><textarea name="notes" rows="3" placeholder="Tout élément de contexte utile à la rédaction…"></textarea></div>
+                </div>
+            </div>
+
+        </form>
+
+        <div id="redaction-action-bar">
+            <button class="btn btn-primary" id="btn-redaction-generate" onclick="Redaction.generateAll()">Générer les textes CECB</button>
+            <span id="redaction-status"></span>
+        </div>
+
+        <div id="redaction-output">
+            <div class="red-section"><h3>Toit <button class="red-copy" id="red-copy-toit" onclick="Redaction.copySection('toit')">Copier</button></h3><textarea id="red-ta-toit"></textarea></div>
+            <div class="red-section"><h3>Murs <button class="red-copy" id="red-copy-murs" onclick="Redaction.copySection('murs')">Copier</button></h3><textarea id="red-ta-murs"></textarea></div>
+            <div class="red-section"><h3>Fenêtres et porte <button class="red-copy" id="red-copy-fenetres" onclick="Redaction.copySection('fenetres')">Copier</button></h3><textarea id="red-ta-fenetres"></textarea></div>
+            <div class="red-section"><h3>Sol <button class="red-copy" id="red-copy-sol" onclick="Redaction.copySection('sol')">Copier</button></h3><textarea id="red-ta-sol"></textarea></div>
+            <div class="red-section"><h3>Ventilation <button class="red-copy" id="red-copy-ventilation" onclick="Redaction.copySection('ventilation')">Copier</button></h3><textarea id="red-ta-ventilation"></textarea></div>
+            <div class="red-section"><h3>Chauffage <button class="red-copy" id="red-copy-chauffage" onclick="Redaction.copySection('chauffage')">Copier</button></h3><textarea id="red-ta-chauffage"></textarea></div>
+            <div class="red-section"><h3>Eau chaude sanitaire <button class="red-copy" id="red-copy-ecs" onclick="Redaction.copySection('ecs')">Copier</button></h3><textarea id="red-ta-ecs"></textarea></div>
+            <div class="red-section"><h3>Appareils et éclairage <button class="red-copy" id="red-copy-appareils" onclick="Redaction.copySection('appareils')">Copier</button></h3><textarea id="red-ta-appareils"></textarea></div>
+            <div class="red-section"><h3>Photovoltaïque <button class="red-copy" id="red-copy-pv" onclick="Redaction.copySection('pv')">Copier</button></h3><textarea id="red-ta-pv"></textarea></div>
+            <div class="red-section"><h3>Comportement utilisateur <button class="red-copy" id="red-copy-comportement" onclick="Redaction.copySection('comportement')">Copier</button></h3><textarea id="red-ta-comportement"></textarea></div>
+            <div class="red-section"><h3>Revalorisation <button class="red-copy" id="red-copy-revalorisation" onclick="Redaction.copySection('revalorisation')">Copier</button></h3><textarea id="red-ta-revalorisation"></textarea></div>
+            <div style="text-align:center;margin-top:16px">
+                <button class="btn btn-primary" id="btn-redaction-copy-all" onclick="Redaction.copyAll()">Tout copier</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════
          TAB 6: RELECTURE CECB
          ═══════════════════════════════════════════════════ -->
     <div id="tab-relecture" class="projet-panel">
@@ -800,11 +1040,12 @@
     <script src="photos.js"></script>
     <script src="variantes.js"></script>
     <script src="textes.js"></script>
+    <script src="redaction.js"></script>
     <script src="relecture.js"></script>
     <script>
     /* ═══════ PROJECT PAGE CONTROLLER ═══════ */
 
-    var _tabsInitialized = { recueil: false, classes: false, photos: false, variantes: false, textes: false, relecture: false };
+    var _tabsInitialized = { recueil: false, classes: false, photos: false, variantes: false, redaction: false, textes: false, relecture: false };
 
     function switchProjetTab(tab) {
         document.querySelectorAll('#projet-tabs .projet-tab').forEach(function (t) { t.classList.toggle('active', t.dataset.tab === tab); });
@@ -818,6 +1059,7 @@
             else if (tab === 'classes') initClassesCecb();
             else if (tab === 'photos') initPhotos();
             else if (tab === 'variantes') initVariantes();
+            else if (tab === 'redaction') initRedaction();
             else if (tab === 'textes') initTextes();
             else if (tab === 'relecture') initRelecture();
         }
