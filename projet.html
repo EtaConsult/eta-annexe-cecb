@@ -779,11 +779,24 @@
             #redaction-status{font-size:12px;color:#64748b;flex:1}
             #redaction-output{display:none}
             #redaction-output .red-section{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:14px 18px;margin-bottom:12px}
-            #redaction-output .red-section h3{font-size:13px;text-transform:uppercase;letter-spacing:1px;margin:0 0 10px;color:#1e293b;display:flex;justify-content:space-between;align-items:center}
-            #redaction-output .red-section textarea{width:100%;min-height:140px;padding:10px 12px;border:1px solid #cbd5e1;border-radius:6px;font:inherit;font-size:13px;line-height:1.55;color:#1e293b;resize:vertical;font-family:inherit}
+            #redaction-output .red-section h3{font-size:13px;text-transform:uppercase;letter-spacing:1px;margin:0 0 12px;color:#1e293b}
+            #redaction-output .red-subblock{margin-bottom:10px}
+            #redaction-output .red-subblock:last-child{margin-bottom:0}
+            #redaction-output .red-sublabel{display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+            #redaction-output .red-section textarea{width:100%;min-height:110px;padding:10px 12px;border:1px solid #cbd5e1;border-radius:6px;font:inherit;font-size:13px;line-height:1.55;color:#1e293b;resize:vertical;font-family:inherit;background:#fafafa;transition:background .15s,border-color .15s,color .15s}
             #redaction-output .red-section textarea:focus{outline:none;border-color:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,.15)}
-            #redaction-output .red-copy{background:#f1f5f9;color:#1e293b;border:1px solid #cbd5e1;padding:5px 12px;border-radius:5px;font-size:11px;cursor:pointer;font-weight:500}
+            /* Color states: generated (green tint) vs user-modified (amber tint) */
+            #redaction-output .red-section textarea.red-state-generated{background:#ecfdf5;border-color:#6ee7b7;color:#065f46}
+            #redaction-output .red-section textarea.red-state-modified{background:#fefce8;border-color:#fde047;color:#713f12}
+            /* Empty (example/placeholder) state */
+            #redaction-output .red-section textarea::placeholder{color:#cbd5e1;font-style:italic}
+            #redaction-output .red-copy{background:#f1f5f9;color:#1e293b;border:1px solid #cbd5e1;padding:3px 10px;border-radius:4px;font-size:10px;cursor:pointer;font-weight:500;text-transform:none;letter-spacing:0}
             #redaction-output .red-copy:hover{background:#e2e8f0}
+            #redaction-output .red-legend{display:flex;gap:16px;align-items:center;padding:10px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;font-size:11px;color:#64748b;margin-bottom:12px}
+            #redaction-output .red-legend .chip{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:middle;margin-right:5px}
+            #redaction-output .red-legend .chip.gen{background:#ecfdf5;border:1px solid #6ee7b7}
+            #redaction-output .red-legend .chip.mod{background:#fefce8;border:1px solid #fde047}
+            #redaction-output .red-legend .chip.emp{background:#fafafa;border:1px solid #cbd5e1}
         </style>
 
         <form id="redaction-form" autocomplete="off" onsubmit="return false">
@@ -814,7 +827,7 @@
             </div>
 
             <div class="r-card">
-                <h3>Toiture</h3>
+                <h3>Toit contre extérieur</h3>
                 <div class="r-grid">
                     <div class="r-field"><label>Type</label>
                         <select name="toit_type"><option value="">—</option><option>Inclinée tuiles</option><option>Inclinée ardoise</option><option>Inclinée bac acier</option><option>Plate</option><option>Mansardée</option><option>Mixte</option></select>
@@ -839,10 +852,32 @@
             </div>
 
             <div class="r-card">
+                <h3>Toit contre locaux non chauffés <span style="font-size:11px;color:#64748b;font-weight:normal;text-transform:none;letter-spacing:0">(plancher combles froids, plafond contre dépendance, etc.)</span></h3>
+                <div class="r-grid">
+                    <div class="r-field"><label>Configuration</label>
+                        <select name="toit2_config"><option value="">—</option><option>Plancher des combles froids</option><option>Plafond sous toiture non chauffée</option><option>Plafond contre dépendance / galetas</option><option>Plafond contre volume tampon</option><option>Sans objet</option></select>
+                    </div>
+                    <div class="r-field"><label>Matériau isolation</label>
+                        <select name="toit2_iso_mat"><option value="">—</option><option>Laine minérale</option><option>Laine de verre</option><option>Laine de roche</option><option>EPS</option><option>XPS</option><option>PUR/PIR</option><option>Fibre de bois</option><option>Cellulose</option><option>Aucune</option></select>
+                    </div>
+                    <div class="r-field"><label>Épaisseur isolation (cm)</label><input type="text" name="toit2_iso_ep" placeholder="ex. 18"></div>
+                    <div class="r-field"><label>Position isolation</label>
+                        <select name="toit2_iso_pos"><option value="">—</option><option>Sur dalle (plancher combles)</option><option>Sous dalle (plafond)</option><option>Entre solives</option><option>En vrac sur dalle</option></select>
+                    </div>
+                    <div class="r-field"><label>État</label>
+                        <select name="toit2_etat"><option value="">—</option><option>Neuf / récent</option><option>Bon</option><option>Usé</option><option>Abîmé</option><option>Fin de vie</option></select>
+                    </div>
+                    <div class="r-field"><label>Année des derniers travaux</label><input type="text" name="toit2_annee" placeholder="ex. 2012"></div>
+                    <div class="r-field"><label>Valeur U (W/m²K)</label><input type="number" step="0.01" name="u_toit2" placeholder="ex. 0.28"></div>
+                    <div class="r-field full"><label>Particularités</label><textarea name="toit2_notes" placeholder="trappe d'accès non isolée, circulation technique, accessibilité, humidité…"></textarea></div>
+                </div>
+            </div>
+
+            <div class="r-card">
                 <h3>Murs</h3>
                 <div class="r-grid">
                     <div class="r-field"><label>Composition</label>
-                        <select name="murs_comp"><option value="">—</option><option>Maçonnerie homogène</option><option>Brique creuse (TC)</option><option>Béton armé</option><option>Moellon</option><option>Ossature bois</option><option>Mixte</option></select>
+                        <select name="murs_comp"><option value="">—</option><option>Maçonnerie homogène</option><option>Maçonnerie double paroi sans isolation</option><option>Maçonnerie double paroi avec isolation</option><option>Brique creuse (TC)</option><option>Béton armé</option><option>Moellon</option><option>Ossature bois</option><option>Mixte</option></select>
                     </div>
                     <div class="r-field"><label>Isolation extérieure (type / cm / année)</label><input type="text" name="murs_iso_ext" placeholder="ex. EPS 14 cm, 2012"></div>
                     <div class="r-field"><label>Isolation intérieure (type / cm / année)</label><input type="text" name="murs_iso_int" placeholder="ex. laine minérale 8 cm, 1998"></div>
@@ -887,6 +922,22 @@
                     <div class="r-field"><label>Valeur U sol contre ext./terrain (W/m²K)</label><input type="number" step="0.01" name="u_sol_ext" placeholder="ex. 0.40"></div>
                     <div class="r-field"><label>Valeur U sol contre loc. non chauffés (W/m²K)</label><input type="number" step="0.01" name="u_sol_lnc" placeholder="ex. 0.38"></div>
                     <div class="r-field full"><label>Particularités</label><textarea name="sol_notes" placeholder="dalle accessible en sous-face, vide sanitaire, chape sur EPS, parquet d'origine…"></textarea></div>
+                </div>
+            </div>
+
+            <div class="r-card">
+                <h3>Ponts thermiques</h3>
+                <div class="r-grid">
+                    <div class="r-field"><label>Importance observée</label>
+                        <select name="pt_niveau"><option value="">—</option><option>Non significatifs</option><option>Ponctuels</option><option>Modérés</option><option>Marqués</option><option>Très marqués</option></select>
+                    </div>
+                    <div class="r-field"><label>Traitement</label>
+                        <select name="pt_traitement"><option value="">—</option><option>Aucun (construction d'origine)</option><option>Partiel (rénovation incomplète)</option><option>Traité lors d'une rénovation</option><option>Conforme standards actuels</option></select>
+                    </div>
+                    <div class="r-field full"><label>Emplacements identifiés</label>
+                        <textarea name="pt_emplacements" placeholder="balcons en porte-à-faux, linteaux, dalles intermédiaires, nez de dalle, encadrements, jonctions mur/toit…"></textarea>
+                    </div>
+                    <div class="r-field full"><label>Particularités</label><textarea name="pt_notes" placeholder="traces d'humidité, moisissures, condensation, thermographie réalisée, parti architectural à préserver…"></textarea></div>
                 </div>
             </div>
 
@@ -986,11 +1037,19 @@
 
         </form>
 
+        <style>
+            #redaction-progress{display:none;flex:1 1 100%;margin-top:6px;height:8px;background:#e2e8f0;border-radius:999px;overflow:hidden;position:relative}
+            #redaction-progress .bar{height:100%;width:0%;background:linear-gradient(90deg,#10B981,#059669);transition:width .4s ease}
+            #redaction-progress .shimmer{position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.4),transparent);animation:redShimmer 1.6s infinite}
+            @keyframes redShimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+        </style>
+
         <div id="redaction-action-bar">
             <button class="btn btn-primary" id="btn-redaction-generate" onclick="Redaction.generateAll()">Générer les textes CECB</button>
             <button class="btn" id="btn-redaction-save" onclick="Redaction.save()" style="background:#f1f5f9;color:#1e293b;border:1px solid #cbd5e1">Sauvegarder</button>
             <button class="btn" id="btn-redaction-export" onclick="Redaction.exportBlock()" style="background:#f1f5f9;color:#1e293b;border:1px solid #cbd5e1" title="Exporter les données du formulaire pour coller dans Claude">Exporter pour Claude</button>
             <span id="redaction-status"></span>
+            <div id="redaction-progress"><div class="bar"></div><div class="shimmer"></div></div>
         </div>
 
         <!-- Modale d'export -->
@@ -1009,17 +1068,13 @@
         </div>
 
         <div id="redaction-output">
-            <div class="red-section"><h3>Toit <button class="red-copy" id="red-copy-toit" onclick="Redaction.copySection('toit')">Copier</button></h3><textarea id="red-ta-toit"></textarea></div>
-            <div class="red-section"><h3>Murs <button class="red-copy" id="red-copy-murs" onclick="Redaction.copySection('murs')">Copier</button></h3><textarea id="red-ta-murs"></textarea></div>
-            <div class="red-section"><h3>Fenêtres et porte <button class="red-copy" id="red-copy-fenetres" onclick="Redaction.copySection('fenetres')">Copier</button></h3><textarea id="red-ta-fenetres"></textarea></div>
-            <div class="red-section"><h3>Sol <button class="red-copy" id="red-copy-sol" onclick="Redaction.copySection('sol')">Copier</button></h3><textarea id="red-ta-sol"></textarea></div>
-            <div class="red-section"><h3>Ventilation <button class="red-copy" id="red-copy-ventilation" onclick="Redaction.copySection('ventilation')">Copier</button></h3><textarea id="red-ta-ventilation"></textarea></div>
-            <div class="red-section"><h3>Chauffage <button class="red-copy" id="red-copy-chauffage" onclick="Redaction.copySection('chauffage')">Copier</button></h3><textarea id="red-ta-chauffage"></textarea></div>
-            <div class="red-section"><h3>Eau chaude sanitaire <button class="red-copy" id="red-copy-ecs" onclick="Redaction.copySection('ecs')">Copier</button></h3><textarea id="red-ta-ecs"></textarea></div>
-            <div class="red-section"><h3>Appareils et éclairage <button class="red-copy" id="red-copy-appareils" onclick="Redaction.copySection('appareils')">Copier</button></h3><textarea id="red-ta-appareils"></textarea></div>
-            <div class="red-section"><h3>Photovoltaïque <button class="red-copy" id="red-copy-pv" onclick="Redaction.copySection('pv')">Copier</button></h3><textarea id="red-ta-pv"></textarea></div>
-            <div class="red-section"><h3>Comportement utilisateur <button class="red-copy" id="red-copy-comportement" onclick="Redaction.copySection('comportement')">Copier</button></h3><textarea id="red-ta-comportement"></textarea></div>
-            <div class="red-section"><h3>Revalorisation <button class="red-copy" id="red-copy-revalorisation" onclick="Redaction.copySection('revalorisation')">Copier</button></h3><textarea id="red-ta-revalorisation"></textarea></div>
+            <div class="red-legend">
+                <span><span class="chip emp"></span>Exemple / vide</span>
+                <span><span class="chip gen"></span>Généré par l'IA</span>
+                <span><span class="chip mod"></span>Modifié par vous</span>
+            </div>
+            <!-- Les 11 sections × 2 sous-blocs (État initial / Améliorations possibles) = 22 textareas sont construits dynamiquement par Redaction.init() -->
+            <div id="redaction-sections"></div>
             <div style="text-align:center;margin-top:16px">
                 <button class="btn btn-primary" id="btn-redaction-copy-all" onclick="Redaction.copyAll()">Tout copier</button>
             </div>

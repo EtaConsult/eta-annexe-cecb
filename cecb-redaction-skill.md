@@ -245,15 +245,18 @@ Lorsque l'utilisateur renseigne une valeur U (ou Uw pour les fenêtres) pour un 
 
 **Application dans le texte**
 
-- **Intégrer la qualification** dans l'état initial de manière factuelle, en citant la valeur U fournie :
-  - « La valeur U de la toiture, estimée à 0,32 W/m²K, situe cet élément dans la catégorie *Moyenne* selon la méthodologie CECB. »
-  - « Avec une valeur Uw de 1,4 W/m²K, les fenêtres présentent une performance qualifiée de *Bonne* selon la méthodologie CECB. »
-  - « La dalle contre terrain, avec une valeur U de 0,18 W/m²K, se situe dans la catégorie *Très bonne*. »
-- **Si la qualification est *Mauvaise* ou *Moyenne*** : souligner le gisement d'amélioration dans la section « Améliorations possibles » en rappelant la valeur U cible à atteindre pour passer en *Bonne* (voire *Très bonne*) et en précisant l'éligibilité au Programme Bâtiments lorsque pertinent.
+- **Intégrer la qualification** dans l'état initial de manière factuelle, en utilisant **uniquement la catégorie** (*Très bonne / Bonne / Moyenne / Mauvaise*) **sans citer la valeur U numérique** :
+  - ✅ Correct : « Le plancher présente une performance d'isolation moyenne. »
+  - ✅ Correct : « Les fenêtres offrent un pouvoir isolant qualifié de bon selon la méthodologie CECB. »
+  - ✅ Correct : « La dalle contre terrain présente une très bonne performance thermique. »
+  - ❌ Incorrect : « La valeur U de cette dalle, estimée à 0,46 W/m²K, situe cet élément dans la catégorie Moyenne. »
+  - ❌ Incorrect : « Avec une valeur Uw de 1,4 W/m²K, les fenêtres présentent une performance Bonne. »
+- **Ne jamais citer la valeur U numérique** (ex. « 0,32 W/m²K », « Uw de 1,4 W/m²K ») dans le texte livré. Cette valeur ne sert qu'à déterminer la catégorie en coulisses — elle ne doit pas apparaître dans le rapport.
+- **Si la qualification est *Mauvaise* ou *Moyenne*** : souligner le gisement d'amélioration dans la section « Améliorations possibles » en rappelant les **valeurs U cibles** (ex. « U inférieure à 0,20 W/m²K ») qui sont, elles, **autorisées** dans les recommandations (objectifs à atteindre). Préciser l'éligibilité au Programme Bâtiments lorsque pertinent.
 - **Si la qualification est *Bonne*** : mentionner que l'élément est conforme aux attentes pour un bâtiment existant ; recommander une amélioration uniquement si le contexte le justifie (travaux couplés, fin de vie).
 - **Si la qualification est *Très bonne*** : noter la conformité aux standards et conclure qu'aucune intervention n'est recommandée sur cet élément à ce stade.
 - Pour les éléments où la valeur U n'a **pas** été fournie, continuer à utiliser la formulation qualitative des gabarits (§ 3) sans citer de chiffre.
-- **Ne jamais** reproduire ces tableaux dans le rapport livré : utiliser uniquement le **verdict** de qualification (*Très bonne / Bonne / Moyenne / Mauvaise*) pour l'élément concerné.
+- **Ne jamais** reproduire ces tableaux dans le rapport livré : utiliser uniquement le **verdict** de qualification pour l'élément concerné.
 - Si plusieurs valeurs U sont fournies pour un même élément (ex. murs extérieurs et murs contre locaux non chauffés), qualifier chacune séparément dans le texte.
 
 ---
