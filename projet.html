@@ -790,8 +790,10 @@
             #redaction-output .red-section textarea.red-state-modified{background:#fefce8;border-color:#fde047;color:#713f12}
             /* Empty (example/placeholder) state */
             #redaction-output .red-section textarea::placeholder{color:#cbd5e1;font-style:italic}
-            #redaction-output .red-copy{background:#f1f5f9;color:#1e293b;border:1px solid #cbd5e1;padding:3px 10px;border-radius:4px;font-size:10px;cursor:pointer;font-weight:500;text-transform:none;letter-spacing:0}
-            #redaction-output .red-copy:hover{background:#e2e8f0}
+            #redaction-output .red-copy{background:#f1f5f9;color:#475569;border:1px solid #cbd5e1;padding:3px 6px;border-radius:4px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;line-height:0;transition:all .15s}
+            #redaction-output .red-copy:hover{background:#e2e8f0;color:#1e293b}
+            #redaction-output .red-copy.copied{background:#10b981;color:#fff;border-color:#059669}
+            #redaction-output .red-copy svg{display:block}
             #redaction-output .red-legend{display:flex;gap:16px;align-items:center;padding:10px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;font-size:11px;color:#64748b;margin-bottom:12px}
             #redaction-output .red-legend .chip{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:middle;margin-right:5px}
             #redaction-output .red-legend .chip.gen{background:#ecfdf5;border:1px solid #6ee7b7}
@@ -879,8 +881,9 @@
                     <div class="r-field"><label>Composition</label>
                         <select name="murs_comp"><option value="">—</option><option>Maçonnerie homogène</option><option>Maçonnerie double paroi sans isolation</option><option>Maçonnerie double paroi avec isolation</option><option>Brique creuse (TC)</option><option>Béton armé</option><option>Moellon</option><option>Ossature bois</option><option>Mixte</option></select>
                     </div>
-                    <div class="r-field"><label>Isolation extérieure (type / cm / année)</label><input type="text" name="murs_iso_ext" placeholder="ex. EPS 14 cm, 2012"></div>
-                    <div class="r-field"><label>Isolation intérieure (type / cm / année)</label><input type="text" name="murs_iso_int" placeholder="ex. laine minérale 8 cm, 1998"></div>
+                    <div class="r-field"><label>Isolation extérieure — ITE (type / cm / année)</label><input type="text" name="murs_iso_ext" placeholder="ex. EPS 14 cm, 2012"></div>
+                    <div class="r-field"><label>Isolation intérieure — ITI (type / cm / année)</label><input type="text" name="murs_iso_int" placeholder="ex. laine minérale 8 cm, 1998"></div>
+                    <div class="r-field full"><label>Isolation intermédiaire — entre parois (type / cm / année) <span style="color:#94a3b8;font-weight:normal">— uniquement pour maçonnerie double paroi</span></label><input type="text" name="murs_iso_inter" placeholder="ex. laine minérale 8 cm d'origine"></div>
                     <div class="r-field"><label>Murs S-S contre terrain</label>
                         <select name="murs_ss_terrain"><option value="">—</option><option>Non isolés</option><option>XPS 6 cm</option><option>XPS 10 cm</option><option>XPS 14 cm</option></select>
                     </div>

@@ -245,13 +245,39 @@ Lorsque l'utilisateur renseigne une valeur U (ou Uw pour les fenêtres) pour un 
 
 **Application dans le texte**
 
-- **Intégrer la qualification** dans l'état initial de manière factuelle, en utilisant **uniquement la catégorie** (*Très bonne / Bonne / Moyenne / Mauvaise*) **sans citer la valeur U numérique** :
-  - ✅ Correct : « Le plancher présente une performance d'isolation moyenne. »
-  - ✅ Correct : « Les fenêtres offrent un pouvoir isolant qualifié de bon selon la méthodologie CECB. »
-  - ✅ Correct : « La dalle contre terrain présente une très bonne performance thermique. »
-  - ❌ Incorrect : « La valeur U de cette dalle, estimée à 0,46 W/m²K, situe cet élément dans la catégorie Moyenne. »
-  - ❌ Incorrect : « Avec une valeur Uw de 1,4 W/m²K, les fenêtres présentent une performance Bonne. »
+- **Intégrer la qualification** dans l'état initial de manière factuelle et en bon français, en traduisant la catégorie (*Très bonne / Bonne / Moyenne / Mauvaise*) par une formulation idiomatique **sans citer la valeur U numérique**. Voici les tournures à privilégier par catégorie :
+
+  - **Très bonne** :
+    - « présente une excellente performance thermique »
+    - « offre une isolation thermique exemplaire »
+    - « dispose d'un très bon pouvoir isolant »
+  - **Bonne** :
+    - « présente un bon pouvoir isolant »
+    - « offre une performance thermique satisfaisante »
+    - « dispose d'une isolation conforme aux attentes pour un bâtiment existant »
+  - **Moyenne** :
+    - « présente une performance thermique moyenne »
+    - « dispose d'une isolation partielle, en deçà des standards actuels »
+    - « offre un pouvoir isolant modéré, inférieur aux exigences pour les nouvelles constructions »
+  - **Mauvaise** :
+    - « souffre d'une isolation insuffisante » ou « présente une isolation manifestement insuffisante »
+    - « génère des déperditions thermiques importantes » ou « est à l'origine de déperditions thermiques élevées »
+    - « dispose d'un pouvoir isolant très limité »
+    - ❌ **Ne jamais écrire** « présente une performance d'isolation mauvaise » — cette construction est maladroite et à proscrire.
+
+- Exemples complets :
+  - ✅ « Le plancher présente une performance thermique moyenne. »
+  - ✅ « Les fenêtres offrent un bon pouvoir isolant. »
+  - ✅ « La dalle contre terrain présente une excellente performance thermique. »
+  - ✅ « Les murs souffrent d'une isolation insuffisante et génèrent d'importantes déperditions thermiques. »
+  - ❌ « La valeur U de cette dalle, estimée à 0,46 W/m²K, situe cet élément dans la catégorie Moyenne. »
+  - ❌ « Avec une valeur Uw de 1,4 W/m²K, les fenêtres présentent une performance Bonne. »
+  - ❌ « selon la méthodologie CECB » (formule à proscrire)
+  - ❌ « présente une performance d'isolation mauvaise » (tournure maladroite — reformuler)
+
 - **Ne jamais citer la valeur U numérique** (ex. « 0,32 W/m²K », « Uw de 1,4 W/m²K ») dans le texte livré. Cette valeur ne sert qu'à déterminer la catégorie en coulisses — elle ne doit pas apparaître dans le rapport.
+- **Ne jamais écrire « selon la méthodologie CECB »** ni variante (« d'après la méthodologie CECB », « conformément à la méthodologie CECB ») lorsqu'on qualifie un élément — utiliser la catégorie seule, sans référence à la source méthodologique.
+- **Ne jamais juxtaposer « performance » et l'adjectif brut de la catégorie** (« performance mauvaise », « performance bonne », « performance moyenne » sans autre précision). Préférer soit l'adjectif qualifiant un nom concret (« pouvoir isolant », « déperditions thermiques », « isolation »), soit une tournure verbale (« souffre de », « génère », « offre »).
 - **Si la qualification est *Mauvaise* ou *Moyenne*** : souligner le gisement d'amélioration dans la section « Améliorations possibles » en rappelant les **valeurs U cibles** (ex. « U inférieure à 0,20 W/m²K ») qui sont, elles, **autorisées** dans les recommandations (objectifs à atteindre). Préciser l'éligibilité au Programme Bâtiments lorsque pertinent.
 - **Si la qualification est *Bonne*** : mentionner que l'élément est conforme aux attentes pour un bâtiment existant ; recommander une amélioration uniquement si le contexte le justifie (travaux couplés, fin de vie).
 - **Si la qualification est *Très bonne*** : noter la conformité aux standards et conclure qu'aucune intervention n'est recommandée sur cet élément à ce stade.

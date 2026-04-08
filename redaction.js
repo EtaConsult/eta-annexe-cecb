@@ -9,6 +9,10 @@ var Redaction = (function () {
     var _skillContent = null;
     var _saveTimer = null;
 
+    /* ═════ Icônes SVG (lucide) ═════ */
+    var ICON_COPY = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+    var ICON_CHECK = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+
     /* ═════ Sections attendues dans la réponse ═════ */
     var SECTIONS = [
         { id: 'toit',          label: 'Toit contre extérieur',        keys: ['TOIT CONTRE EXTÉRIEUR', 'TOIT CONTRE EXTERIEUR', 'TOIT EXTÉRIEUR', 'TOIT EXTERIEUR', 'TOIT'] },
@@ -155,8 +159,9 @@ var Redaction = (function () {
 
         L.push('**Murs**');
         L.push(line('Composition', d.murs_comp));
-        L.push(line('Isolation extérieure (type, épaisseur, année)', d.murs_iso_ext));
-        L.push(line('Isolation intérieure (type, épaisseur, année)', d.murs_iso_int));
+        L.push(line('Isolation extérieure — ITE (type, épaisseur, année)', d.murs_iso_ext));
+        L.push(line('Isolation intérieure — ITI (type, épaisseur, année)', d.murs_iso_int));
+        if (d.murs_iso_inter) L.push(line('Isolation intermédiaire entre parois (type, épaisseur, année) — double paroi uniquement', d.murs_iso_inter));
         L.push(line('Murs sous-sol contre terrain', d.murs_ss_terrain));
         L.push(line('Murs sous-sol contre locaux non chauffés', d.murs_ss_lnc));
         L.push(line('Particularités', d.murs_notes));
@@ -316,7 +321,7 @@ var Redaction = (function () {
         return result;
     }
 
-    /* ═════ Construction dynamique des 22 blocs (init) ═════ */
+    /* ═════ Construction dynamique des blocs de sortie (init) ═════ */
     function buildOutputBlocks() {
         var container = document.getElementById('redaction-sections');
         if (!container || container.childElementCount > 0) return;
@@ -324,11 +329,15 @@ var Redaction = (function () {
         SECTIONS.forEach(function (s) {
             html += '<div class="red-section"><h3>' + s.label + '</h3>' +
                 '<div class="red-subblock">' +
-                '<div class="red-sublabel">État initial <button class="red-copy" onclick="Redaction.copySub(\'' + s.id + '\',\'ei\')">Copier</button></div>' +
+                '<div class="red-sublabel">État initial ' +
+                '<button type="button" class="red-copy" title="Copier l\'état initial" onclick="Redaction.copySub(\'' + s.id + '\',\'ei\',this)">' + ICON_COPY + '</button>' +
+                '</div>' +
                 '<textarea id="red-ta-' + s.id + '-ei" data-section="' + s.id + '" data-sub="ei" placeholder="— État initial à générer —"></textarea>' +
                 '</div>' +
                 '<div class="red-subblock">' +
-                '<div class="red-sublabel">Améliorations possibles <button class="red-copy" onclick="Redaction.copySub(\'' + s.id + '\',\'ap\')">Copier</button></div>' +
+                '<div class="red-sublabel">Améliorations possibles ' +
+                '<button type="button" class="red-copy" title="Copier les améliorations" onclick="Redaction.copySub(\'' + s.id + '\',\'ap\',this)">' + ICON_COPY + '</button>' +
+                '</div>' +
                 '<textarea id="red-ta-' + s.id + '-ap" data-section="' + s.id + '" data-sub="ap" placeholder="— Améliorations à générer —"></textarea>' +
                 '</div>' +
                 '</div>';
@@ -429,6 +438,7 @@ var Redaction = (function () {
                 'Pour COMPORTEMENT : État initial = texte standard §3.10 adapté en "état des lieux" du comportement énergétique ; Améliorations possibles = recommandations de bonnes pratiques (aération, consigne température hivernale). ' +
                 'Pour REVALORISATION : État initial = synthèse courte du potentiel de revalorisation du bâtiment ; Améliorations possibles = texte §3.11 "Conseils et recommandation". ' +
                 'Pour TOIT CONTRE LOCAUX NON CHAUFFÉS : si le formulaire ne fournit pas d\'information, indiquer "Sans objet" dans l\'état initial et "Aucune recommandation" dans les améliorations. ' +
+                'Pour MURS : distinguer clairement les trois couches d\'isolation possibles : (1) ITE = isolation extérieure crépie, (2) ITI = isolation intérieure, (3) isolation intermédiaire = entre les deux parois d\'une maçonnerie double paroi (construction d\'origine ou remplie lors d\'une rénovation). En cas de « maçonnerie double paroi avec isolation », l\'isolation intermédiaire fait partie de la paroi d\'origine et ne doit pas être confondue avec une ITE ajoutée ultérieurement. Si les deux sont présentes, les mentionner séparément dans l\'état initial (« mur double paroi avec [X] cm d\'isolation intermédiaire d\'origine, complété par une ITE de [Y] cm en [année] »). ' +
                 'Pour PONTS THERMIQUES : dans l\'état initial, décrire le niveau observé (ponctuels / modérés / marqués), rappeler qu\'ils sont généralement inhérents à l\'époque de construction (balcons en porte-à-faux, linteaux, dalles intermédiaires, encadrements) et qu\'ils génèrent des déperditions supplémentaires et potentiellement des désordres (condensation, moisissures) ; si le formulaire ne fournit rien, indiquer "Sans observation particulière lors de la visite". Dans les améliorations, recommander leur traitement lors d\'une isolation par l\'extérieur (rupteurs, retours d\'isolation sur encadrements, reprise de jonction toit/mur), préciser que ces travaux ne sont pas éligibles aux subventions Programme Bâtiments s\'ils sont isolés, mais le deviennent s\'ils sont couplés à une isolation complète de l\'enveloppe. ' +
                 '**IMPORTANT — valeurs U :** lorsque tu qualifies un élément à partir d\'une valeur U fournie, **ne cite JAMAIS la valeur numérique** (ex. 0,46 W/m²K) dans le texte livré. Utilise uniquement la catégorie (*Très bonne / Bonne / Moyenne / Mauvaise*) intégrée naturellement dans la phrase — par exemple « Le plancher présente une performance d\'isolation moyenne » et **non** « La valeur U de cette dalle, estimée à 0,46 W/m²K, situe cet élément dans la catégorie Moyenne ».';
 
@@ -460,18 +470,33 @@ var Redaction = (function () {
     }
 
     /* ═════ Copier ═════ */
-    function copySub(sectionId, sub) {
+    function copySub(sectionId, sub, btn) {
         var ta = document.getElementById('red-ta-' + sectionId + '-' + sub);
-        if (!ta) return;
-        ta.focus();
-        ta.select();
-        try { navigator.clipboard.writeText(ta.value); } catch (e) { document.execCommand('copy'); }
-        // Visual feedback on the button that triggered it
-        var btn = (event && event.target) || null;
-        if (btn && btn.tagName === 'BUTTON') {
-            var prev = btn.textContent;
-            btn.textContent = '✓';
-            setTimeout(function () { btn.textContent = prev; }, 1200);
+        if (!ta || !ta.value) return;
+        var text = ta.value;
+
+        // Méthode 1 (synchrone, fonctionne toujours dans un onclick handler)
+        try {
+            ta.focus();
+            ta.select();
+            document.execCommand('copy');
+        } catch (e) { /* ignore */ }
+
+        // Méthode 2 (moderne, en parallèle, ne bloque pas le feedback)
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            try { navigator.clipboard.writeText(text).catch(function () { /* silent */ }); }
+            catch (e) { /* ignore */ }
+        }
+
+        // Feedback visuel IMMÉDIAT (synchrone)
+        if (btn) {
+            btn.classList.add('copied');
+            var prevHTML = btn.innerHTML;
+            btn.innerHTML = ICON_CHECK;
+            setTimeout(function () {
+                btn.classList.remove('copied');
+                btn.innerHTML = prevHTML;
+            }, 1200);
         }
     }
 
@@ -633,6 +658,7 @@ var Redaction = (function () {
     return {
         init: init,
         generateAll: generateAll,
+        copySub: copySub,
         copySection: copySection,
         copyAll: copyAll,
         save: manualSave,
