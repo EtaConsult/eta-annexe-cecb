@@ -469,7 +469,7 @@ Lorsque l'utilisateur renseigne une valeur U (ou Uw pour les fenêtres) pour un 
 
 > *État initial :* Les appareils électriques installés présentent différentes classes d'efficacité énergétique et sont globalement conformes aux normes en vigueur. [Variantes possibles : « Une borne de recharge pour véhicules électriques complète l'installation technique du bâtiment. » / « Au moment de la visite du bâtiment, ce dernier n'est pas habité. »]
 >
-> *Améliorations possibles :* Le remplacement d'appareils obsolètes ou peu performants par des modèles plus récents contribue à améliorer l'efficacité énergétique du bâtiment. Pour des recommandations détaillées, nous vous recommandons de consulter le site [www.top-ten.ch](http://www.top-ten.ch).
+> *Améliorations possibles :* Le remplacement d'appareils obsolètes ou peu performants par des modèles plus récents contribue à améliorer l'efficacité énergétique du bâtiment. Pour des recommandations détaillées, nous vous recommandons de consulter le site [www.topten.ch](https://www.topten.ch).
 >
 > [Si VE : La consommation électrique des véhicules électriques n'entre pas dans le bilan énergétique du bâtiment. Le CECB se concentre exclusivement sur l'énergie directement liée au bâtiment, notamment le chauffage, l'eau chaude sanitaire, l'éclairage et les installations techniques.]
 
