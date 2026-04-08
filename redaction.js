@@ -26,8 +26,8 @@ var Redaction = (function () {
         { id: 'ecs',           label: 'Eau chaude sanitaire',         keys: ['EAU CHAUDE', 'EAU CHAUDE SANITAIRE', 'ECS'] },
         { id: 'appareils',     label: 'Appareils et éclairage',       keys: ['APPAREILS', 'APPAREILS ET ÉCLAIRAGE', 'APPAREILS ET ECLAIRAGE'] },
         { id: 'pv',            label: 'Photovoltaïque',               keys: ['PHOTOVOLTAÏQUE', 'PHOTOVOLTAIQUE', 'PV'] },
-        { id: 'comportement',  label: 'Comportement utilisateur',     keys: ['COMPORTEMENT', 'COMPORTEMENT UTILISATEUR'] },
-        { id: 'revalorisation',label: 'Revalorisation',               keys: ['REVALORISATION'] }
+        { id: 'comportement',  label: 'Comportement utilisateur',     keys: ['COMPORTEMENT', 'COMPORTEMENT UTILISATEUR'], single: true },
+        { id: 'revalorisation',label: 'Revalorisation',               keys: ['REVALORISATION'], single: true }
     ];
 
     /* ═════ Accès formulaire ═════ */
@@ -271,9 +271,11 @@ var Redaction = (function () {
             .trim();
     }
 
-    // Split a section body into État initial / Améliorations possibles
-    function splitEiAp(body) {
-        if (!body) return { ei: '', ap: '' };
+    // Split a section body into État initial / Améliorations possibles.
+    // If `single` is true, return a single-text record {text: body, ei:'', ap:''}
+    // where `text` contains the body with any EI/AP/Conseils markers stripped and concatenated.
+    function splitEiAp(body, single) {
+        if (!body) return single ? { text: '', ei: '', ap: '' } : { ei: '', ap: '' };
         var ei = '', ap = '';
         // Match "**État initial :** ...(until next **Améliorations...)"
         var eiMatch = body.match(/\*\*[ÉE]tat initial[^:]*:\*\*\s*([\s\S]*?)(?=\n\s*\*\*Am[ée]liorations|$)/i);
@@ -288,6 +290,12 @@ var Redaction = (function () {
         }
         // Fallback : no markers → everything in ei
         if (!ei && !ap) ei = body.trim();
+
+        if (single) {
+            // Flatten: merge ei + ap into a single text, preserving order.
+            var merged = [ei, ap].filter(Boolean).join('\n\n').trim();
+            return { text: merged, ei: '', ap: '' };
+        }
         return { ei: ei, ap: ap };
     }
 
@@ -313,7 +321,8 @@ var Redaction = (function () {
             var body = m[2].trim();
             for (var i = 0; i < allKeys.length; i++) {
                 if (header.indexOf(allKeys[i].key) === 0) {
-                    result[allKeys[i].id] = splitEiAp(body);
+                    var sectionDef = SECTIONS.filter(function (s) { return s.id === allKeys[i].id; })[0];
+                    result[allKeys[i].id] = splitEiAp(body, sectionDef && sectionDef.single);
                     return;
                 }
             }
@@ -327,20 +336,31 @@ var Redaction = (function () {
         if (!container || container.childElementCount > 0) return;
         var html = '';
         SECTIONS.forEach(function (s) {
-            html += '<div class="red-section"><h3>' + s.label + '</h3>' +
-                '<div class="red-subblock">' +
-                '<div class="red-sublabel">État initial ' +
-                '<button type="button" class="red-copy" title="Copier l\'état initial" onclick="Redaction.copySub(\'' + s.id + '\',\'ei\',this)">' + ICON_COPY + '</button>' +
-                '</div>' +
-                '<textarea id="red-ta-' + s.id + '-ei" data-section="' + s.id + '" data-sub="ei" placeholder="— État initial à générer —"></textarea>' +
-                '</div>' +
-                '<div class="red-subblock">' +
-                '<div class="red-sublabel">Améliorations possibles ' +
-                '<button type="button" class="red-copy" title="Copier les améliorations" onclick="Redaction.copySub(\'' + s.id + '\',\'ap\',this)">' + ICON_COPY + '</button>' +
-                '</div>' +
-                '<textarea id="red-ta-' + s.id + '-ap" data-section="' + s.id + '" data-sub="ap" placeholder="— Améliorations à générer —"></textarea>' +
-                '</div>' +
-                '</div>';
+            html += '<div class="red-section"><h3>' + s.label + '</h3>';
+            if (s.single) {
+                // Section mono-texte : un seul textarea, id suffixe -txt
+                html += '<div class="red-subblock">' +
+                    '<div class="red-sublabel">Texte ' +
+                    '<button type="button" class="red-copy" title="Copier le texte" onclick="Redaction.copySub(\'' + s.id + '\',\'txt\',this)">' + ICON_COPY + '</button>' +
+                    '</div>' +
+                    '<textarea id="red-ta-' + s.id + '-txt" data-section="' + s.id + '" data-sub="txt" placeholder="— Texte à générer —"></textarea>' +
+                    '</div>';
+            } else {
+                // Section standard : deux sous-blocs EI + AP
+                html += '<div class="red-subblock">' +
+                    '<div class="red-sublabel">État initial ' +
+                    '<button type="button" class="red-copy" title="Copier l\'état initial" onclick="Redaction.copySub(\'' + s.id + '\',\'ei\',this)">' + ICON_COPY + '</button>' +
+                    '</div>' +
+                    '<textarea id="red-ta-' + s.id + '-ei" data-section="' + s.id + '" data-sub="ei" placeholder="— État initial à générer —"></textarea>' +
+                    '</div>' +
+                    '<div class="red-subblock">' +
+                    '<div class="red-sublabel">Améliorations possibles ' +
+                    '<button type="button" class="red-copy" title="Copier les améliorations" onclick="Redaction.copySub(\'' + s.id + '\',\'ap\',this)">' + ICON_COPY + '</button>' +
+                    '</div>' +
+                    '<textarea id="red-ta-' + s.id + '-ap" data-section="' + s.id + '" data-sub="ap" placeholder="— Améliorations à générer —"></textarea>' +
+                    '</div>';
+            }
+            html += '</div>';
         });
         container.innerHTML = html;
     }
@@ -367,10 +387,18 @@ var Redaction = (function () {
         SECTIONS.forEach(function (s) {
             var pair = map[s.id];
             if (pair === undefined) return;
-            var eiTa = document.getElementById('red-ta-' + s.id + '-ei');
-            var apTa = document.getElementById('red-ta-' + s.id + '-ap');
-            if (eiTa) { eiTa.value = (pair && pair.ei) || ''; setState(eiTa, eiTa.value ? 'generated' : ''); }
-            if (apTa) { apTa.value = (pair && pair.ap) || ''; setState(apTa, apTa.value ? 'generated' : ''); }
+            if (s.single) {
+                var txtTa = document.getElementById('red-ta-' + s.id + '-txt');
+                if (txtTa) {
+                    txtTa.value = (pair && (pair.text || pair.ei)) || '';
+                    setState(txtTa, txtTa.value ? 'generated' : '');
+                }
+            } else {
+                var eiTa = document.getElementById('red-ta-' + s.id + '-ei');
+                var apTa = document.getElementById('red-ta-' + s.id + '-ap');
+                if (eiTa) { eiTa.value = (pair && pair.ei) || ''; setState(eiTa, eiTa.value ? 'generated' : ''); }
+                if (apTa) { apTa.value = (pair && pair.ap) || ''; setState(apTa, apTa.value ? 'generated' : ''); }
+            }
         });
         var box = document.getElementById('redaction-output');
         if (box) box.style.display = 'block';
@@ -432,11 +460,10 @@ var Redaction = (function () {
                 "L'utilisateur va te fournir le formulaire complété. Ne lui repose pas de questions, ne redemande pas d'informations. " +
                 'Passe directement à l\'Étape 3 (Rédaction des sections) en suivant STRICTEMENT les conventions de style et les gabarits fournis ci-dessus. ' +
                 'Produis UNIQUEMENT le bloc Markdown final au format exact suivant, sans préambule ni commentaire :\n\n' +
-                '```\n## TOIT CONTRE EXTÉRIEUR\n**État initial :** [texte]\n\n**Améliorations possibles :** [texte]\n\n## TOIT CONTRE LOCAUX NON CHAUFFÉS\n**État initial :** [texte]\n\n**Améliorations possibles :** [texte]\n\n## MURS\n...\n```\n\n' +
+                '```\n## TOIT CONTRE EXTÉRIEUR\n**État initial :** [texte]\n\n**Améliorations possibles :** [texte]\n\n## TOIT CONTRE LOCAUX NON CHAUFFÉS\n**État initial :** [texte]\n\n**Améliorations possibles :** [texte]\n\n## MURS\n...\n\n## COMPORTEMENT\n[texte libre en un seul paragraphe — PAS de sous-sections]\n\n## REVALORISATION\n[texte libre en un seul paragraphe — PAS de sous-sections]\n```\n\n' +
                 'Inclure **TOUTES les 13 sections dans cet ordre exact** : TOIT CONTRE EXTÉRIEUR, TOIT CONTRE LOCAUX NON CHAUFFÉS, MURS, FENÊTRES, SOL, PONTS THERMIQUES, VENTILATION, CHAUFFAGE, EAU CHAUDE, APPAREILS, PHOTOVOLTAÏQUE, COMPORTEMENT, REVALORISATION. ' +
-                'Pour CHAQUE section (y compris COMPORTEMENT et REVALORISATION), fournir explicitement les deux sous-sections **État initial :** et **Améliorations possibles :** — jamais une seule. ' +
-                'Pour COMPORTEMENT : État initial = texte standard §3.10 adapté en "état des lieux" du comportement énergétique ; Améliorations possibles = recommandations de bonnes pratiques (aération, consigne température hivernale). ' +
-                'Pour REVALORISATION : État initial = synthèse courte du potentiel de revalorisation du bâtiment ; Améliorations possibles = texte §3.11 "Conseils et recommandation". ' +
+                'Pour les 11 premières sections (de TOIT CONTRE EXTÉRIEUR à PHOTOVOLTAÏQUE), fournir explicitement les deux sous-sections **État initial :** et **Améliorations possibles :**. ' +
+                '**IMPORTANT — COMPORTEMENT et REVALORISATION sont des sections MONO-BLOC** : produire un seul paragraphe continu par section, **SANS** les sous-sections "État initial" et "Améliorations possibles". Utiliser directement le texte standard du §3.10 pour COMPORTEMENT (reproduire tel quel) et le §3.11 pour REVALORISATION (variante A ou B selon le contexte). ' +
                 'Pour TOIT CONTRE LOCAUX NON CHAUFFÉS : si le formulaire ne fournit pas d\'information, indiquer "Sans objet" dans l\'état initial et "Aucune recommandation" dans les améliorations. ' +
                 'Pour MURS : distinguer clairement les trois couches d\'isolation possibles : (1) ITE = isolation extérieure crépie, (2) ITI = isolation intérieure, (3) isolation intermédiaire = entre les deux parois d\'une maçonnerie double paroi (construction d\'origine ou remplie lors d\'une rénovation). En cas de « maçonnerie double paroi avec isolation », l\'isolation intermédiaire fait partie de la paroi d\'origine et ne doit pas être confondue avec une ITE ajoutée ultérieurement. Si les deux sont présentes, les mentionner séparément dans l\'état initial (« mur double paroi avec [X] cm d\'isolation intermédiaire d\'origine, complété par une ITE de [Y] cm en [année] »). ' +
                 'Pour PONTS THERMIQUES : dans l\'état initial, décrire le niveau observé (ponctuels / modérés / marqués), rappeler qu\'ils sont généralement inhérents à l\'époque de construction (balcons en porte-à-faux, linteaux, dalles intermédiaires, encadrements) et qu\'ils génèrent des déperditions supplémentaires et potentiellement des désordres (condensation, moisissures) ; si le formulaire ne fournit rien, indiquer "Sans observation particulière lors de la visite". Dans les améliorations, recommander leur traitement lors d\'une isolation par l\'extérieur (retours d\'isolation sur encadrements, reprise de jonction toit/mur, traitement des nez de dalle) — une ITE bien exécutée permet d\'atténuer naturellement une grande partie des ponts thermiques de façade. **Ne jamais écrire que le traitement des ponts thermiques est éligible ou devient éligible aux subventions du Programme Bâtiments** : le Programme Bâtiments ne subventionne PAS le traitement des ponts thermiques, ni isolément, ni lorsqu\'il est couplé à une isolation de l\'enveloppe. Seuls les éléments d\'enveloppe eux-mêmes (toit, murs extérieurs, sol contre extérieur) sont subventionnés sur la base de leur valeur U cible. ' +
@@ -506,15 +533,22 @@ var Redaction = (function () {
     function copyAll() {
         var parts = [];
         SECTIONS.forEach(function (s) {
-            var ei = document.getElementById('red-ta-' + s.id + '-ei');
-            var ap = document.getElementById('red-ta-' + s.id + '-ap');
-            var eiVal = ei && ei.value.trim();
-            var apVal = ap && ap.value.trim();
-            if (!eiVal && !apVal) return;
-            var block = '## ' + s.label.toUpperCase() + '\n\n';
-            if (eiVal) block += '**État initial :** ' + eiVal + '\n\n';
-            if (apVal) block += '**Améliorations possibles :** ' + apVal;
-            parts.push(block.trim());
+            if (s.single) {
+                var txt = document.getElementById('red-ta-' + s.id + '-txt');
+                var txtVal = txt && txt.value.trim();
+                if (!txtVal) return;
+                parts.push('## ' + s.label.toUpperCase() + '\n\n' + txtVal);
+            } else {
+                var ei = document.getElementById('red-ta-' + s.id + '-ei');
+                var ap = document.getElementById('red-ta-' + s.id + '-ap');
+                var eiVal = ei && ei.value.trim();
+                var apVal = ap && ap.value.trim();
+                if (!eiVal && !apVal) return;
+                var block = '## ' + s.label.toUpperCase() + '\n\n';
+                if (eiVal) block += '**État initial :** ' + eiVal + '\n\n';
+                if (apVal) block += '**Améliorations possibles :** ' + apVal;
+                parts.push(block.trim());
+            }
         });
         var text = parts.join('\n\n---\n\n');
         try { navigator.clipboard.writeText(text); } catch (e) { /* ignore */ }
@@ -527,19 +561,32 @@ var Redaction = (function () {
     }
 
     /* ═════ Save ═════ */
+    function readTaState(ta) {
+        if (!ta) return '';
+        if (ta.classList.contains('red-state-modified')) return 'modified';
+        if (ta.classList.contains('red-state-generated')) return 'generated';
+        return '';
+    }
+
     function doSave() {
         var pid = ProjectStore.getCurrentId();
         if (!pid) return false;
         var generatedTexts = {};
         SECTIONS.forEach(function (s) {
-            var ei = document.getElementById('red-ta-' + s.id + '-ei');
-            var ap = document.getElementById('red-ta-' + s.id + '-ap');
-            var eiVal = ei ? ei.value : '';
-            var apVal = ap ? ap.value : '';
-            var eiState = ei && ei.classList.contains('red-state-modified') ? 'modified' : (ei && ei.classList.contains('red-state-generated') ? 'generated' : '');
-            var apState = ap && ap.classList.contains('red-state-modified') ? 'modified' : (ap && ap.classList.contains('red-state-generated') ? 'generated' : '');
-            if (eiVal || apVal) {
-                generatedTexts[s.id] = { ei: eiVal, ap: apVal, eiState: eiState, apState: apState };
+            if (s.single) {
+                var txt = document.getElementById('red-ta-' + s.id + '-txt');
+                var txtVal = txt ? txt.value : '';
+                if (txtVal) {
+                    generatedTexts[s.id] = { text: txtVal, textState: readTaState(txt), single: true };
+                }
+            } else {
+                var ei = document.getElementById('red-ta-' + s.id + '-ei');
+                var ap = document.getElementById('red-ta-' + s.id + '-ap');
+                var eiVal = ei ? ei.value : '';
+                var apVal = ap ? ap.value : '';
+                if (eiVal || apVal) {
+                    generatedTexts[s.id] = { ei: eiVal, ap: apVal, eiState: readTaState(ei), apState: readTaState(ap) };
+                }
             }
         });
         ProjectStore.update(pid, 'redaction', {
@@ -591,14 +638,27 @@ var Redaction = (function () {
                     var rec = gen[s.id];
                     if (rec === undefined) return;
                     hasAny = true;
-                    var eiTa = document.getElementById('red-ta-' + s.id + '-ei');
-                    var apTa = document.getElementById('red-ta-' + s.id + '-ap');
-                    // Backward-compat : old format stored as a single string
-                    if (typeof rec === 'string') {
-                        if (eiTa) { eiTa.value = rec; setState(eiTa, rec ? 'generated' : ''); }
-                    } else if (rec && typeof rec === 'object') {
-                        if (eiTa) { eiTa.value = rec.ei || ''; setState(eiTa, rec.ei ? (rec.eiState || 'generated') : ''); }
-                        if (apTa) { apTa.value = rec.ap || ''; setState(apTa, rec.ap ? (rec.apState || 'generated') : ''); }
+                    if (s.single) {
+                        var txtTa = document.getElementById('red-ta-' + s.id + '-txt');
+                        if (!txtTa) return;
+                        // Backward-compat : old records with ei/ap → concat into txt
+                        var txtVal = '';
+                        if (typeof rec === 'string') txtVal = rec;
+                        else if (rec && typeof rec === 'object') {
+                            txtVal = rec.text || [rec.ei, rec.ap].filter(Boolean).join('\n\n');
+                        }
+                        txtTa.value = txtVal;
+                        setState(txtTa, txtVal ? ((rec && rec.textState) || 'generated') : '');
+                    } else {
+                        var eiTa = document.getElementById('red-ta-' + s.id + '-ei');
+                        var apTa = document.getElementById('red-ta-' + s.id + '-ap');
+                        // Backward-compat : old format stored as a single string
+                        if (typeof rec === 'string') {
+                            if (eiTa) { eiTa.value = rec; setState(eiTa, rec ? 'generated' : ''); }
+                        } else if (rec && typeof rec === 'object') {
+                            if (eiTa) { eiTa.value = rec.ei || ''; setState(eiTa, rec.ei ? (rec.eiState || 'generated') : ''); }
+                            if (apTa) { apTa.value = rec.ap || ''; setState(apTa, rec.ap ? (rec.apState || 'generated') : ''); }
+                        }
                     }
                 });
                 if (hasAny) {
@@ -616,9 +676,10 @@ var Redaction = (function () {
             el.addEventListener('input', autoSave);
             el.addEventListener('change', autoSave);
         });
-        // Listeners état + auto-save sur les 22 textareas de sortie
+        // Listeners état + auto-save sur les textareas de sortie
         SECTIONS.forEach(function (s) {
-            ['ei', 'ap'].forEach(function (sub) {
+            var subs = s.single ? ['txt'] : ['ei', 'ap'];
+            subs.forEach(function (sub) {
                 var ta = document.getElementById('red-ta-' + s.id + '-' + sub);
                 if (ta) ta.addEventListener('input', onTextareaInput);
             });
