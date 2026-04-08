@@ -214,6 +214,48 @@ Programme Bâtiments, classe CECB® requise le cas échéant.]
 - Pour le PV avec batterie : ne pas recommander de stockage
 - Pour les bâtiments rénovés exemplairement : sections concernées = « Aucune recommandation d'amélioration thermique n'est préconisée. »
 
+### Critères d'évaluation CECB — qualification des éléments à partir des valeurs U (Tab. 43 / 44)
+
+Lorsque l'utilisateur renseigne une valeur U (ou Uw pour les fenêtres) pour un élément de construction, cette valeur **doit** être qualifiée dans le texte d'état initial selon les critères officiels de la méthodologie CECB (SIA 380/1, Tab. 43 et 44). En l'absence de valeur U fournie, conserver la formulation qualitative par défaut des gabarits (§ 3) sans inventer de chiffre.
+
+**Choix du tableau applicable**
+
+- **Tab. 44 — Nouveaux bâtiments** : année de construction = année actuelle ou jusqu'à trois ans en arrière (exemple : en 2026, bâtiments construits entre 2023 et 2026).
+- **Tab. 43 — Bâtiments existants** : tous les autres cas (année de construction plus ancienne).
+
+**Tab. 43 — Bâtiments existants** — valeurs en W/m²K
+
+| Évaluation | Toit (To) | Fenêtres, portes (Fe) | Mur ext. / mur contre terre ≤ 2 m (Mu) | Sol contre ext. / élém. contre terre ≤ 2 m | Plafond, sol, mur contre locaux non chauffés (c.n-c.) |
+|---|---|---|---|---|---|
+| Très bonne | ≤ 0,15 | ≤ 1,1 | ≤ 0,18 | ≤ 0,21 | ≤ 0,20 |
+| Bonne      | > 0,15 ; ≤ 0,25 | > 1,1 ; ≤ 1,6 | > 0,18 ; ≤ 0,25 | > 0,21 ; ≤ 0,35 | > 0,20 ; ≤ 0,35 |
+| Moyenne    | > 0,25 ; ≤ 0,5  | > 1,6 ; ≤ 2,1 | > 0,25 ; ≤ 0,5  | > 0,35 ; ≤ 0,5  | > 0,35 ; ≤ 0,5  |
+| Mauvaise   | > 0,5 | > 2,1 | > 0,5 | > 0,5 | > 0,5 |
+
+**Tab. 44 — Nouveaux bâtiments** — valeurs en W/m²K
+
+| Évaluation | Toit (To) | Fenêtres, portes (Fe) | Mur ext. / mur contre terre < 2 m (Mu) | Sol contre ext. / élém. contre terre ≤ 2 m | Plafond, sol, mur contre locaux non chauffés (c.n-c.) |
+|---|---|---|---|---|---|
+| Très bonne\*  | ≤ 0,09 | ≤ 1,00 | ≤ 0,11 | ≤ 0,11 | ≤ 0,15 |
+| Bonne\*\*     | > 0,09 ; ≤ 0,20 | > 1,00 ; ≤ 1,30 | > 0,11 ; ≤ 0,20 | > 0,11 ; ≤ 0,20 | > 0,15 ; ≤ 0,25 |
+| Moyenne       | > 0,20 | > 1,30 | > 0,20 | > 0,20 | > 0,25 |
+
+\* Jusqu'aux « fenêtres/portes », les valeurs indiquées correspondent aux valeurs cibles selon la SIA 380/1:2009.  
+\*\* Jusqu'aux « sols/murs contre locaux non chauffés », les valeurs supérieures correspondent à la valeur limite selon la SIA 380/1:2009.
+
+**Application dans le texte**
+
+- **Intégrer la qualification** dans l'état initial de manière factuelle, en citant la valeur U fournie :
+  - « La valeur U de la toiture, estimée à 0,32 W/m²K, situe cet élément dans la catégorie *Moyenne* selon la méthodologie CECB. »
+  - « Avec une valeur Uw de 1,4 W/m²K, les fenêtres présentent une performance qualifiée de *Bonne* selon la méthodologie CECB. »
+  - « La dalle contre terrain, avec une valeur U de 0,18 W/m²K, se situe dans la catégorie *Très bonne*. »
+- **Si la qualification est *Mauvaise* ou *Moyenne*** : souligner le gisement d'amélioration dans la section « Améliorations possibles » en rappelant la valeur U cible à atteindre pour passer en *Bonne* (voire *Très bonne*) et en précisant l'éligibilité au Programme Bâtiments lorsque pertinent.
+- **Si la qualification est *Bonne*** : mentionner que l'élément est conforme aux attentes pour un bâtiment existant ; recommander une amélioration uniquement si le contexte le justifie (travaux couplés, fin de vie).
+- **Si la qualification est *Très bonne*** : noter la conformité aux standards et conclure qu'aucune intervention n'est recommandée sur cet élément à ce stade.
+- Pour les éléments où la valeur U n'a **pas** été fournie, continuer à utiliser la formulation qualitative des gabarits (§ 3) sans citer de chiffre.
+- **Ne jamais** reproduire ces tableaux dans le rapport livré : utiliser uniquement le **verdict** de qualification (*Très bonne / Bonne / Moyenne / Mauvaise*) pour l'élément concerné.
+- Si plusieurs valeurs U sont fournies pour un même élément (ex. murs extérieurs et murs contre locaux non chauffés), qualifier chacune séparément dans le texte.
+
 ---
 
 ## 3. Gabarits par section
@@ -432,19 +474,36 @@ Programme Bâtiments, classe CECB® requise le cas échéant.]
 
 ---
 
-## 4. Textes courts de la première page (étiquette énergétique)
+## 4. Textes de synthèse par classe CECB® (enveloppe / efficacité / CO₂)
 
-L'outil CECB officiel génère automatiquement ces textes en fonction des classes calculées. Ils ne doivent **pas** être rédigés à la main. Les reproduire ici uniquement à titre indicatif si l'utilisateur en demande la version personnalisée.
+Textes officiels utilisés par Êta Consult pour la page de synthèse des classes CECB®. Reproduire ces textes **mot pour mot** lorsque l'utilisateur fournit la classe attendue (enveloppe, efficacité globale, CO₂ direct).
 
-| Classe | Enveloppe | Efficacité globale | CO₂ direct |
-|---|---|---|---|
-| A | Excellente isolation thermique, triple vitrage | Très haute fraction utile, ENR, autoproduction | Pas d'émissions directes |
-| B | Standards des nouvelles constructions | Conformes aux nouvelles constructions, ENR | Très faibles émissions |
-| C | Réhabilitation complète | Bâtiment entièrement réhabilité avec ENR | Peu d'émissions |
-| D | Bonne isolation avec ponts thermiques résiduels | Largement réhabilité avec lacunes ou sans ENR | Importantes émissions |
-| E | Isolation thermique améliorée | Partiellement rénové, nouveau générateur | Beaucoup d'émissions |
-| F | Isolation partielle | Divers nouveaux éléments | Trop d'émissions |
-| G | Sans isolation, fort potentiel | Installations dépassées, sans ENR | Chauffage fossile, beaucoup de CO₂ |
+### 4.1 Classe enveloppe
+
+- **A** — L'enveloppe du bâtiment offre une isolation thermique exemplaire, avec des déperditions inférieures à 50 % des exigences actuelles pour les nouvelles constructions.
+- **B** — L'enveloppe du bâtiment offre une excellente isolation thermique, avec des déperditions comprises entre 50 % et 100 % des exigences actuelles des nouvelles constructions.
+- **C** — L'enveloppe du bâtiment offre une bonne isolation thermique, avec des déperditions comprises entre 100 % et 150 % des exigences actuelles des nouvelles constructions.
+- **D** — L'enveloppe du bâtiment offre une isolation thermique moyenne, avec des déperditions comprises entre 150 % et 200 % des exigences actuelles des nouvelles constructions.
+- **E** — L'enveloppe du bâtiment offre une isolation thermique moyenne, avec des déperditions comprises entre 200 % et 250 % des exigences actuelles des nouvelles constructions.
+- **F** — L'enveloppe du bâtiment offre une isolation thermique médiocre, avec des déperditions comprises entre 250 % et 300 % des exigences actuelles des nouvelles constructions.
+- **G** — L'enveloppe du bâtiment offre une très mauvaise isolation thermique, avec des déperditions supérieures à 300 % des exigences actuelles des nouvelles constructions.
+
+### 4.2 Classe efficacité énergétique globale
+
+- **A** — L'efficacité énergétique globale est remarquable, avec un besoin énergétique pondéré (chauffage, eau chaude, électricité) inférieur à 50 % des exigences actuelles.
+- **B** — L'efficacité énergétique globale est très bonne, avec un besoin énergétique pondéré (chauffage, eau chaude, électricité) compris entre 50 % et 100 % des exigences actuelles.
+- **C** — L'efficacité énergétique globale est bonne, avec un besoin énergétique pondéré (chauffage, eau chaude, électricité) compris entre 100 % et 150 % des exigences actuelles.
+- **D** — L'efficacité énergétique globale est acceptable, avec un besoin énergétique pondéré (chauffage, eau chaude, électricité) compris entre 150 % et 200 % des exigences actuelles.
+- **E** — L'efficacité énergétique globale est faible, avec un besoin énergétique pondéré (chauffage, eau chaude, électricité) compris entre 200 % et 250 % des exigences actuelles.
+- **F** — L'efficacité énergétique globale est largement déficiente, avec un besoin énergétique pondéré (chauffage, eau chaude, électricité) compris entre 250 % et 300 % des exigences actuelles.
+- **G** — L'efficacité énergétique globale est critique, avec un besoin énergétique pondéré (chauffage, eau chaude, électricité) supérieur à 300 % des exigences actuelles.
+
+### 4.3 Émissions de CO₂ directes
+
+- **Énergies fossiles** — Le bâtiment est chauffé par des énergies fossiles et émet beaucoup de CO₂. L'utilisation d'énergies renouvelables et l'amélioration de l'enveloppe du bâtiment sont recommandées.
+- **Énergies renouvelables** — Le bâtiment ne génère pas d'émissions directes de CO₂.
+
+> **Usage :** ces textes ne font pas partie des sections techniques (§ 3). Ils sont destinés à la page de synthèse des classes du rapport. Les reproduire uniquement lorsque la classe correspondante est fournie par l'utilisateur.
 
 ---
 

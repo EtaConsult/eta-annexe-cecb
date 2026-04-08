@@ -832,7 +832,8 @@
                     <div class="r-field"><label>État</label>
                         <select name="toit_etat"><option value="">—</option><option>Neuf / récent</option><option>Bon</option><option>Usé</option><option>Abîmé</option><option>Fin de vie</option></select>
                     </div>
-                    <div class="r-field full"><label>Année des derniers travaux</label><input type="text" name="toit_annee" placeholder="ex. 2005"></div>
+                    <div class="r-field"><label>Année des derniers travaux</label><input type="text" name="toit_annee" placeholder="ex. 2005"></div>
+                    <div class="r-field"><label>Valeur U toiture (W/m²K)</label><input type="number" step="0.01" name="u_toit" placeholder="ex. 0.32"></div>
                     <div class="r-field full"><label>Particularités</label><textarea name="toit_notes" placeholder="Vélux remplacés, ferblanterie HS, sur-toiture, charpente à vérifier…"></textarea></div>
                 </div>
             </div>
@@ -848,9 +849,11 @@
                     <div class="r-field"><label>Murs S-S contre terrain</label>
                         <select name="murs_ss_terrain"><option value="">—</option><option>Non isolés</option><option>XPS 6 cm</option><option>XPS 10 cm</option><option>XPS 14 cm</option></select>
                     </div>
-                    <div class="r-field full"><label>Murs S-S contre locaux non chauffés</label>
+                    <div class="r-field"><label>Murs S-S contre locaux non chauffés</label>
                         <select name="murs_ss_lnc"><option value="">—</option><option>Non isolés</option><option>Isolés</option><option>Sans objet</option></select>
                     </div>
+                    <div class="r-field"><label>Valeur U murs ext. (W/m²K)</label><input type="number" step="0.01" name="u_murs_ext" placeholder="ex. 0.35"></div>
+                    <div class="r-field full"><label>Valeur U mur contre loc. non chauffés (W/m²K)</label><input type="number" step="0.01" name="u_murs_lnc" placeholder="ex. 0.42"></div>
                 </div>
             </div>
 
@@ -863,7 +866,8 @@
                     <div class="r-field"><label>Vitrage</label>
                         <select name="fen_vit"><option value="">—</option><option>Simple vitrage</option><option>Double vitrage — intercalaire alu</option><option>Double vitrage — warm-edge</option><option>Triple vitrage</option><option>Mixte</option></select>
                     </div>
-                    <div class="r-field full"><label>Année de pose ou remplacement</label><input type="text" name="fen_annee" placeholder="ex. 2015"></div>
+                    <div class="r-field"><label>Année de pose ou remplacement</label><input type="text" name="fen_annee" placeholder="ex. 2015"></div>
+                    <div class="r-field"><label>Valeur Uw fenêtres (W/m²K)</label><input type="number" step="0.01" name="uw_fen" placeholder="ex. 1.4"></div>
                     <div class="r-field full"><label>Porte d'entrée (matériau, vitrage, état, année)</label><textarea name="porte" placeholder="ex. Métal, simple vitrage, usée, d'origine 1962"></textarea></div>
                 </div>
             </div>
@@ -875,9 +879,11 @@
                         <select name="sol_type"><option value="">—</option><option>Dalle béton sur sous-sol non chauffé</option><option>Dalle béton sur sous-sol chauffé</option><option>Dalle contre terrain (radier)</option><option>Sur vide sanitaire</option><option>Mixte</option></select>
                     </div>
                     <div class="r-field"><label>Isolation (épaisseur / position / année)</label><input type="text" name="sol_iso" placeholder="ex. EPS 6 cm sous chape, 2008"></div>
-                    <div class="r-field full"><label>Distribution chauffage au rez</label>
+                    <div class="r-field"><label>Distribution chauffage au rez</label>
                         <select name="sol_distrib"><option value="">—</option><option>Chauffage au sol hydraulique</option><option>Radiateurs</option><option>Convecteurs électriques</option><option>Mixte</option></select>
                     </div>
+                    <div class="r-field"><label>Valeur U sol contre ext./terrain (W/m²K)</label><input type="number" step="0.01" name="u_sol_ext" placeholder="ex. 0.40"></div>
+                    <div class="r-field"><label>Valeur U sol contre loc. non chauffés (W/m²K)</label><input type="number" step="0.01" name="u_sol_lnc" placeholder="ex. 0.38"></div>
                 </div>
             </div>
 

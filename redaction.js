@@ -195,6 +195,22 @@ var Redaction = (function () {
         }
         L.push('');
 
+        // ═ Valeurs U observées — appliquer Tab. 43 (existant) ou Tab. 44 (nouveau, ≤ 3 ans)
+        var anyU = d.u_toit || d.u_murs_ext || d.u_murs_lnc || d.uw_fen || d.u_sol_ext || d.u_sol_lnc;
+        if (anyU) {
+            var currentYear = new Date().getFullYear();
+            var yearConstr = parseInt(d.annee_constr, 10);
+            var table = (!isNaN(yearConstr) && (currentYear - yearConstr) <= 3) ? 'Tab. 44 (nouveau bâtiment)' : 'Tab. 43 (bâtiment existant)';
+            L.push('**Valeurs U observées** _(qualifier selon ' + table + ')_');
+            if (d.u_toit)      L.push(line('Toit (To)', d.u_toit + ' W/m²K'));
+            if (d.u_murs_ext)  L.push(line('Mur extérieur (Mu)', d.u_murs_ext + ' W/m²K'));
+            if (d.u_murs_lnc)  L.push(line('Mur contre locaux non chauffés (c.n-c.)', d.u_murs_lnc + ' W/m²K'));
+            if (d.uw_fen)      L.push(line('Fenêtres (Fe) — Uw', d.uw_fen + ' W/m²K'));
+            if (d.u_sol_ext)   L.push(line('Sol contre extérieur / terrain', d.u_sol_ext + ' W/m²K'));
+            if (d.u_sol_lnc)   L.push(line('Sol/plafond contre locaux non chauffés (c.n-c.)', d.u_sol_lnc + ' W/m²K'));
+            L.push('');
+        }
+
         L.push('**Contexte général**');
         L.push(line('Classe CECB® enveloppe attendue', d.cl_env));
         L.push(line('Classe CECB® efficacité globale attendue', d.cl_eff));
