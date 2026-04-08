@@ -853,7 +853,8 @@
                         <select name="murs_ss_lnc"><option value="">—</option><option>Non isolés</option><option>Isolés</option><option>Sans objet</option></select>
                     </div>
                     <div class="r-field"><label>Valeur U murs ext. (W/m²K)</label><input type="number" step="0.01" name="u_murs_ext" placeholder="ex. 0.35"></div>
-                    <div class="r-field full"><label>Valeur U mur contre loc. non chauffés (W/m²K)</label><input type="number" step="0.01" name="u_murs_lnc" placeholder="ex. 0.42"></div>
+                    <div class="r-field"><label>Valeur U mur contre loc. non chauffés (W/m²K)</label><input type="number" step="0.01" name="u_murs_lnc" placeholder="ex. 0.42"></div>
+                    <div class="r-field full"><label>Particularités</label><textarea name="murs_notes" placeholder="sondage recommandé, fissures, moellon apparent, rénovation 2012…"></textarea></div>
                 </div>
             </div>
 
@@ -869,6 +870,7 @@
                     <div class="r-field"><label>Année de pose ou remplacement</label><input type="text" name="fen_annee" placeholder="ex. 2015"></div>
                     <div class="r-field"><label>Valeur Uw fenêtres (W/m²K)</label><input type="number" step="0.01" name="uw_fen" placeholder="ex. 1.4"></div>
                     <div class="r-field full"><label>Porte d'entrée (matériau, vitrage, état, année)</label><textarea name="porte" placeholder="ex. Métal, simple vitrage, usée, d'origine 1962"></textarea></div>
+                    <div class="r-field full"><label>Particularités</label><textarea name="fen_notes" placeholder="intercalaire alu, survitrage récent, joints HS, parti architectural…"></textarea></div>
                 </div>
             </div>
 
@@ -884,6 +886,7 @@
                     </div>
                     <div class="r-field"><label>Valeur U sol contre ext./terrain (W/m²K)</label><input type="number" step="0.01" name="u_sol_ext" placeholder="ex. 0.40"></div>
                     <div class="r-field"><label>Valeur U sol contre loc. non chauffés (W/m²K)</label><input type="number" step="0.01" name="u_sol_lnc" placeholder="ex. 0.38"></div>
+                    <div class="r-field full"><label>Particularités</label><textarea name="sol_notes" placeholder="dalle accessible en sous-face, vide sanitaire, chape sur EPS, parquet d'origine…"></textarea></div>
                 </div>
             </div>
 
@@ -918,6 +921,7 @@
                         <select name="ch_conso"><option value="">—</option><option>Oui — 1 an</option><option>Oui — 2 ans</option><option>Oui — 3 ans consécutifs</option><option>Non — estimées</option></select>
                     </div>
                     <div class="r-field"><label>CAD — réseau / opérateur / mix</label><input type="text" name="ch_cad" placeholder="ex. CAD SIG, biomasse + gaz"></div>
+                    <div class="r-field full"><label>Particularités</label><textarea name="ch_notes" placeholder="ballon tampon, régulation, conduites isolées/nues, entretien annuel, fumisterie…"></textarea></div>
                 </div>
             </div>
 
@@ -929,6 +933,7 @@
                     </div>
                     <div class="r-field"><label>Année</label><input type="text" name="ecs_annee" placeholder="ex. 2019"></div>
                     <div class="r-field full"><label>Détails (marque, modèle, volume L, m² capteurs…)</label><input type="text" name="ecs_details" placeholder="ex. Stiebel-Eltron WWK 300, 300 L"></div>
+                    <div class="r-field full"><label>Particularités</label><textarea name="ecs_notes" placeholder="bouclage ECS, conduites isolées, limiteur de débit, entartrage…"></textarea></div>
                 </div>
             </div>
 
@@ -955,6 +960,7 @@
                     <div class="r-field full"><label>Charpente (capacité portante)</label>
                         <select name="pv_charpente"><option value="">—</option><option>Connue / vérifiée</option><option>À vérifier par ingénieur civil</option><option>Sans objet</option></select>
                     </div>
+                    <div class="r-field full"><label>Particularités</label><textarea name="pv_notes" placeholder="orientation, ombrage, onduleur, autoconsommation, injection réseau, RCP…"></textarea></div>
                 </div>
             </div>
 
@@ -982,7 +988,24 @@
 
         <div id="redaction-action-bar">
             <button class="btn btn-primary" id="btn-redaction-generate" onclick="Redaction.generateAll()">Générer les textes CECB</button>
+            <button class="btn" id="btn-redaction-save" onclick="Redaction.save()" style="background:#f1f5f9;color:#1e293b;border:1px solid #cbd5e1">Sauvegarder</button>
+            <button class="btn" id="btn-redaction-export" onclick="Redaction.exportBlock()" style="background:#f1f5f9;color:#1e293b;border:1px solid #cbd5e1" title="Exporter les données du formulaire pour coller dans Claude">Exporter pour Claude</button>
             <span id="redaction-status"></span>
+        </div>
+
+        <!-- Modale d'export -->
+        <div id="redaction-export-modal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.6);z-index:1000;align-items:center;justify-content:center;padding:24px">
+            <div style="background:#fff;border-radius:10px;max-width:820px;width:100%;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+                <div style="padding:14px 20px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center">
+                    <h3 style="margin:0;font-size:15px;color:#1e293b">Bloc à coller dans Claude</h3>
+                    <button onclick="Redaction.exportClose()" style="background:none;border:none;color:#64748b;font-size:22px;cursor:pointer;padding:0 6px;line-height:1">&times;</button>
+                </div>
+                <textarea id="redaction-export-text" style="flex:1;min-height:320px;margin:0;padding:16px 20px;border:none;font-family:'SF Mono',Menlo,Monaco,Consolas,monospace;font-size:12.5px;line-height:1.55;color:#1e293b;background:#faf9f5;resize:none;outline:none" readonly></textarea>
+                <div style="padding:12px 20px;border-top:1px solid #e2e8f0;display:flex;gap:10px;justify-content:flex-end">
+                    <button class="btn" onclick="Redaction.exportClose()" style="background:#f1f5f9;color:#1e293b;border:1px solid #cbd5e1">Fermer</button>
+                    <button class="btn btn-primary" id="btn-redaction-export-copy" onclick="Redaction.exportCopy()">Copier dans le presse-papier</button>
+                </div>
+            </div>
         </div>
 
         <div id="redaction-output">

@@ -145,6 +145,7 @@ var Redaction = (function () {
         L.push(line('Isolation intérieure (type, épaisseur, année)', d.murs_iso_int));
         L.push(line('Murs sous-sol contre terrain', d.murs_ss_terrain));
         L.push(line('Murs sous-sol contre locaux non chauffés', d.murs_ss_lnc));
+        L.push(line('Particularités', d.murs_notes));
         L.push('');
 
         L.push("**Fenêtres et porte d'entrée**");
@@ -152,12 +153,14 @@ var Redaction = (function () {
         L.push(line('Vitrage', d.fen_vit));
         L.push(line('Année de pose ou remplacement', d.fen_annee));
         L.push(line("Porte d'entrée (matériau, vitrage, état, année)", d.porte));
+        L.push(line('Particularités', d.fen_notes));
         L.push('');
 
         L.push('**Sol**');
         L.push(line('Type plancher rez', d.sol_type));
         L.push(line('Isolation (épaisseur, position, année)', d.sol_iso));
         L.push(line('Distribution chauffage au rez', d.sol_distrib));
+        L.push(line('Particularités', d.sol_notes));
         L.push('');
 
         L.push('**Ventilation**');
@@ -175,11 +178,13 @@ var Redaction = (function () {
         L.push(line("Cheminée ou poêle d'appoint", d.ch_appoint));
         L.push(line('Données de consommation transmises', d.ch_conso));
         if (d.ch_type && /CAD|distance/i.test(d.ch_type)) L.push(line('CAD — réseau, opérateur, mix', d.ch_cad));
+        L.push(line('Particularités', d.ch_notes));
         L.push('');
 
         L.push('**Eau chaude sanitaire**');
         L.push(line('Production', [d.ecs_type, d.ecs_details].filter(Boolean).join(' — ')));
         L.push(line('Année', d.ecs_annee));
+        L.push(line('Particularités', d.ecs_notes));
         L.push('');
 
         L.push('**Appareils, éclairage**');
@@ -193,6 +198,7 @@ var Redaction = (function () {
             L.push(line('Batterie', [d.pv_batterie, d.pv_bat_detail].filter(Boolean).join(' — ')));
             L.push(line('Charpente', d.pv_charpente));
         }
+        L.push(line('Particularités', d.pv_notes));
         L.push('');
 
         // ═ Valeurs U observées — appliquer Tab. 43 (existant) ou Tab. 44 (nouveau, ≤ 3 ans)
@@ -359,23 +365,42 @@ var Redaction = (function () {
         }
     }
 
-    /* ═════ Auto-save ═════ */
+    /* ═════ Save ═════ */
+    function doSave() {
+        var pid = ProjectStore.getCurrentId();
+        if (!pid) return false;
+        var generatedTexts = {};
+        SECTIONS.forEach(function (s) {
+            var ta = document.getElementById('red-ta-' + s.id);
+            if (ta && ta.value) generatedTexts[s.id] = ta.value;
+        });
+        ProjectStore.update(pid, 'redaction', {
+            formData: collectFormData(),
+            generatedTexts: generatedTexts
+        });
+        if (typeof showSaveIndicator === 'function') showSaveIndicator();
+        return true;
+    }
+
     function autoSave() {
         clearTimeout(_saveTimer);
-        _saveTimer = setTimeout(function () {
-            var pid = ProjectStore.getCurrentId();
-            if (!pid) return;
-            var generatedTexts = {};
-            SECTIONS.forEach(function (s) {
-                var ta = document.getElementById('red-ta-' + s.id);
-                if (ta && ta.value) generatedTexts[s.id] = ta.value;
-            });
-            ProjectStore.update(pid, 'redaction', {
-                formData: collectFormData(),
-                generatedTexts: generatedTexts
-            });
-            if (typeof showSaveIndicator === 'function') showSaveIndicator();
-        }, 2000);
+        _saveTimer = setTimeout(doSave, 2000);
+    }
+
+    function manualSave() {
+        clearTimeout(_saveTimer);
+        var ok = doSave();
+        var btn = document.getElementById('btn-redaction-save');
+        var status = document.getElementById('redaction-status');
+        if (btn) {
+            var prev = btn.textContent;
+            btn.textContent = ok ? '✓ Sauvegardé' : 'Aucun projet';
+            setTimeout(function () { btn.textContent = prev; }, 1500);
+        }
+        if (status && ok) {
+            status.textContent = 'Formulaire sauvegardé — il sera rechargé au prochain passage sur l\'onglet.';
+            setTimeout(function () { if (status.textContent.indexOf('sauvegardé') !== -1) status.textContent = ''; }, 4000);
+        }
     }
 
     /* ═════ Init ═════ */
@@ -415,11 +440,45 @@ var Redaction = (function () {
         });
     }
 
+    /* ═════ Export (copier-coller dans Claude) ═════ */
+    function exportBlock() {
+        var block = buildPromptBlock();
+        var modal = document.getElementById('redaction-export-modal');
+        var ta = document.getElementById('redaction-export-text');
+        if (!modal || !ta) return;
+        ta.value = block;
+        modal.style.display = 'flex';
+        setTimeout(function () { ta.focus(); ta.select(); }, 50);
+    }
+
+    function exportCopy() {
+        var ta = document.getElementById('redaction-export-text');
+        if (!ta) return;
+        ta.focus();
+        ta.select();
+        try { navigator.clipboard.writeText(ta.value); } catch (e) { document.execCommand('copy'); }
+        var btn = document.getElementById('btn-redaction-export-copy');
+        if (btn) {
+            var prev = btn.textContent;
+            btn.textContent = '✓ Copié';
+            setTimeout(function () { btn.textContent = prev; }, 1500);
+        }
+    }
+
+    function exportClose() {
+        var modal = document.getElementById('redaction-export-modal');
+        if (modal) modal.style.display = 'none';
+    }
+
     return {
         init: init,
         generateAll: generateAll,
         copySection: copySection,
-        copyAll: copyAll
+        copyAll: copyAll,
+        save: manualSave,
+        exportBlock: exportBlock,
+        exportCopy: exportCopy,
+        exportClose: exportClose
     };
 })();
 
