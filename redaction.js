@@ -716,6 +716,124 @@ var Redaction = (function () {
         if (modal) modal.style.display = 'none';
     }
 
+    /* ═════ Import audio / transcript de visite ═════ */
+
+    async function handleAudioFile(input) {
+        var file = input && input.files && input.files[0];
+        if (!file) return;
+        input.value = ''; // reset for re-import
+
+        var status = document.getElementById('redaction-audio-status');
+        var progBox = document.getElementById('redaction-audio-progress');
+        var progBar = progBox && progBox.querySelector('.bar');
+
+        function showProg(pct) {
+            if (progBox) progBox.style.display = 'block';
+            if (progBar) progBar.style.width = pct + '%';
+        }
+        function hideProg() {
+            if (progBox) { progBox.style.display = 'none'; if (progBar) progBar.style.width = '0%'; }
+        }
+
+        try {
+            var transcript = '';
+
+            // Step 1: get text (either read .txt or transcribe audio via Whisper)
+            if (/\.txt$/i.test(file.name)) {
+                if (status) status.textContent = 'Lecture du fichier texte…';
+                showProg(30);
+                transcript = await file.text();
+            } else {
+                if (status) status.textContent = 'Transcription audio via Whisper… (peut prendre 30-60 s)';
+                showProg(10);
+                transcript = await CecbApi.callWhisper(file, 120000);
+            }
+
+            if (!transcript || !transcript.trim()) {
+                if (status) status.textContent = 'Aucun texte obtenu.';
+                hideProg();
+                return;
+            }
+
+            showProg(50);
+            if (status) status.textContent = 'Analyse du transcript et pré-remplissage du formulaire… (Claude)';
+
+            // Step 2: send transcript to Claude to extract structured form data
+            var extractPrompt =
+                'Tu reçois la transcription d\'une visite de bâtiment réalisée par un expert CECB. ' +
+                'Extrais les données du bâtiment et retourne un objet JSON avec les clés correspondant aux champs du formulaire ci-dessous. ' +
+                'Pour chaque valeur, utilise le texte exact tel qu\'il apparaît dans les options du formulaire (ex: "Inclinée tuiles", "PVC", "Chaudière mazout à condensation", etc.). ' +
+                'Si une donnée n\'est pas mentionnée dans le transcript, omets la clé (ne mets pas de valeur vide). ' +
+                'Retourne UNIQUEMENT le JSON, sans commentaire ni markdown.\n\n' +
+                'Clés possibles et valeurs attendues :\n' +
+                '- adresse (string libre)\n- canton ("Vaud (VD)" | "Genève (GE)" | "Fribourg (FR)" | etc.)\n' +
+                '- annee_constr (number)\n- annee_reno (string)\n' +
+                '- affectation ("Cat. I — Habitat collectif" | "Cat. II — Habitat individuel" | "Autre")\n' +
+                '- etages (string ex "R+2 / 6 appts")\n' +
+                '- toit_type ("Inclinée tuiles" | "Plate" | "Mansardée" | "Mixte" | etc.)\n' +
+                '- combles ("Aménagés chauffés" | "Froids" | "Partiellement aménagés")\n' +
+                '- toit_iso_mat ("Laine minérale" | "EPS" | "XPS" | "PUR/PIR" | "Fibre de bois" | "Aucune")\n' +
+                '- toit_iso_ep (string cm)\n- toit_etat ("Neuf / récent" | "Bon" | "Usé" | "Abîmé" | "Fin de vie")\n' +
+                '- toit_annee (string)\n- toit_notes (string)\n' +
+                '- toit2_config, toit2_iso_mat, toit2_iso_ep, toit2_etat, toit2_annee, toit2_notes\n' +
+                '- murs_comp ("Maçonnerie homogène" | "Maçonnerie double paroi sans isolation" | "Maçonnerie double paroi avec isolation" | "Brique creuse (TC)" | "Béton armé" | "Moellon" | "Ossature bois")\n' +
+                '- murs_iso_ext (string), murs_iso_int (string), murs_iso_inter (string)\n' +
+                '- murs_ss_terrain, murs_ss_lnc\n- u_murs_ext, u_murs_lnc (number)\n' +
+                '- fen_cadre ("PVC" | "Bois" | "Bois-métal" | "Aluminium")\n' +
+                '- fen_vit ("Simple vitrage" | "Double vitrage — intercalaire alu" | "Double vitrage — warm-edge" | "Triple vitrage")\n' +
+                '- fen_annee (string)\n- uw_fen (number)\n- porte (string)\n' +
+                '- sol_type, sol_iso (string), sol_distrib, u_sol_ext, u_sol_lnc (number)\n' +
+                '- pt_niveau, pt_traitement, pt_emplacements, pt_notes\n' +
+                '- vent_sys ("Naturelle" | "VMC simple flux" | "VMC double flux avec récup. de chaleur")\n' +
+                '- vent_annee, vent_notes\n' +
+                '- ch_type ("Chaudière mazout à condensation" | "Chaudière gaz à condensation" | "PAC air-eau" | "Chauffage électrique direct" | "Chauffage à distance (CAD)" | etc.)\n' +
+                '- ch_marque, ch_puiss, ch_annee, ch_etat, ch_distrib, ch_appoint, ch_conso, ch_cad\n' +
+                '- ecs_type, ecs_annee, ecs_details\n- app_notes\n' +
+                '- pv_presence ("Oui" | "Non"), pv_kwc, pv_panneaux, pv_annee, pv_batterie, pv_bat_detail, pv_charpente\n' +
+                '- cl_env, cl_eff, cl_co2 ("A"-"G")\n- reno_exemplaire, reno_annee\n- notes (string)\n\n' +
+                'Transcript :\n\n' + transcript;
+
+            var jsonResponse = await CecbApi.callClaude({
+                system: 'Tu es un assistant spécialisé en extraction de données de bâtiment depuis des transcriptions de visites CECB. Retourne uniquement un objet JSON valide.',
+                userMessage: extractPrompt,
+                maxTokens: 2000,
+                timeoutMs: 60000
+            });
+
+            showProg(90);
+            if (status) status.textContent = 'Parsing des données extraites…';
+
+            // Parse JSON from Claude response
+            var extracted = CecbApi.parseJsonResponse(jsonResponse);
+
+            // Apply to form (only non-empty values, don't overwrite existing filled fields)
+            var f = form();
+            if (f && extracted) {
+                var filled = 0;
+                Object.keys(extracted).forEach(function (key) {
+                    var val = extracted[key];
+                    if (val === null || val === undefined || val === '') return;
+                    var el = f.elements[key];
+                    if (!el) return;
+                    // Only fill if field is currently empty
+                    if (!el.value) {
+                        el.value = String(val);
+                        filled++;
+                    }
+                });
+                if (status) status.textContent = filled + ' champs pré-remplis depuis le transcript. Vérifiez et complétez.';
+            }
+
+            showProg(100);
+            setTimeout(hideProg, 600);
+            autoSave();
+        } catch (e) {
+            console.error('[redaction] audio import error:', e);
+            if (status) status.textContent = 'Erreur : ' + e.message;
+            hideProg();
+        }
+    }
+
     return {
         init: init,
         generateAll: generateAll,
@@ -725,7 +843,8 @@ var Redaction = (function () {
         save: manualSave,
         exportBlock: exportBlock,
         exportCopy: exportCopy,
-        exportClose: exportClose
+        exportClose: exportClose,
+        handleAudioFile: handleAudioFile
     };
 })();
 

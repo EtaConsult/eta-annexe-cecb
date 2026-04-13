@@ -573,4 +573,131 @@ Avant de remettre les textes à l'utilisateur, vérifier que :
 - [ ] Les sections « Comportement utilisateur » et « Revalorisation » sont présentes
 - [ ] Le ton est sobre, technique, sans emphase ni adverbes superflus
 - [ ] Aucune liste à puces dans le corps des sections (uniquement texte continu)
+- [ ] Les montants de subventions PB cités correspondent aux barèmes 2026 (§ 7.1)
+- [ ] Pour les bâtiments > 1000 m d'altitude, la condition de classe CECB est A–C (et non A–E)
+- [ ] Le DACCE est mentionné pour les bâtiments VD avec chauffage/chauffe-eau électrique
+- [ ] Les durées de vie de référence (§ 7.3) sont cohérentes avec l'évaluation de l'état des éléments
+
+---
+
+## 7. Données de référence techniques
+
+### 7.1 Programme Bâtiments 2026 — Montants et conditions (Canton de Vaud, v.1.1)
+
+Source : *DGE-DIREN, « Programme Bâtiments 2026 — Montants et conditions d'éligibilité », janvier 2026, v.1.1*
+
+**Règles générales**
+- Permis de construire avant 2000 requis (sauf mention contraire).
+- Plafond PB (mesures M) : CHF 200'000.– par mesure (CHF 300'000.– si locatif sans hausse de loyer).
+- Plafond IP (mesures IP) : CHF 100'000.– par mesure.
+- Subvention plafonnée à 50 % du coût des travaux.
+- Fenêtres et éléments contre locaux non chauffés (plancher combles, plafond caves) : **NON subventionnés seuls** — uniquement dans le cadre de rénovations globales (M-10, M-12, M-13, IP-14, M-15).
+- Puissance déterminante plafonnée à 50 W/m² de SRE avant travaux.
+- CECB réactualisé après travaux obligatoire pour les mesures chauffage.
+- Radiateurs existants doivent être équipés de vannes thermostatiques.
+
+#### Isolation thermique
+
+| Mesure | Élément | Seuil U | Montant |
+|---|---|---|---|
+| M-01 | Façade, toit, sol contre ext., murs/sol enterrés < 2 m | U ≤ 0,20 | CHF 40.–/m² |
+| M-01 | Idem | U ≤ 0,15 | CHF 70.–/m² |
+| M-01 | Idem + PV couplé (≥ 50 % toiture favorable) | U ≤ 0,15 | CHF 100.–/m² |
+| M-01 | Murs et sols enterrés > 2 m | U ≤ 0,25 | CHF 40.–/m² |
+| M-01 | Murs et sols enterrés > 2 m | U ≤ 0,15 | CHF 70.–/m² |
+
+Conditions M-01 : amélioration U ≥ 0,07 W/m²K, minimum CHF 3'000.– par demande. CECB Plus requis dès CHF 10'000.– de contribution.
+
+| Mesure | Bonus | Condition | Montant |
+|---|---|---|---|
+| IP-14 | Bonus rénovation globale (complément M-01) | ≥ 90 % façades + toit isolés M-01 | + CHF 40.–/m² enveloppe rénovée |
+| IP-14 | Bonus classe enveloppe (complément M-01) | Classe C enveloppe après travaux | + CHF 40.–/m² SRE |
+| IP-14 | Bonus classe enveloppe (complément M-01) | Classe B enveloppe après travaux | + CHF 50.–/m² SRE |
+| M-15 | Bonus Minergie (complément M-01) | Minergie rénovation | CHF 50.–/m² SRE |
+| M-15 | Bonus Minergie (complément M-01) | Minergie-P rénovation | CHF 80.–/m² SRE |
+
+IP-14 : somme M-01 + IP-14 plafonnée à 50 % du coût des travaux. Non cumulable avec M-10, M-12, M-13, M-15.
+
+#### Remplacement de chauffage (mazout, gaz ou électrique à résistance)
+
+**Condition commune (M-02 à M-07)** : bâtiments avant 2000 → classe CECB enveloppe **A à E** requise. Bâtiments **> 1'000 m d'altitude** → classe CECB enveloppe **A à C** requise. ECS assurée par renouvelable après travaux.
+
+| Mesure | Système | Montant ≤ 70 kW |
+|---|---|---|
+| M-02 | Bûches / pellets avec réservoir journalier | CHF 4'500.– |
+| M-03 | Bois automatique (pellets/plaquettes) | ≤ 20 kW ou hab. ind. : CHF 8'500.– / > 20 kW : CHF 4'500.– + 200.–/kW |
+| M-05 | PAC air/eau | ≤ 15 kW ou hab. ind. : CHF 5'000.– / > 15 kW : CHF 400.–/kW |
+| M-06 | PAC sol/eau ou eau/eau | ≤ 20 kW ou hab. ind. : CHF 20'000.– / > 20 kW : CHF 4'000.– + 800.–/kW |
+| M-07 | Raccordement CAD | ≤ 20 kW ou hab. ind. : CHF 6'000.– / > 20 kW : CHF 4'800.– + 60.–/kW |
+| M-08 | Capteurs solaires thermiques | ≤ 3 kW ou ECS hab. ind. : CHF 4'000.– / > 3 kW : CHF 2'500.– + 500.–/kW. **Doublé** si couplé M-01 ou remplacement simultané PAC/bois |
+
+Pour les puissances **> 70 kW**, des mesures IP (IP-04, IP-05, IP-06, IP-07, IP-08) existent avec des barèmes spécifiques au kW.
+
+| Mesure | Système | Condition |
+|---|---|---|
+| IP-19 | Remplacement chauffage décentralisé (élec. ou fossile) — 1ère installation réseau hydraulique | < 250 m² : CHF 15'000.– / > 250 m² : CHF 60.–/m² SRE |
+| M-09 | Ventilation double flux (habitations) | CHF 2'400.– par unité d'habitation. CECB env. A–C ou Minergie. 1ère installation. |
+
+#### Rénovations complètes
+
+| Mesure | Label | Hab. individuel | Hab. collectif | Autres |
+|---|---|---|---|---|
+| M-12 | Minergie rénovation | CHF 100.–/m² SRE | CHF 60.–/m² SRE | CHF 40.–/m² SRE |
+| M-12 | Minergie-P rénovation | CHF 155.–/m² SRE | CHF 90.–/m² SRE | CHF 65.–/m² SRE |
+| M-12 | Bonus ECO | + CHF 10.–/m² SRE | + CHF 10.–/m² SRE | + CHF 10.–/m² SRE |
+| M-13 | CECB C/B | CHF 90.–/m² SRE | CHF 50.–/m² SRE | CHF 35.–/m² SRE |
+| M-13 | CECB B/A | CHF 140.–/m² SRE | CHF 80.–/m² SRE | CHF 60.–/m² SRE |
+| M-10 | Saut de classe (bâtiments protégés MH/INV uniquement) | +2 à +6 classes : CHF 50–155.–/m² SRE | CHF 30–90.–/m² SRE | CHF 20–65.–/m² SRE |
+
+Non cumulables entre elles ni avec M-01, M-02–M-09, IP-14, M-15.
+
+### 7.2 DACCE — Assouplissements par classe CECB (Canton de Vaud, BLV 730.051)
+
+| Classe CECB enveloppe | IDE (kWh/m²) | Délai |
+|---|---|---|
+| A à C | ≤ 79 | Dispense provisoire |
+| D à E | 79 – 131 | Prolongation au 1ᵉʳ janvier 2038 |
+| F à G | > 131 | Délai maintenu : 1ᵉʳ janvier 2033 |
+
+**Alternatives pour chauffage décentralisé** : enveloppe CECB classe A, B ou C **OU** production d'électricité renouvelable couvrant ≥ 25 % des besoins de chauffage.
+
+**Alternative pour chauffe-eau décentralisé** : production d'électricité renouvelable couvrant ≥ 60 % des besoins ECS (PV-opti).
+
+**Exemption ECS** : si le chauffage a été remplacé par un système renouvelable avant l'entrée en vigueur du décret.
+
+**Sanctions** : amendes jusqu'à CHF 50'000.–
+
+### 7.3 Durées de vie de référence (CECB v6.5, Annexe D.2.3)
+
+| Élément | Durée de vie |
+|---|---|
+| Toiture, plancher des combles | 40 ans |
+| Fenêtres | 30 ans |
+| Murs extérieurs, sols, plafonds sous-sol | 50 ans |
+| Ventilation (VMC) | 20 ans |
+| Chauffage, ECS | 20 ans |
+| Capteurs solaires thermiques | 25 ans |
+| Appareils électriques | 15 ans |
+
+Utiliser ces durées pour évaluer si un élément approche ou a dépassé sa fin de vie théorique : `[année actuelle] − [année de l'élément] ≥ durée de vie → fin de vie atteinte`.
+
+### 7.4 Estimation Uw fenêtres par époque (Merkblatt Fenster 2021)
+
+| Époque | Type de vitrage | Cadre bois | Cadre PVC |
+|---|---|---|---|
+| Avant 1960 | Simple vitrage | ~5,0 | — |
+| 1960 – 1980 | Double ancien (intercalaire alu) | ~2,5 | ~2,6 |
+| 1980 – 1990 | Double isolant argon | 1,9 – 2,0 | 2,0 – 2,2 |
+| Après 1990 | Double sélectif argon | 1,5 – 1,7 | 1,8 – 2,0 |
+| Après 2010 | Triple sélectif argon | 0,9 – 1,0 | 0,8 – 0,9 |
+
+Utiliser cette table pour estimer le Uw lorsque l'utilisateur ne fournit pas de valeur. Toujours signaler l'estimation avec « vraisemblablement » ou « nous estimons ».
+
+### 7.5 Condition d'altitude pour subventions chauffage
+
+Pour les mesures M-02 à M-07 (remplacement chauffage) :
+- **Altitude ≤ 1'000 m** : classe CECB enveloppe **A à E** requise (bâtiments avant 2000)
+- **Altitude > 1'000 m** : classe CECB enveloppe **A à C** requise (bâtiments avant 2000)
+
+L'altitude du bâtiment est connue via les API Swisstopo (champ altitude du formulaire). Si l'altitude n'est pas fournie, ne pas mentionner cette condition spécifique.
 - [ ] La cohérence est respectée entre les sections (ex. si on remplace le chauffage par une PAC, le PV doit suggérer le couplage)

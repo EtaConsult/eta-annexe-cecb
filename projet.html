@@ -765,6 +765,44 @@
         <h1>Rédaction CECB</h1>
         <p class="subtitle">Formulaire bâtiment → génération automatique des textes d'évaluation et remarques (style Êta Consult)</p>
 
+        <!-- Import audio de visite -->
+        <div class="r-card" style="background:linear-gradient(135deg,#f0fdf4,#ecfdf5);border-color:#6ee7b7">
+            <h3 style="color:#065f46">Import transcription de visite</h3>
+            <p style="font-size:12px;color:#064e3b;margin:0 0 10px">Importez un enregistrement audio (.mp3, .m4a, .wav) ou un fichier texte (.txt) de visite. Le transcript sera analysé et les champs du formulaire pré-remplis automatiquement.</p>
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+                <input type="file" id="redaction-audio-input" accept=".mp3,.m4a,.wav,.webm,.ogg,.mpeg,.mpga,.oga,.txt" style="display:none" onchange="Redaction.handleAudioFile(this)">
+                <button type="button" class="btn" style="background:#059669;color:#fff;border:none" onclick="document.getElementById('redaction-audio-input').click()">Importer un enregistrement de visite</button>
+                <span id="redaction-audio-status" style="font-size:12px;color:#064e3b"></span>
+            </div>
+            <div id="redaction-audio-progress" style="display:none;margin-top:8px;height:6px;background:#d1fae5;border-radius:99px;overflow:hidden">
+                <div class="bar" style="height:100%;width:0%;background:linear-gradient(90deg,#10b981,#059669);transition:width .4s"></div>
+            </div>
+        </div>
+
+        <!-- Documents source -->
+        <details class="r-card" style="cursor:pointer">
+            <summary style="font-size:13px;text-transform:uppercase;letter-spacing:1px;color:#2c5f2d;font-weight:700;list-style:none;display:flex;align-items:center;gap:8px"><span style="font-size:10px">&#9654;</span> Documents source et références</summary>
+            <div style="margin-top:12px;font-size:12px;color:#475569;line-height:1.7">
+                <table style="width:100%;border-collapse:collapse;font-size:12px">
+                    <thead><tr style="border-bottom:1px solid #e2e8f0;text-align:left"><th style="padding:4px 8px">Document</th><th style="padding:4px 8px">Source</th><th style="padding:4px 8px">Version</th></tr></thead>
+                    <tbody>
+                        <tr><td style="padding:4px 8px">Programme Bâtiments 2026</td><td style="padding:4px 8px"><a href="https://www.leprogrammebatiments.ch/" target="_blank" style="color:#2c5f2d">leprogrammebatiments.ch</a></td><td style="padding:4px 8px">v.1.1, janvier 2026</td></tr>
+                        <tr><td style="padding:4px 8px">DACCE — Chauffages et chauffe-eau électriques (VD)</td><td style="padding:4px 8px"><a href="https://www.vd.ch/environnement/energie/legislation/chauffages-et-chauffe-eaux-electriques" target="_blank" style="color:#2c5f2d">vd.ch</a></td><td style="padding:4px 8px">RSV 730.051, en vigueur 01.01.2025</td></tr>
+                        <tr><td style="padding:4px 8px">Méthodologie CECB®</td><td style="padding:4px 8px"><a href="https://www.cecb.ch/fr/" target="_blank" style="color:#2c5f2d">cecb.ch</a></td><td style="padding:4px 8px">v6.5 (mise à jour 2023)</td></tr>
+                        <tr><td style="padding:4px 8px">Critères d'évaluation enveloppe (Tab. 43/44)</td><td style="padding:4px 8px">SIA 380/1:2009</td><td style="padding:4px 8px">Tableaux intégrés au skill</td></tr>
+                        <tr><td style="padding:4px 8px">Estimation Uw fenêtres par époque</td><td style="padding:4px 8px">Merkblatt Fenster 2021</td><td style="padding:4px 8px">Intégrée au skill</td></tr>
+                        <tr><td style="padding:4px 8px">Durées de vie de référence</td><td style="padding:4px 8px">CECB v6.5, Annexe D.2.3</td><td style="padding:4px 8px">Intégrées au skill</td></tr>
+                        <tr><td style="padding:4px 8px">DGE-DIREN (Énergie VD)</td><td style="padding:4px 8px"><a href="https://www.vd.ch/themes/environnement/energie" target="_blank" style="color:#2c5f2d">vd.ch/energie</a></td><td style="padding:4px 8px">—</td></tr>
+                        <tr><td style="padding:4px 8px">OCEN (Énergie GE)</td><td style="padding:4px 8px"><a href="https://www.ge.ch/dossier/economiser-energie" target="_blank" style="color:#2c5f2d">ge.ch</a></td><td style="padding:4px 8px">—</td></tr>
+                        <tr><td style="padding:4px 8px">EnDK (MoPEC)</td><td style="padding:4px 8px"><a href="https://www.endk.ch/fr" target="_blank" style="color:#2c5f2d">endk.ch</a></td><td style="padding:4px 8px">—</td></tr>
+                        <tr><td style="padding:4px 8px">Pronovo (subventions PV)</td><td style="padding:4px 8px"><a href="https://pronovo.ch/fr/" target="_blank" style="color:#2c5f2d">pronovo.ch</a></td><td style="padding:4px 8px">—</td></tr>
+                        <tr><td style="padding:4px 8px">Topten (électroménager)</td><td style="padding:4px 8px"><a href="https://www.topten.ch/" target="_blank" style="color:#2c5f2d">topten.ch</a></td><td style="padding:4px 8px">—</td></tr>
+                        <tr><td style="padding:4px 8px">Skill cecb-redaction (gabarits + style)</td><td style="padding:4px 8px">cecb-redaction-skill.md</td><td style="padding:4px 8px">Embarqué dans l'app</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </details>
+
         <style>
             #redaction-form .r-card{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:16px 18px;margin-bottom:14px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
             #redaction-form .r-card h3{font-size:13px;text-transform:uppercase;letter-spacing:1px;margin:0 0 12px;color:#2c5f2d;border-bottom:1px solid #e2e8f0;padding-bottom:6px}
