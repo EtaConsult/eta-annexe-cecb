@@ -1191,7 +1191,7 @@
                         <div id="wpDocxDropzone" class="dropzone" style="border:2px dashed var(--r-primary);border-radius:var(--r-radius);padding:20px;text-align:center;cursor:pointer;transition:all .2s;background:#F0FDF4">
                             <div style="font-size:28px;margin-bottom:6px">📝</div>
                             <div><strong>Glissez le .docx vierge</strong></div>
-                            <div style="font-size:.8em;color:var(--r-grey);margin-top:4px">Le rapport vierge généré par l'outil CECB officiel pour ce projet. C'est ce fichier que l'outil va modifier.</div>
+                            <div style="font-size:.8em;color:var(--r-grey);margin-top:4px">Le rapport vierge généré par l'outil CECB officiel pour ce projet.</div>
                             <input type="file" id="wpDocxFileInput" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none">
                         </div>
                         <div id="wpDocxStatus" style="margin-top:8px;font-size:.9em"></div>
@@ -1201,45 +1201,59 @@
                         <div id="wpPdfDropzone" class="dropzone" style="border:2px dashed var(--r-border);border-radius:var(--r-radius);padding:20px;text-align:center;cursor:pointer;transition:all .2s">
                             <div style="font-size:28px;margin-bottom:6px">📄</div>
                             <div><strong>Glissez le PDF CECB</strong></div>
-                            <div style="font-size:.8em;color:var(--r-grey);margin-top:4px">Complète classes A-G, valeurs U, consommation si absentes du projet.</div>
+                            <div style="font-size:.8em;color:var(--r-grey);margin-top:4px">Extrait classes A-G, valeurs U, consommation.</div>
                             <input type="file" id="wpPdfFileInput" accept="application/pdf" style="display:none">
                         </div>
                         <div id="wpPdfStatus" style="margin-top:8px;font-size:.9em"></div>
                     </div>
                 </div>
+                <div style="margin-top:14px;padding:12px;background:#FEF3C7;border:1px solid #FCD34D;border-radius:var(--r-radius);display:flex;gap:12px;align-items:center">
+                    <div style="flex:1">
+                        <strong style="color:#92400E">Importer les données extraites</strong>
+                        <div style="font-size:.85em;color:#78350F;margin-top:2px">Après avoir chargé les fichiers, cliquez pour fusionner les données extraites (civilité, mandataire, dates, n° CECB, classes CECB, valeurs U, consommation…) dans le formulaire. Les valeurs saisies manuellement ne seront pas écrasées.</div>
+                    </div>
+                    <button type="button" class="btn btn-primary" id="wpImportBtn" onclick="wpImportExtractedData()" disabled style="padding:10px 20px;font-weight:600">↓ Importer les données</button>
+                </div>
             </div>
         </div>
 
-        <!-- Section Métadonnées bâtiment -->
+        <!-- Section Métadonnées bâtiment (READ-ONLY, source : onglet Editeur de texte) -->
         <div class="recueil-section">
             <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> Métadonnées bâtiment <span class="wp-badge" data-section="batiment"></span></h3></div>
             <div class="section-body">
-                <div class="form-row">
-                    <div class="form-group"><label>Adresse <span class="wp-status" data-field="adresse"></span></label><input type="text" id="wp-adresse" readonly></div>
-                    <div class="form-group"><label>Commune <span class="wp-status" data-field="commune"></span></label><input type="text" id="wp-commune"></div>
-                    <div class="form-group"><label>N° EGID <span class="wp-status" data-field="egid"></span></label><input type="text" id="wp-egid"></div>
+                <div id="wpBatimentInvite" class="hint" style="display:none;margin-bottom:10px;padding:10px;background:#FEF3C7;border:1px solid #FCD34D;border-radius:6px;color:#78350F">
+                    ⚠️ Certaines données sont manquantes. Complétez-les dans l'onglet <a href="#" onclick="switchProjetTab('recueil');return false" style="font-weight:600;color:#92400E;text-decoration:underline">Editeur de texte</a> pour garantir la cohérence de l'analyse CECB globale.
                 </div>
                 <div class="form-row">
-                    <div class="form-group"><label>Affectation <span class="wp-status" data-field="affectation"></span></label><input type="text" id="wp-affectation"></div>
-                    <div class="form-group"><label>Année construction <span class="wp-status" data-field="annee"></span></label><input type="text" id="wp-annee"></div>
-                    <div class="form-group"><label>SRE (m²) <span class="wp-status" data-field="sre"></span></label><input type="text" id="wp-sre"></div>
+                    <div class="form-group"><label>Adresse <span class="wp-status" data-field="adresse"></span></label><input type="text" id="wp-adresse" readonly style="background:#F9FAFB"></div>
+                    <div class="form-group"><label>Commune <span class="wp-status" data-field="commune"></span></label><input type="text" id="wp-commune" readonly style="background:#F9FAFB"></div>
+                    <div class="form-group"><label>N° EGID <span class="wp-status" data-field="egid"></span></label><input type="text" id="wp-egid" readonly style="background:#F9FAFB"></div>
                 </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Affectation <span class="wp-status" data-field="affectation"></span></label><input type="text" id="wp-affectation" readonly style="background:#F9FAFB"></div>
+                    <div class="form-group"><label>Année construction <span class="wp-status" data-field="annee"></span></label><input type="text" id="wp-annee" readonly style="background:#F9FAFB"></div>
+                    <div class="form-group"><label>SRE (m²) <span class="wp-status" data-field="sre"></span></label><input type="text" id="wp-sre" readonly style="background:#F9FAFB"></div>
+                </div>
+                <div class="hint" style="margin-top:6px;color:var(--r-grey);font-size:.8em;font-style:italic">Lecture seule — source : onglet « Editeur de texte ».</div>
             </div>
         </div>
 
-        <!-- Section Classes CECB -->
+        <!-- Section Classes CECB (READ-ONLY, source : onglet Classes CECB ou PDF) -->
         <div class="recueil-section">
             <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> Classes CECB (A–G) <span class="wp-badge" data-section="classes"></span></h3></div>
             <div class="section-body">
+                <div id="wpClassesInvite" class="hint" style="display:none;margin-bottom:10px;padding:10px;background:#FEF3C7;border:1px solid #FCD34D;border-radius:6px;color:#78350F">
+                    ⚠️ Classes CECB manquantes. Renseignez-les dans l'onglet <a href="#" onclick="switchProjetTab('classes');return false" style="font-weight:600;color:#92400E;text-decoration:underline">Classes CECB</a> OU uploadez le PDF CECB officiel pour les extraire automatiquement.
+                </div>
                 <div class="form-row">
                     <div class="form-group"><label>Efficacité enveloppe <span class="wp-status" data-field="classeEnv"></span></label>
-                        <select id="wp-classe-env"><option value="">—</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option></select></div>
+                        <input type="text" id="wp-classe-env" readonly style="background:#F9FAFB"></div>
                     <div class="form-group"><label>Efficacité globale <span class="wp-status" data-field="classeGlob"></span></label>
-                        <select id="wp-classe-glob"><option value="">—</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option></select></div>
+                        <input type="text" id="wp-classe-glob" readonly style="background:#F9FAFB"></div>
                     <div class="form-group"><label>Émissions CO₂ <span class="wp-status" data-field="classeCo2"></span></label>
-                        <select id="wp-classe-co2"><option value="">—</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option></select></div>
+                        <input type="text" id="wp-classe-co2" readonly style="background:#F9FAFB"></div>
                 </div>
-                <div class="hint" style="margin-top:6px;color:var(--r-grey);font-size:.8em;font-style:italic">Pré-rempli depuis l'onglet "Classes CECB" ou extraction PDF. Éditable.</div>
+                <div class="hint" style="margin-top:6px;color:var(--r-grey);font-size:.8em;font-style:italic">Lecture seule — source : onglet « Classes CECB » ou extraction PDF.</div>
             </div>
         </div>
 
@@ -1272,24 +1286,27 @@
             </div>
         </div>
 
-        <!-- Section Variantes (tableau récapitulatif avec cases à cocher) -->
+        <!-- Section Variantes (READ-ONLY, source : onglet Variantes) -->
         <div class="recueil-section">
             <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> Tableau récapitulatif des variantes <span class="wp-badge" data-section="variantes"></span></h3></div>
             <div class="section-body">
+                <div id="wpVariantesInvite" class="hint" style="display:none;margin-bottom:10px;padding:10px;background:#FEF3C7;border:1px solid #FCD34D;border-radius:6px;color:#78350F">
+                    ⚠️ Aucune variante définie. Renseignez-les dans l'onglet <a href="#" onclick="switchProjetTab('variantes');return false" style="font-weight:600;color:#92400E;text-decoration:underline">Variantes</a> pour garantir la cohérence avec l'analyse CECB Plus.
+                </div>
                 <div class="form-row" style="margin-bottom:10px">
-                    <div class="form-group"><label>Nom Variante 1</label><input type="text" id="wp-vname-0" placeholder="Travaux correctif"></div>
-                    <div class="form-group"><label>Nom Variante 2</label><input type="text" id="wp-vname-1" placeholder="Rénovation toiture"></div>
-                    <div class="form-group"><label>Nom Variante 3</label><input type="text" id="wp-vname-2" placeholder="Rénovation globale"></div>
+                    <div class="form-group"><label>Nom Variante 1</label><input type="text" id="wp-vname-0" readonly style="background:#F9FAFB"></div>
+                    <div class="form-group"><label>Nom Variante 2</label><input type="text" id="wp-vname-1" readonly style="background:#F9FAFB"></div>
+                    <div class="form-group"><label>Nom Variante 3</label><input type="text" id="wp-vname-2" readonly style="background:#F9FAFB"></div>
                 </div>
                 <div class="form-row" style="margin-bottom:12px">
-                    <div class="form-group"><label>Coût V1 (CHF)</label><input type="text" id="wp-vcost-0" placeholder="125'000.-"></div>
-                    <div class="form-group"><label>Coût V2 (CHF)</label><input type="text" id="wp-vcost-1" placeholder="204'000.-"></div>
-                    <div class="form-group"><label>Coût V3 (CHF)</label><input type="text" id="wp-vcost-2" placeholder="271'000.-"></div>
+                    <div class="form-group"><label>Coût V1 (CHF)</label><input type="text" id="wp-vcost-0" readonly style="background:#F9FAFB"></div>
+                    <div class="form-group"><label>Coût V2 (CHF)</label><input type="text" id="wp-vcost-1" readonly style="background:#F9FAFB"></div>
+                    <div class="form-group"><label>Coût V3 (CHF)</label><input type="text" id="wp-vcost-2" readonly style="background:#F9FAFB"></div>
                 </div>
                 <div id="wpVarGrid" style="overflow-x:auto">
-                    <!-- rendu par wpRenderVariantsGrid() -->
+                    <!-- rendu par wpRenderVariantsGrid() — cases en lecture seule -->
                 </div>
-                <div class="hint" style="margin-top:8px">Pré-rempli depuis l'onglet « Variantes ». Les ✓ indiquent quelles interventions sont incluses dans chaque variante.</div>
+                <div class="hint" style="margin-top:8px;color:var(--r-grey);font-size:.8em;font-style:italic">Lecture seule — source : onglet « Variantes ». Les ✓ indiquent les interventions incluses.</div>
             </div>
         </div>
 

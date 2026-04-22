@@ -423,6 +423,107 @@
         });
     }
 
+    /* ──── Extraction des données déjà présentes dans le .docx vierge uploadé ──── */
+    async function wpParseDocx(buffer) {
+        if (typeof PizZip === 'undefined') throw new Error('PizZip non chargé');
+        var zip;
+        try { zip = new PizZip(buffer); }
+        catch (e) { throw new Error('Fichier .docx invalide : ' + e.message); }
+        var docXmlEntry = zip.file('word/document.xml');
+        if (!docXmlEntry) throw new Error('word/document.xml introuvable');
+        var xml = docXmlEntry.asText();
+        var doc = _parseDocXml(xml);
+
+        var out = { _raw: xml };
+
+        // Helpers d'extraction sur le texte des paragraphes
+        var paras = doc.getElementsByTagNameNS(W_NS, 'p');
+        var allParaTexts = [];
+        for (var i = 0; i < paras.length; i++) {
+            allParaTexts.push(_paraText(paras[i]));
+        }
+        var fullText = allParaTexts.join('\n');
+
+        // Numéro CECB
+        var mNum = fullText.match(/\b([A-Z]{2}-\d{5,8}\.\d{2})\b/);
+        if (mNum) out.numCecb = mNum[1];
+
+        // Civilité + nom mandataire — forme "Madame|Monsieur <Nom>"
+        var mCiv = fullText.match(/\b(Madame|Monsieur)\s+([A-ZÀ-Ü][\p{L}\-']+(?:\s+[A-ZÀ-Ü][\p{L}\-']+){1,3})/u);
+        if (mCiv) {
+            out.civilite = mCiv[1];
+            out.mandNom = mCiv[2];
+        }
+
+        // Email mandataire — premier email qui n'est PAS etaconsult.ch
+        var emails = fullText.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g) || [];
+        for (var ei = 0; ei < emails.length; ei++) {
+            if (emails[ei].indexOf('etaconsult') < 0) { out.mandMail = emails[ei]; break; }
+        }
+
+        // Téléphone mandataire — premier numéro CH qui n'est PAS 078 303 81 01 (tél expert)
+        var tels = fullText.match(/(\+41\s?\d{1,2}\s?\d{3}\s?\d{2}\s?\d{2}|0\d{2}\s?\d{3}\s?\d{2}\s?\d{2})/g) || [];
+        for (var ti = 0; ti < tels.length; ti++) {
+            var normalized = tels[ti].replace(/\s/g, '');
+            if (normalized !== '0783038101' && normalized !== '+41783038101') {
+                out.mandTel = tels[ti].trim();
+                break;
+            }
+        }
+
+        // Adresse mandataire — cherche "Route|Chemin|Rue|Avenue|Place <X>" + NPA 4 chiffres
+        // Utilise une heuristique : bloc mandataire = après "Mandat" ou "Mandataire"
+        var mandIdx = fullText.search(/Mandat(?:aire)?/i);
+        if (mandIdx >= 0) {
+            var mandBlock = fullText.substring(mandIdx, mandIdx + 500);
+            var addrM = mandBlock.match(/((?:Route|Chemin|Rue|Avenue|Av\.|Place|Ch\.|Pl\.)\s+[^\n,]{3,60})[\n,\s]+(\d{4}\s+[A-Za-zÀ-ÿ\-\s]{2,40})/);
+            if (addrM) out.mandAdr = addrM[1].trim() + ', ' + addrM[2].trim();
+        }
+
+        // Date d'établissement + date de visite — recherche par ancre (paragraphe contenant le label)
+        function extractDateByAnchor(anchorText) {
+            var match = _findParaByText(doc, anchorText);
+            if (!match) return '';
+            var parent = match.para.parentNode;
+            var allP = Array.prototype.slice.call(parent.childNodes).filter(function (n) { return n.nodeType === 1 && n.localName === 'p'; });
+            var idx = allP.indexOf(match.para);
+            if (idx < 0) return '';
+            var dateRe = /\b(\d{2})\.(\d{2})\.(\d{4})(?:\s+\d{2}:\d{2})?\b/;
+            for (var p = idx; p < Math.min(idx + 3, allP.length); p++) {
+                var m = _paraText(allP[p]).match(dateRe);
+                if (m) return m[3] + '-' + m[2] + '-' + m[1]; // ISO YYYY-MM-DD
+            }
+            return '';
+        }
+        out.dateRapport = extractDateByAnchor('Date d\u2019établissement')
+                       || extractDateByAnchor('Date d\'établissement')
+                       || extractDateByAnchor('Date, signature');
+        out.dateVisite = extractDateByAnchor('Date de la visite')
+                      || extractDateByAnchor('Visite des lieux');
+
+        // Adresse du bâtiment (souvent au début, après "Adresse")
+        var addrMatch = fullText.match(/Adresse[\s\S]{0,120}?((?:Route|Chemin|Rue|Avenue|Av\.|Place)\s+[^\n]{3,60}\s+\d{1,4}[a-z]?)\s+(\d{4}\s+[A-Za-zÀ-ÿ\-]{2,40})/);
+        if (addrMatch) {
+            out.adresse = addrMatch[1].trim() + ', ' + addrMatch[2].trim();
+            var cM = addrMatch[2].match(/\d{4}\s+(.+)/);
+            if (cM) out.commune = cM[1].trim();
+        }
+
+        // Affectation (Habitat individuel (Cat. II), etc.)
+        var affM = fullText.match(/(Habitat\s+(?:individuel|collectif)(?:\s+\(Cat\.\s*[IVX]+\))?|Administration|Écoles|Commerce|Restauration|Industrie|Hôpitaux|Dépôts)/);
+        if (affM) out.affectation = affM[1].trim();
+
+        // Année de construction
+        var yearM = fullText.match(/Année\s+de\s+construction\s+(\d{4})/);
+        if (yearM) out.annee = yearM[1];
+
+        // EGID
+        var egidM = fullText.match(/EGID[_\s\-]*EDID\s+(\d+_?\d*)/i);
+        if (egidM) out.egid = egidM[1];
+
+        return out;
+    }
+
     /* ──── Point d'entrée : rendu du .docx modifié ──── */
     async function wpRenderDocx(data) {
         if (typeof PizZip === 'undefined') throw new Error('PizZip non chargé');
@@ -589,6 +690,7 @@
 
     /* ──── Exports ──── */
     global.wpRenderDocx = wpRenderDocx;
+    global.wpParseDocx = wpParseDocx;
     global.wpBuildVariantesXml = wpBuildVariantesXml;
     global.wpBuildBasesRows = wpBuildBasesRows;
     global.wpFormatDateFr = wpFormatDateFr;

@@ -17,7 +17,9 @@
     var _wpTemplates = null;    // Templates chargés depuis bibliotheque/word-plus-templates.json
     var _wpEnhanceOriginals = {}; // Textes avant "Enrichir avec Claude" (pour undo)
     var _wpDocxBuffer = null;   // ArrayBuffer du .docx vierge CECB Plus uploadé (EN MÉMOIRE — pas persisté)
-    var _wpDocxFilename = '';   // Nom original du .docx uploadé (pour info)
+    var _wpDocxFilename = '';   // Nom original du .docx uploadé
+    var _wpDocxExtracted = null;// Données extraites du vierge (pending tant que l'utilisateur n'a pas importé)
+    var _wpPdfExtracted = null; // Données extraites du PDF CECB (pending)
 
     /* ──── Mapping champs UI → clés de l'objet state ──── */
     // Liste des (fieldKey, selector, type) — types : 'text' | 'textarea' | 'select' | 'checkbox' | 'nested'
@@ -28,9 +30,9 @@
         { key: 'affectation',  sel: '#wp-affectation',  type: 'text' },
         { key: 'annee',        sel: '#wp-annee',        type: 'text' },
         { key: 'sre',          sel: '#wp-sre',          type: 'text' },
-        { key: 'classeEnv',    sel: '#wp-classe-env',   type: 'select' },
-        { key: 'classeGlob',   sel: '#wp-classe-glob',  type: 'select' },
-        { key: 'classeCo2',    sel: '#wp-classe-co2',   type: 'select' },
+        { key: 'classeEnv',    sel: '#wp-classe-env',   type: 'text' },
+        { key: 'classeGlob',   sel: '#wp-classe-glob',  type: 'text' },
+        { key: 'classeCo2',    sel: '#wp-classe-co2',   type: 'text' },
         { key: 'civilite',     sel: '#wp-civilite',     type: 'select' },
         { key: 'mandNom',      sel: '#wp-mand-nom',     type: 'text' },
         { key: 'mandAdr',      sel: '#wp-mand-adr',     type: 'text' },
@@ -208,22 +210,14 @@
             var ck = checks[row.wpKey] || [false, false, false];
             html += '<tr>'
                 + '<td style="padding:6px 10px;border:1px solid var(--r-border)">' + _wpEsc(row.label) + '</td>'
-                + '<td style="padding:6px 10px;border:1px solid var(--r-border);text-align:center"><input type="checkbox" data-wp-var="' + row.wpKey + '" data-wp-idx="0"' + (ck[0] ? ' checked' : '') + '></td>'
-                + '<td style="padding:6px 10px;border:1px solid var(--r-border);text-align:center"><input type="checkbox" data-wp-var="' + row.wpKey + '" data-wp-idx="1"' + (ck[1] ? ' checked' : '') + '></td>'
-                + '<td style="padding:6px 10px;border:1px solid var(--r-border);text-align:center"><input type="checkbox" data-wp-var="' + row.wpKey + '" data-wp-idx="2"' + (ck[2] ? ' checked' : '') + '></td>'
+                + '<td style="padding:6px 10px;border:1px solid var(--r-border);text-align:center"><input type="checkbox" data-wp-var="' + row.wpKey + '" data-wp-idx="0" disabled' + (ck[0] ? ' checked' : '') + '></td>'
+                + '<td style="padding:6px 10px;border:1px solid var(--r-border);text-align:center"><input type="checkbox" data-wp-var="' + row.wpKey + '" data-wp-idx="1" disabled' + (ck[1] ? ' checked' : '') + '></td>'
+                + '<td style="padding:6px 10px;border:1px solid var(--r-border);text-align:center"><input type="checkbox" data-wp-var="' + row.wpKey + '" data-wp-idx="2" disabled' + (ck[2] ? ' checked' : '') + '></td>'
                 + '</tr>';
         });
         html += '</tbody></table>';
         container.innerHTML = html;
-        // Bind listeners
-        container.querySelectorAll('input[type="checkbox"][data-wp-var]').forEach(function (cb) {
-            cb.addEventListener('change', function () {
-                _wpDirty = true;
-                _wpState = wpCollectFormData();
-                wpUpdateStatusIndicators();
-                wordPlusAutoSave();
-            });
-        });
+        // Pas de binding : les cases sont en lecture seule (source = onglet Variantes)
     }
 
     function _wpEsc(s) {
@@ -300,6 +294,34 @@
 
         // Badges de section (résumé : "3/5 complétés")
         wpUpdateSectionBadges(data);
+
+        // Invites contextuelles (liens vers onglets sources si données manquantes)
+        wpUpdateContextualInvites(data);
+    }
+
+    function wpUpdateContextualInvites(data) {
+        // Bâtiment : si adresse OU année OU EGID OU SRE absent → invite Editeur
+        var batInv = document.getElementById('wpBatimentInvite');
+        if (batInv) {
+            var batMissing = !data.adresse || !data.annee || !data.egid || !data.sre;
+            batInv.style.display = batMissing ? 'block' : 'none';
+        }
+        // Classes : si au moins une classe absente → invite Classes CECB
+        var clsInv = document.getElementById('wpClassesInvite');
+        if (clsInv) {
+            var clsMissing = !data.classeEnv || !data.classeGlob || !data.classeCo2;
+            clsInv.style.display = clsMissing ? 'block' : 'none';
+        }
+        // Variantes : si aucune case cochée → invite Variantes
+        var varInv = document.getElementById('wpVariantesInvite');
+        if (varInv) {
+            var checks = data.variantsCheck || {};
+            var hasAnyCheck = Object.keys(checks).some(function (k) {
+                return (checks[k] || []).some(function (b) { return b; });
+            });
+            var noNames = !(data.variantNames && data.variantNames.some(function (n) { return n && n.trim(); }));
+            varInv.style.display = (!hasAnyCheck && noNames) ? 'block' : 'none';
+        }
     }
 
     function wpUpdateSectionBadges(data) {
@@ -481,17 +503,29 @@
             if (status) status.innerHTML = '<span class="wp-pdf-err">Fichier non reconnu (attendu : .docx)</span>';
             return;
         }
-        if (status) status.innerHTML = '<span style="color:var(--r-grey)">Chargement…</span>';
+        if (status) status.innerHTML = '<span style="color:var(--r-grey)">Chargement + extraction…</span>';
         file.arrayBuffer().then(function (buf) {
             _wpDocxBuffer = buf;
             _wpDocxFilename = file.name;
-            if (status) {
-                status.innerHTML = '<span class="wp-pdf-ok">✓ Chargé : ' + file.name + ' (' + Math.round(buf.byteLength / 1024) + ' KB)</span>';
+            if (typeof wpParseDocx === 'function') {
+                return wpParseDocx(buf).then(function (docxData) {
+                    _wpDocxExtracted = docxData || {};
+                    return { buf: buf, extracted: docxData || {} };
+                });
             }
+            _wpDocxExtracted = {};
+            return { buf: buf, extracted: {} };
+        }).then(function (res) {
+            var sizeKb = Math.round(res.buf.byteLength / 1024);
+            var extractedKeys = Object.keys(res.extracted).filter(function (k) { return k !== '_raw' && res.extracted[k]; });
+            var extrSummary = extractedKeys.length
+                ? ' · ' + extractedKeys.length + ' champ' + (extractedKeys.length > 1 ? 's' : '') + ' pré-extrait' + (extractedKeys.length > 1 ? 's' : '')
+                : '';
+            if (status) status.innerHTML = '<span class="wp-pdf-ok">✓ Chargé : ' + _wpDocxFilename + ' (' + sizeKb + ' KB)' + extrSummary + ' — cliquez « Importer »</span>';
             wpUpdateGenerateButton();
-            wpUpdateSectionBadges(_wpState || {});
+            wpUpdateImportButton();
         }).catch(function (err) {
-            if (status) status.innerHTML = '<span class="wp-pdf-err">Erreur lecture : ' + (err.message || err) + '</span>';
+            if (status) status.innerHTML = '<span class="wp-pdf-err">Erreur : ' + (err.message || err) + '</span>';
         });
     }
 
@@ -507,29 +541,94 @@
         }
     }
 
+    /* ──── Bouton "Importer les données" ──── */
+    function wpUpdateImportButton() {
+        var btn = document.getElementById('wpImportBtn');
+        if (!btn) return;
+        var hasSource = (_wpDocxExtracted && Object.keys(_wpDocxExtracted).filter(function (k) { return k !== '_raw' && _wpDocxExtracted[k]; }).length > 0)
+                     || (_wpPdfExtracted && Object.keys(_wpPdfExtracted).filter(function (k) { return k !== '_raw' && _wpPdfExtracted[k]; }).length > 0);
+        btn.disabled = !hasSource;
+        btn.title = hasSource ? '' : 'Chargez d\'abord le .docx vierge et/ou le PDF CECB';
+    }
+
+    function wpImportExtractedData() {
+        var merged = Object.assign({}, _wpState || {});
+        var imported = [];
+        // Champs extraits du .docx vierge (priorité basse, seulement si champ vide)
+        var docxFields = ['numCecb', 'civilite', 'mandNom', 'mandAdr', 'mandMail', 'mandTel',
+                          'dateRapport', 'dateVisite'];
+        if (_wpDocxExtracted) {
+            docxFields.forEach(function (k) {
+                if (_wpDocxExtracted[k] && (!merged[k] || !String(merged[k]).trim())) {
+                    merged[k] = _wpDocxExtracted[k];
+                    imported.push(k);
+                }
+            });
+        }
+        // Champs extraits du PDF CECB (priorité haute pour classes / valeurs U / conso)
+        if (_wpPdfExtracted) {
+            var pdfFields = ['numCecb', 'classeEnv', 'classeGlob', 'classeCo2', 'annee', 'sre'];
+            pdfFields.forEach(function (k) {
+                if (_wpPdfExtracted[k] && (!merged[k] || !String(merged[k]).trim())) {
+                    merged[k] = _wpPdfExtracted[k];
+                    imported.push(k + ' (PDF)');
+                }
+            });
+            if (_wpPdfExtracted.valeursU) {
+                merged.valeursU = Object.assign({}, merged.valeursU || {});
+                Object.keys(_wpPdfExtracted.valeursU).forEach(function (k) {
+                    if (!merged.valeursU[k] && _wpPdfExtracted.valeursU[k]) {
+                        merged.valeursU[k] = _wpPdfExtracted.valeursU[k];
+                    }
+                });
+            }
+            if (_wpPdfExtracted.consoMazout || _wpPdfExtracted.consoGaz || _wpPdfExtracted.consoElec) {
+                merged.consoMesuree = Object.assign({}, merged.consoMesuree || {}, {
+                    mazout: merged.consoMesuree && merged.consoMesuree.mazout ? merged.consoMesuree.mazout : (_wpPdfExtracted.consoMazout || ''),
+                    gaz:    merged.consoMesuree && merged.consoMesuree.gaz    ? merged.consoMesuree.gaz    : (_wpPdfExtracted.consoGaz || ''),
+                    elec:   merged.consoMesuree && merged.consoMesuree.elec   ? merged.consoMesuree.elec   : (_wpPdfExtracted.consoElec || '')
+                });
+            }
+        }
+
+        // Met à jour les labels dérivés après import
+        merged.affectation = merged.affectation || wpSiaLabel(merged.siaType);
+        merged.chaufSourceLbl = wpChaufLabel(merged.chaufSource);
+
+        _wpState = merged;
+
+        // Re-applique les templates de texte (pour que les placeholders se remplissent avec les nouvelles données)
+        if (_wpTemplates) wpApplyDefaultTexts(_wpState);
+
+        _wpDirty = true;
+        wpFillForm(_wpState);
+        wpUpdateStatusIndicators();
+        wpUpdateProgress();
+        wordPlusAutoSave();
+        if (imported.length) {
+            wpToast(imported.length + ' champ' + (imported.length > 1 ? 's' : '') + ' importé' + (imported.length > 1 ? 's' : '') + ' : ' + imported.slice(0, 5).join(', ') + (imported.length > 5 ? '…' : ''));
+        } else {
+            wpToast('Aucun nouveau champ à importer (tout est déjà rempli)', 'error');
+        }
+    }
+
     function wpHandlePdfFile(file) {
         var status = document.getElementById('wpPdfStatus');
         if (status) status.innerHTML = '<span style="color:var(--r-grey)">Extraction en cours…</span>';
         if (typeof wpParsePdf !== 'function') {
-            if (status) status.innerHTML = '<span class="wp-pdf-err">Module PDF non chargé (Phase 3)</span>';
+            if (status) status.innerHTML = '<span class="wp-pdf-err">Module PDF non chargé</span>';
             return;
         }
         wpParsePdf(file).then(function (pdfData) {
-            // Fusion : ne remplace que les champs vides
-            var merged = wpMergePdfData(_wpState, pdfData);
-            _wpState = merged;
-            _wpDirty = true;
-            wpFillForm(_wpState);
-            wpUpdateStatusIndicators();
-            wpUpdateProgress();
-            wordPlusAutoSave();
+            _wpPdfExtracted = pdfData || {};
             if (status) {
                 var extracted = [];
-                if (pdfData.numCecb) extracted.push('n° CECB ' + pdfData.numCecb);
+                if (pdfData.numCecb) extracted.push('n° ' + pdfData.numCecb);
                 if (pdfData.classeEnv) extracted.push('classes ' + pdfData.classeEnv + '/' + (pdfData.classeGlob || '?') + '/' + (pdfData.classeCo2 || '?'));
                 if (pdfData.consoMazout) extracted.push('mazout ' + pdfData.consoMazout + ' kWh/a');
-                status.innerHTML = '<span class="wp-pdf-ok">✓ PDF extrait : ' + (extracted.join(' · ') || 'aucune donnée reconnue') + '</span>';
+                status.innerHTML = '<span class="wp-pdf-ok">✓ Pré-extrait : ' + (extracted.join(' · ') || 'aucune donnée reconnue') + ' — cliquez « Importer »</span>';
             }
+            wpUpdateImportButton();
         }).catch(function (err) {
             if (status) status.innerHTML = '<span class="wp-pdf-err">Erreur : ' + (err.message || err) + '</span>';
         });
@@ -749,6 +848,8 @@
     global.wpUpdateGenerateButton = wpUpdateGenerateButton;
     global.wpHandleDocxFile = wpHandleDocxFile;
     global.wpSetupDocxDropzone = wpSetupDocxDropzone;
+    global.wpImportExtractedData = wpImportExtractedData;
+    global.wpUpdateImportButton = wpUpdateImportButton;
     global.wpUpdateStatusIndicators = wpUpdateStatusIndicators;
     global.wpUpdateProgress = wpUpdateProgress;
     global.wpLoadTemplates = wpLoadTemplates;
