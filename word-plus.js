@@ -648,6 +648,7 @@
         wordPlusAutoSave(true);
         var data = wpCollectFormData();
         data._docxBuffer = _wpDocxBuffer;
+        data._docxFilename = _wpDocxFilename;
         var btn = document.getElementById('wpGenerateBtn');
         var statusEl = document.getElementById('wpGenStatus');
         if (btn) { btn.disabled = true; btn.textContent = 'Modification en cours…'; }

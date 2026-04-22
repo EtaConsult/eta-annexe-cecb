@@ -681,9 +681,8 @@
             compression: 'DEFLATE'
         });
 
-        var numPart = (data.numCecb || 'rapport').replace(/[^\w.-]/g, '_');
-        var datePart = (data.dateRapport || '').replace(/-/g, '');
-        var filename = 'CECB_Plus_' + numPart + (datePart ? '_' + datePart : '') + '_modifie.docx';
+        var baseName = (data._docxFilename || '').replace(/\.docx$/i, '').trim();
+        var filename = (baseName ? baseName + '_\u00eata' : 'CECB_Plus_\u00eata') + '.docx';
         saveAs(blob, filename);
         return { filename: filename, size: blob.size };
     }
