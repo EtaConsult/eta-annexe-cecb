@@ -445,43 +445,109 @@
 
         // 3. Appliquer les modifications
         // — Corrections simples (remplacements de chaînes dans les <w:t>)
-        // Civilité + mandataire : on cherche les formes typiques du vierge
-        if (data.civilite && data.mandNom) {
-            // Remplacement prudent : on cible les paires "Madame X" ou "Monsieur X" dans le doc.
-            // Ces chaînes se trouvent généralement dans la section Mandat ou Page de garde.
-            _replaceInDoc(doc, 'Madame Lionel Christen', data.civilite + ' ' + data.mandNom);
-            _replaceInDoc(doc, 'Monsieur Lionel Christen', data.civilite + ' ' + data.mandNom);
-            // Si le vierge contient un autre nom (détection générique impossible sans ancre
-            // fiable), l'utilisateur devra éditer le nom manuellement dans le .docx
-            // généré. On fournit une indication dans le status.
-        }
 
-        // Numéro CECB — remplace toutes les occurrences VD-XXXXX.xx si data.numCecb différent
-        if (data.numCecb) {
-            // Remplace tout motif VD-XXXXX.XX par la valeur saisie
-            var regex = /([A-Z]{2}-\d{5,8}\.\d{2})/g;
-            var texts = doc.getElementsByTagNameNS(W_NS, 't');
-            for (var i = 0; i < texts.length; i++) {
-                texts[i].textContent = texts[i].textContent.replace(regex, data.numCecb);
+        // Civilité + mandataire : couvre "Madame X" / "Monsieur X" ET le nom seul (apparaît plusieurs fois).
+        // Stratégie : on détecte d'abord le nom présent dans le vierge, puis on remplace tout.
+        if (data.mandNom && data.civilite) {
+            var targetFull = data.civilite + ' ' + data.mandNom;
+            // Détecte la forme existante : "Madame|Monsieur <Nom>" puis aussi le nom seul
+            var civPattern = /(Madame|Monsieur)\s+([A-ZÀ-Ü][\p{L}\-']+(?:\s+[A-ZÀ-Ü][\p{L}\-']+){1,3})/u;
+            var detectedName = '';
+            var allT = doc.getElementsByTagNameNS(W_NS, 't');
+            for (var ti = 0; ti < allT.length && !detectedName; ti++) {
+                var m = allT[ti].textContent.match(civPattern);
+                if (m) detectedName = m[2];
+            }
+            // Remplace les formes "Madame|Monsieur <DetectedName>"
+            if (detectedName) {
+                _replaceInDoc(doc, 'Madame ' + detectedName, targetFull);
+                _replaceInDoc(doc, 'Monsieur ' + detectedName, targetFull);
+                // Remplace aussi le nom seul (sans civilité) — contextes comme "Mandataire : Lionel Christen"
+                _replaceInDoc(doc, detectedName, data.mandNom);
             }
         }
 
-        // Date rapport — remplace la date type "21.04.2026 16:41" ou "21.04.2026"
-        if (data.dateRapport) {
-            var dateFr = wpFormatDateFr(data.dateRapport);
-            // Remplace les dates au format DD.MM.YYYY (typiquement une seule, après "Date d'établissement")
-            var dateRegex = /(\b\d{2}\.\d{2}\.\d{4}(?:\s+\d{2}:\d{2})?\b)/g;
-            var texts2 = doc.getElementsByTagNameNS(W_NS, 't');
-            // Heuristique : on ne remplace qu'après un texte contenant "Date d'établissement" ou "Date, signature"
-            for (var j = 0; j < texts2.length; j++) {
-                var prev = texts2[j - 1];
-                var prev2 = texts2[j - 2];
-                var context = (prev ? prev.textContent : '') + ' ' + (prev2 ? prev2.textContent : '');
-                if (/Date\s+d'\s?établissement|Date,\s?signature/i.test(context)) {
-                    texts2[j].textContent = texts2[j].textContent.replace(dateRegex, dateFr);
+        // Adresse mandataire
+        if (data.mandAdr) {
+            // On ne peut pas détecter de façon fiable l'ancienne adresse sans ancre.
+            // Pattern : "Route|Chemin|Rue|Avenue <X>" présent avant un NPA à 4 chiffres.
+            // Pour sûreté, on ne remplace pas automatiquement l'adresse — elle est à corriger manuellement.
+            // TODO: offrir un champ "adresse mandataire à remplacer" à l'utilisateur.
+        }
+
+        // Email / téléphone mandataire
+        if (data.mandMail) {
+            _replaceInDoc(doc, 'lionel@christen-archi.ch', data.mandMail); // fallback exemple
+            // Remplace tout email non etaconsult.ch dans les contextes de mandataire
+            var emailPattern = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+            var etaMail = 'info@etaconsult.ch';
+            var allTm = doc.getElementsByTagNameNS(W_NS, 't');
+            for (var em = 0; em < allTm.length; em++) {
+                var txt = allTm[em].textContent;
+                var hits = txt.match(emailPattern);
+                if (!hits) continue;
+                hits.forEach(function (h) {
+                    if (h !== etaMail && h !== data.mandMail) {
+                        allTm[em].textContent = allTm[em].textContent.split(h).join(data.mandMail);
+                    }
+                });
+            }
+        }
+        if (data.mandTel) {
+            // Remplace les numéros CH type "+41 xx xxx xx xx" ou "0xx xxx xx xx" si différents du tél expert
+            var telExpert = '078 303 81 01';
+            var telPattern = /(\+41\s?\d{2}\s?\d{3}\s?\d{2}\s?\d{2}|0\d{2}\s?\d{3}\s?\d{2}\s?\d{2})/g;
+            var allTt = doc.getElementsByTagNameNS(W_NS, 't');
+            for (var tm = 0; tm < allTt.length; tm++) {
+                var tel = allTt[tm].textContent;
+                var th = tel.match(telPattern);
+                if (!th) continue;
+                th.forEach(function (h) {
+                    if (h !== telExpert && h !== data.mandTel) {
+                        allTt[tm].textContent = allTt[tm].textContent.split(h).join(data.mandTel);
+                    }
+                });
+            }
+        }
+
+        // Numéro CECB — remplace toutes les occurrences (VD-XXXXX.XX, GE-, etc.)
+        if (data.numCecb) {
+            var cecbRegex = /([A-Z]{2}-\d{5,8}\.\d{2})/g;
+            var textsN = doc.getElementsByTagNameNS(W_NS, 't');
+            for (var i = 0; i < textsN.length; i++) {
+                textsN[i].textContent = textsN[i].textContent.replace(cecbRegex, data.numCecb);
+            }
+        }
+
+        // Date rapport — remplace la date qui suit "Date d'établissement"
+        // Date visite — remplace la date qui suit "Date de la visite"
+        // Remplacement contextuel : on cherche le paragraphe contenant le libellé,
+        // puis on remplace la date dans ce paragraphe (ou suivant).
+        function replaceDateByAnchor(anchorText, newDateFr) {
+            if (!newDateFr) return;
+            var match = _findParaByText(doc, anchorText);
+            if (!match) return;
+            // Remplace la date dans ce paragraphe ET les 2 suivants (labels sont souvent dans un paragraphe précédent, date dans le suivant)
+            var parent = match.para.parentNode;
+            var paras = Array.prototype.slice.call(parent.childNodes).filter(function (n) { return n.nodeType === 1 && n.localName === 'p'; });
+            var startIdx = paras.indexOf(match.para);
+            if (startIdx < 0) return;
+            var dateRegex = /(\b\d{2}\.\d{2}\.\d{4}(?:\s+\d{2}:\d{2})?\b)/;
+            for (var p = startIdx; p < Math.min(startIdx + 3, paras.length); p++) {
+                var ts = paras[p].getElementsByTagNameNS(W_NS, 't');
+                for (var t = 0; t < ts.length; t++) {
+                    if (dateRegex.test(ts[t].textContent)) {
+                        ts[t].textContent = ts[t].textContent.replace(dateRegex, newDateFr);
+                        return; // on s'arrête à la première date remplacée
+                    }
                 }
             }
         }
+        replaceDateByAnchor('Date d\u2019établissement', wpFormatDateFr(data.dateRapport));
+        replaceDateByAnchor('Date d\'établissement', wpFormatDateFr(data.dateRapport));
+        replaceDateByAnchor('Date, signature', wpFormatDateFr(data.dateRapport));
+        replaceDateByAnchor('Date de la visite', wpFormatDateFr(data.dateVisite));
+        replaceDateByAnchor('Visite des lieux', wpFormatDateFr(data.dateVisite));
 
         // — Ajouts de sections
         _insertIntroduction(doc, data.introduction);
