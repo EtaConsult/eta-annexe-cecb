@@ -1,0 +1,226 @@
+{
+  "_meta": {
+    "version": "1.1",
+    "description": "Templates de texte et Quick Parts CECB pour la génération automatique du rapport CECB Plus Word. Chaque section propose un texte par défaut (default_text_fr) ET une liste de Quick Parts (quickparts[]) réutilisables pour différents cas. Les placeholders {{var}} sont remplacés via wpFillTemplate().",
+    "placeholders_disponibles": [
+      "civilite", "mandNom", "mandAdr", "mandMail", "mandTel",
+      "numCecb", "dateRapport", "dateRapportFr", "dateVisite", "dateVisiteFr",
+      "adresse", "commune", "annee", "sre", "affectation", "egid",
+      "classeEnv", "classeGlob", "classeCo2",
+      "chaufSource", "chaufSourceLbl", "chaufYear",
+      "ecsType", "ecsTypeLbl", "ecsYear",
+      "ventType", "ventTypeLbl",
+      "variantNames[0-2]", "variantCosts[0-2]"
+    ]
+  },
+
+  "introduction": {
+    "title": "Introduction",
+    "default_text_fr": "Calcul des besoins de chaleur et CECB\n\nLe Certificat Énergétique Cantonal des Bâtiments (CECB) est l'étiquette-énergie officielle en Suisse, évaluant la performance énergétique des bâtiments sur une échelle de A (très efficace) à G (peu efficace). Il fournit une analyse détaillée de l'efficacité de l'enveloppe du bâtiment, de son efficacité énergétique globale et de ses émissions directes de CO₂.\n\nLors de la planification ou de la rénovation d'un bâtiment, il est essentiel de calculer les besoins en chaleur pour s'assurer que le bâtiment respecte les exigences légales cantonales en matière d'énergie ou pour viser des standards tels que Minergie. Ce calcul, basé sur la norme SIA 380/1, considère une température intérieure de référence de 20°C et tient compte des plans architecturaux, des matériaux de construction, de l'isolation, de la surface et de la forme du bâtiment, ainsi que des conditions climatiques locales. Il intègre également les pertes de chaleur dues à la ventilation et les apports de chaleur passifs, comme les gains solaires à travers les fenêtres et la chaleur générée par les occupants et les appareils électriques.\n\nLe CECB offre une évaluation précise de l'état énergétique d'un bâtiment existant. Établi par un expert certifié, il se base sur la surface chauffée et la consommation réelle d'énergie, en analysant les factures et les relevés de compteurs pour le chauffage, l'eau chaude et les équipements techniques. Le certificat présente trois classements distincts :\n\n- Efficacité de l'enveloppe du bâtiment : évalue la qualité de l'isolation thermique, incluant les murs, le toit, les fenêtres et autres éléments en contact avec l'extérieur.\n- Efficacité énergétique globale : mesure la quantité totale d'énergie nécessaire par mètre carré chauffé pour le chauffage, la production d'eau chaude sanitaire et le fonctionnement des installations techniques. L'utilisation d'énergies renouvelables ou de systèmes tels que les pompes à chaleur améliorent ce classement.\n- Émissions directes de CO₂ : indique la quantité de CO₂ émise directement par le bâtiment pour le chauffage et l'eau chaude sanitaire. Les émissions liées à la production d'électricité consommée ou à un chauffage à distance ne sont pas prises en compte dans ce troisième classement.",
+    "quickparts": [
+      {
+        "key": "intro_standard",
+        "label": "Introduction standard CECB + SIA 380/1",
+        "text": "Calcul des besoins de chaleur et CECB\n\nLe Certificat Énergétique Cantonal des Bâtiments (CECB) est l'étiquette-énergie officielle en Suisse, évaluant la performance énergétique des bâtiments sur une échelle de A (très efficace) à G (peu efficace). Il fournit une analyse détaillée de l'efficacité de l'enveloppe du bâtiment, de son efficacité énergétique globale et de ses émissions directes de CO₂.\n\nLors de la planification ou de la rénovation d'un bâtiment, il est essentiel de calculer les besoins en chaleur pour s'assurer que le bâtiment respecte les exigences légales cantonales en matière d'énergie ou pour viser des standards tels que Minergie. Ce calcul, basé sur la norme SIA 380/1, considère une température intérieure de référence de 20°C et tient compte des plans architecturaux, des matériaux de construction, de l'isolation, de la surface et de la forme du bâtiment, ainsi que des conditions climatiques locales."
+      },
+      {
+        "key": "intro_courte",
+        "label": "Introduction courte (rappel classes CECB)",
+        "text": "Le CECB est l'étiquette-énergie officielle en Suisse. Il évalue la performance d'un bâtiment sur une échelle de A (très efficient) à G (peu efficient) selon trois critères : efficacité de l'enveloppe thermique, efficacité énergétique globale et émissions directes de CO₂. Le CECB Plus prolonge cette évaluation par une analyse détaillée et la proposition de variantes de rénovation chiffrées."
+      },
+      {
+        "key": "intro_minergie",
+        "label": "Introduction avec mention Minergie",
+        "text": "Le CECB classe les bâtiments de A à G selon leur performance énergétique. Conformément à la norme SIA 380/1, le besoin thermique est calculé avec une température intérieure de 20°C en tenant compte des gains solaires et internes. Pour viser un standard tel que Minergie, le bâtiment doit atteindre un besoin en énergie ≤ 90% des exigences légales et disposer d'un renouvellement d'air contrôlé."
+      }
+    ]
+  },
+
+  "resume": {
+    "title": "Résumé enrichi",
+    "default_text_fr": "D'après les résultats de l'analyse CECB n°{{numCecb}}, le bâtiment bénéficie actuellement de la notation « {{classeEnv}} / {{classeGlob}} / {{classeCo2}} ».\n\nCe bâtiment de {{annee}} présente une enveloppe vieillissante et fonctionne avec un système de {{chaufSourceLbl}}. Les priorités d'intervention concernent l'amélioration de l'isolation thermique et le passage à un système de chauffage renouvelable.\n\nLe rapport de conseil propose trois variantes de rénovation afin d'améliorer le classement du bâtiment.",
+    "quickparts": [
+      {
+        "key": "resume_fossile",
+        "label": "Résumé — chauffage fossile (mazout/gaz)",
+        "text": "D'après les résultats de l'analyse CECB n°{{numCecb}}, le bâtiment bénéficie actuellement de la notation « {{classeEnv}} / {{classeGlob}} / {{classeCo2}} ».\n\nCe bâtiment de {{annee}} présente une enveloppe vieillissante et fonctionne aux énergies fossiles ({{chaufSourceLbl}}). Les priorités d'intervention sont l'amélioration de l'isolation des éléments les plus déperditifs (toiture, dalle sur sous-sol, murs contre locaux non chauffés) et le passage à un système de chauffage renouvelable.\n\nLe rapport de conseil propose trois variantes de rénovation afin d'améliorer le classement du bâtiment."
+      },
+      {
+        "key": "resume_elec",
+        "label": "Résumé — chauffage électrique (DACCE VD)",
+        "text": "D'après les résultats de l'analyse CECB n°{{numCecb}}, le bâtiment bénéficie actuellement de la notation « {{classeEnv}} / {{classeGlob}} / {{classeCo2}} ».\n\nConstruit en {{annee}}, ce bâtiment dispose d'un système de chauffage électrique qui devra être remplacé d'ici 2033 conformément au décret vaudois DACCE. Les priorités sont donc le remplacement du système de production de chaleur par une solution renouvelable et l'amélioration de l'enveloppe thermique.\n\nLe rapport de conseil propose trois variantes de rénovation adaptées à ce contexte réglementaire."
+      },
+      {
+        "key": "resume_pac",
+        "label": "Résumé — PAC déjà installée (optimisation enveloppe)",
+        "text": "D'après les résultats de l'analyse CECB n°{{numCecb}}, le bâtiment bénéficie actuellement de la notation « {{classeEnv}} / {{classeGlob}} / {{classeCo2}} ».\n\nConstruit en {{annee}}, le bâtiment est déjà équipé d'une pompe à chaleur. L'enveloppe reste le principal levier d'amélioration pour optimiser le COP de l'installation et réduire les besoins thermiques globaux.\n\nLe rapport de conseil propose trois variantes de rénovation de l'enveloppe, avec et sans ajout d'une installation photovoltaïque."
+      }
+    ]
+  },
+
+  "commentEnv": {
+    "title": "Commentaire — Enveloppe du bâtiment",
+    "default_text_fr": "Enveloppe du bâtiment : l'isolation thermique est actuellement classée « {{classeEnv}} ». Les murs, toitures et sols laissent s'échapper une quantité importante de chaleur en hiver, résultant en des déperditions thermiques supérieures aux standards actuels. Une amélioration significative de l'enveloppe permettrait de réduire substantiellement les besoins en chauffage.",
+    "quickparts": [
+      {
+        "key": "env_mauvaise_F_G",
+        "label": "Enveloppe médiocre (classe F-G)",
+        "text": "Enveloppe du bâtiment : l'isolation thermique est mauvaise (classe {{classeEnv}}). Le bâtiment perd 2,5 à 3,0 fois plus de chaleur qu'un bâtiment neuf actuel. Concrètement, les murs, les toitures et les sols laissent s'échapper beaucoup trop de chaleur en hiver."
+      },
+      {
+        "key": "env_moyenne_D_E",
+        "label": "Enveloppe moyenne (classe D-E)",
+        "text": "Enveloppe du bâtiment : l'isolation thermique est moyenne (classe {{classeEnv}}). Le bâtiment présente des déperditions 1,5 à 2,0 fois supérieures aux exigences actuelles pour les constructions neuves. Des interventions ciblées sur les éléments les plus déperditifs permettraient d'améliorer significativement la performance globale."
+      },
+      {
+        "key": "env_bonne_B_C",
+        "label": "Enveloppe bonne (classe B-C)",
+        "text": "Enveloppe du bâtiment : l'isolation thermique est bonne (classe {{classeEnv}}). Les performances se situent proches des exigences actuelles pour les constructions neuves. Les interventions complémentaires (ponts thermiques, optimisations ponctuelles) offrent un gain limité mais permettent d'atteindre des standards plus élevés (Minergie)."
+      }
+    ]
+  },
+
+  "commentEff": {
+    "title": "Commentaire — Efficacité énergétique globale",
+    "default_text_fr": "Efficacité énergétique globale : en prenant en compte le chauffage, l'eau chaude et l'électricité, la performance actuelle est classée « {{classeGlob}} ». Le passage à un système de chauffage renouvelable (pompe à chaleur, chaudière à pellets ou raccordement à un chauffage à distance) combiné à des mesures sur l'enveloppe permettrait d'atteindre un classement nettement supérieur.",
+    "quickparts": [
+      {
+        "key": "eff_fossile",
+        "label": "Efficacité globale — bâtiment fossile",
+        "text": "Efficacité énergétique globale : en prenant en compte le chauffage, l'eau chaude et l'électricité, la performance est classée « {{classeGlob}} » et reste 2,0 à 2,5 fois supérieure aux exigences actuelles. Le passage à un système renouvelable ({{chaufSourceLbl}} → pompe à chaleur, chaudière à pellets ou raccordement CAD) permettrait d'atteindre un classement nettement meilleur."
+      },
+      {
+        "key": "eff_elec_direct",
+        "label": "Efficacité globale — chauffage électrique direct",
+        "text": "Efficacité énergétique globale : actuellement classée « {{classeGlob}} », la performance est limitée par l'utilisation directe d'électricité pour la production de chaleur. Le remplacement par une pompe à chaleur (facteur 3 à 4 d'économie d'électricité) apporterait un gain décisif sur cet indicateur."
+      },
+      {
+        "key": "eff_pac_installee",
+        "label": "Efficacité globale — PAC déjà installée",
+        "text": "Efficacité énergétique globale : la performance est classée « {{classeGlob}} ». La présence d'une pompe à chaleur constitue déjà un atout important. Les interventions sur l'enveloppe permettraient d'optimiser davantage le COP de l'installation et de réduire les consommations d'appoint."
+      }
+    ]
+  },
+
+  "commentCo2": {
+    "title": "Commentaire — Émissions directes de CO₂",
+    "default_text_fr": "Émissions de CO₂ : le système de production de chaleur actuellement installé, à savoir {{chaufSourceLbl}}, génère des émissions de CO₂ significatives (classement « {{classeCo2}} »). Cet équipement constitue le facteur déterminant de l'étiquette énergétique relative aux émissions directes. Le remplacement par un système utilisant les énergies renouvelables permettrait de ramener ces émissions à un niveau négligeable.",
+    "quickparts": [
+      {
+        "key": "co2_fossile",
+        "label": "CO₂ — chaudière fossile",
+        "text": "Émissions de CO₂ : le système de production de chaleur actuellement installé, à savoir {{chaufSourceLbl}}, génère des émissions de CO₂ importantes (classement « {{classeCo2}} »). Cet équipement constitue le facteur déterminant influençant l'étiquette énergétique relative aux émissions directes de CO₂."
+      },
+      {
+        "key": "co2_renouvelable",
+        "label": "CO₂ — énergies renouvelables (PAC, pellets, CAD)",
+        "text": "Émissions de CO₂ : le système de production de chaleur actuellement installé fonctionne aux énergies renouvelables et n'émet pratiquement aucune émission directe de CO₂ (classement « {{classeCo2}} »). Les émissions indirectes liées à la production d'électricité ne sont pas prises en compte dans ce classement."
+      },
+      {
+        "key": "co2_elec",
+        "label": "CO₂ — chauffage électrique (pas d'émission directe)",
+        "text": "Émissions de CO₂ : le chauffage électrique n'émet pas directement de CO₂ sur le site (classement « {{classeCo2}} »). Cette performance favorable masque toutefois des émissions indirectes liées à la production d'électricité, non prises en compte dans cet indicateur."
+      }
+    ]
+  },
+
+  "recommendation": {
+    "V1": {
+      "title": "Recommandation — Variante 1 (Travaux correctifs)",
+      "default_text_fr": "Au terme de l'analyse, il est recommandé de privilégier la variante 1 ({{variantNames[0]}}). Cette option consiste à intervenir de manière ciblée sur les éléments les plus urgents de l'enveloppe (murs contre locaux non chauffés, sol sur sous-sol) tout en remplaçant le système de production de chaleur par une solution renouvelable. Cette approche permet une amélioration substantielle de la performance énergétique avec un investissement maîtrisé.",
+      "quickparts": [
+        {
+          "key": "reco_v1_correctif",
+          "label": "V1 — Travaux correctifs seulement",
+          "text": "Au terme de l'analyse, il est recommandé de privilégier la variante 1 ({{variantNames[0]}}). Cette option se limite aux travaux correctifs les plus urgents : isolation des parois contre locaux non chauffés, remplacement du producteur de chaleur par une solution renouvelable et installation photovoltaïque. Elle constitue le meilleur compromis rapport coût / efficacité pour un propriétaire soucieux de maîtriser son investissement."
+        },
+        {
+          "key": "reco_v1_priorite",
+          "label": "V1 — Budget limité, rentabilité maximale",
+          "text": "La variante 1 est recommandée dans un contexte de budget limité. Elle cible les interventions présentant la meilleure rentabilité énergétique (passage au renouvelable, isolation dalle sur sous-sol, PV en autoconsommation). Les coûts annuels de l'énergie sont les plus bas des trois variantes et la période de retour sur investissement la plus courte."
+        }
+      ]
+    },
+    "V2": {
+      "title": "Recommandation — Variante 2 (Rénovation toiture)",
+      "default_text_fr": "Au terme de l'analyse, il est recommandé de privilégier la variante 2. Cette option consiste principalement à améliorer l'isolation de la toiture de l'habitation ainsi que celle des éléments en contact avec des zones non chauffées, notamment les murs et le plafond du sous-sol en contact avec des zones qui ne sont pas chauffées. Bien que les façades soient à l'origine de déperditions thermiques, la réfection complète de leur isolation impliquerait des coûts d'investissement importants. La variante 2 constitue ainsi un compromis pertinent entre l'amélioration de la performance énergétique du bâtiment et la maîtrise du budget d'investissement.",
+      "quickparts": [
+        {
+          "key": "reco_v2_toiture",
+          "label": "V2 — Rénovation toiture (compromis)",
+          "text": "Au terme de l'analyse, il est recommandé de privilégier la variante 2. Cette option consiste principalement à améliorer l'isolation de la toiture de l'habitation ainsi que celle des éléments en contact avec des zones non chauffées (murs et plafond du sous-sol). Bien que les façades soient à l'origine de déperditions thermiques, la réfection complète de leur isolation impliquerait des coûts importants. La variante 2 constitue un compromis pertinent entre amélioration énergétique et maîtrise du budget."
+        },
+        {
+          "key": "reco_v2_subvention",
+          "label": "V2 — Bénéfice subventions Programme Bâtiments",
+          "text": "La variante 2 est recommandée notamment pour son éligibilité étendue aux subventions du Programme Bâtiments (isolation toiture M-01, remplacement chauffage fossile M-02/M-03, installation PV). Les valeurs U visées (U ≤ 0,20 W/m²K pour la toiture) garantissent l'obtention de ces aides cantonales, réduisant significativement l'investissement net."
+        }
+      ]
+    },
+    "V3": {
+      "title": "Recommandation — Variante 3 (Rénovation globale)",
+      "default_text_fr": "Au terme de l'analyse, il est recommandé de privilégier la variante 3 ({{variantNames[2]}}). Cette option consiste en une rénovation énergétique complète du bâtiment : isolation de l'enveloppe (toiture, façades, sols), traitement des ponts thermiques, remplacement du producteur de chaleur par un système renouvelable et installation de panneaux photovoltaïques. Cette approche holistique maximise les gains énergétiques et environnementaux sur le long terme et permet d'atteindre les meilleurs classements CECB.",
+      "quickparts": [
+        {
+          "key": "reco_v3_global",
+          "label": "V3 — Rénovation globale (maximum gain)",
+          "text": "Au terme de l'analyse, il est recommandé de privilégier la variante 3 ({{variantNames[2]}}). Cette option consiste en une rénovation énergétique complète : isolation de l'enveloppe (toiture, façades, sols), traitement des ponts thermiques, remplacement du producteur de chaleur par un système renouvelable et installation photovoltaïque. Cette approche holistique maximise les gains énergétiques et environnementaux sur le long terme et permet d'atteindre les meilleurs classements CECB."
+        },
+        {
+          "key": "reco_v3_minergie",
+          "label": "V3 — Atteinte certification Minergie",
+          "text": "La variante 3 permet d'atteindre la certification Minergie, moyennant l'ajout d'une ventilation mécanique contrôlée (VMC) double flux avec récupération de chaleur. Cette approche globale procure un niveau de confort exceptionnel, une valeur patrimoniale accrue et une conformité aux exigences énergétiques des prochaines décennies."
+        }
+      ]
+    }
+  },
+
+  "remarques": {
+    "title": "Remarques générales",
+    "default_text_fr": "La rénovation d'un édifice représente un projet de grande envergure, nécessitant une analyse exhaustive des différentes possibilités de rénovation. Nous préconisons une approche holistique et globale pour la rénovation énergétique des bâtiments, qui constitue une stratégie efficace pour maximiser les résultats sur le long terme et limiter significativement les consommations. Cette méthode permet de considérer le bâtiment comme un système intégré, où chaque élément interagit avec les autres, plutôt que de traiter les améliorations de façon isolée.\n\nLe CECB Plus ne constitue pas une base de planification pour l'exécution des travaux mais une base décisionnelle sur les travaux à entreprendre. Il est important de vérifier suffisamment tôt auprès de l'administration compétente si un permis de construire est requis pour les travaux prévus. De plus, n'oubliez pas que toutes les demandes de subvention doivent être déposées avant le début des travaux.",
+    "quickparts": [
+      {
+        "key": "rem_holistique",
+        "label": "Approche holistique",
+        "text": "La rénovation d'un édifice représente un projet de grande envergure, nécessitant une analyse exhaustive des différentes possibilités. Nous préconisons une approche holistique et globale pour la rénovation énergétique des bâtiments, qui constitue une stratégie efficace pour maximiser les résultats sur le long terme et limiter significativement les consommations. Cette méthode permet de considérer le bâtiment comme un système intégré, où chaque élément interagit avec les autres."
+      },
+      {
+        "key": "rem_base_decisionnelle",
+        "label": "Base décisionnelle (pas de planification)",
+        "text": "Le CECB Plus ne constitue pas une base de planification pour l'exécution des travaux mais une base décisionnelle sur les travaux à entreprendre. Il est important de vérifier suffisamment tôt auprès de l'administration compétente si un permis de construire est requis pour les travaux prévus."
+      },
+      {
+        "key": "rem_subventions",
+        "label": "Subventions — demande avant travaux",
+        "text": "Toutes les demandes de subvention doivent être déposées AVANT le début des travaux. Le Programme Bâtiments (www.leprogrammebatiments.ch) couvre l'isolation thermique et le remplacement des chauffages fossiles. Les subventions cantonales complémentaires varient selon les cantons (VD, GE, FR, NE, JU, VS). Êta Consult peut vous accompagner dans les démarches administratives."
+      },
+      {
+        "key": "rem_dacce_vd",
+        "label": "DACCE VD (chauffages/chauffe-eau électriques)",
+        "text": "Depuis le 1er janvier 2025, le décret vaudois sur l'assainissement des chauffages et chauffe-eau électriques (DACCE, BLV 730.051) est en vigueur. Il interdit l'utilisation de ces installations et impose leur remplacement par des solutions renouvelables au plus tard d'ici au 1er janvier 2033. Afin d'accompagner cette transition, le canton de Vaud renforce les subventions destinées au remplacement de ces systèmes."
+      },
+      {
+        "key": "rem_minergie",
+        "label": "Standards Minergie / Minergie-P",
+        "text": "Le label Minergie certifie les bâtiments à haute performance énergétique disposant d'une VMC avec récupération de chaleur. Minergie-P impose des exigences renforcées (besoin thermique résiduel ≤ 30 kWh/m²a) et s'adresse aux projets visant une autonomie énergétique élevée. Notre bureau peut accompagner la certification Minergie pour les rénovations comme pour les constructions neuves."
+      }
+    ]
+  },
+
+  "expertSignature": {
+    "title": "Signature expert",
+    "default_text_fr": "Gérard Merminod\nExpert CECB certifié\nÊta Consult Sàrl",
+    "quickparts": [
+      {
+        "key": "sig_gm_complete",
+        "label": "Signature Gérard Merminod — complète",
+        "text": "Gérard Merminod\nExpert CECB certifié\nÊta Consult Sàrl\nRoute de l'Hôpital 16b, 1180 Rolle\n078 303 81 01 · info@etaconsult.ch · etaconsult.org"
+      },
+      {
+        "key": "sig_gm_courte",
+        "label": "Signature GM — courte",
+        "text": "Gérard Merminod — Êta Consult Sàrl"
+      }
+    ]
+  }
+}

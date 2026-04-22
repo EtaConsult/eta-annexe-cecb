@@ -9,6 +9,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script>if(window.pdfjsLib)pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
+    <!-- Word (docx) manipulation libraries for "CECB Plus Word" tab -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pizzip/3.1.7/pizzip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pizzip/3.1.7/pizzip-utils.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.50.0/docxtemplater.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
     <script src="api-handler.js"></script>
     <style>
 /* ─── Recueil-specific styles (from cecb_generator) ───── */
@@ -201,6 +206,7 @@
         <button class="projet-tab" data-tab="redaction" onclick="switchProjetTab('redaction')">Rédaction CECB</button>
         <button class="projet-tab" data-tab="textes" onclick="switchProjetTab('textes')" id="tabBtnTextes" style="display:none">Textes (ancienne version)</button>
         <button class="projet-tab" data-tab="relecture" onclick="switchProjetTab('relecture')">Relecture</button>
+        <button class="projet-tab" data-tab="wordplus" onclick="switchProjetTab('wordplus')">CECB Plus Word</button>
     </div>
 
     <!-- ═══════════════════════════════════════════════════
@@ -1155,6 +1161,279 @@
         </div>
     </div>
 
+    <!-- ═══════════════════════════════════════════════════
+         TAB 8: CECB PLUS WORD (modificateur de fichier Word)
+         ═══════════════════════════════════════════════════ -->
+    <div id="tab-wordplus" class="projet-panel">
+        <h1>CECB Plus Word</h1>
+        <p class="subtitle">Génération automatique du rapport Word CECB Plus à partir des données du projet</p>
+
+        <!-- Barre de progression remplissage -->
+        <div id="wpProgressBar" style="background:#F1F5F9;border:1px solid var(--r-border);border-radius:8px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:14px">
+            <div style="flex:1">
+                <div style="font-weight:600;color:var(--r-primary);margin-bottom:4px">
+                    <span id="wpProgressText">Chargement…</span>
+                </div>
+                <div style="background:#E2E8F0;border-radius:4px;height:6px;overflow:hidden">
+                    <div id="wpProgressFill" style="height:100%;background:linear-gradient(90deg,var(--r-primary),var(--r-secondary));transition:width .3s;width:0%"></div>
+                </div>
+            </div>
+            <button class="btn btn-sm" id="wpReloadProjectBtn" type="button" onclick="wpReloadFromProject()" title="Recharger les données depuis le projet">↻ Recharger projet</button>
+        </div>
+
+        <!-- Zone import PDF CECB (optionnel) -->
+        <div class="recueil-section">
+            <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> PDF CECB officiel (optionnel — complète les classes et valeurs U)</h3></div>
+            <div class="section-body">
+                <div id="wpPdfDropzone" class="dropzone" style="border:2px dashed var(--r-border);border-radius:var(--r-radius);padding:24px;text-align:center;cursor:pointer;transition:all .2s">
+                    <div style="font-size:32px;margin-bottom:8px">📄</div>
+                    <div><strong>Glissez le PDF CECB</strong> ou <u>cliquez pour sélectionner</u></div>
+                    <div style="font-size:.85em;color:var(--r-grey);margin-top:6px">Permet d'extraire automatiquement : n° CECB, classes A-G, valeurs U, surfaces, consommation mesurée</div>
+                    <input type="file" id="wpPdfFileInput" accept="application/pdf" style="display:none">
+                </div>
+                <div id="wpPdfStatus" style="margin-top:10px;font-size:.9em"></div>
+            </div>
+        </div>
+
+        <!-- Section Métadonnées bâtiment -->
+        <div class="recueil-section">
+            <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> Métadonnées bâtiment <span class="wp-badge" data-section="batiment"></span></h3></div>
+            <div class="section-body">
+                <div class="form-row">
+                    <div class="form-group"><label>Adresse <span class="wp-status" data-field="adresse"></span></label><input type="text" id="wp-adresse" readonly></div>
+                    <div class="form-group"><label>Commune <span class="wp-status" data-field="commune"></span></label><input type="text" id="wp-commune"></div>
+                    <div class="form-group"><label>N° EGID <span class="wp-status" data-field="egid"></span></label><input type="text" id="wp-egid"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Affectation <span class="wp-status" data-field="affectation"></span></label><input type="text" id="wp-affectation"></div>
+                    <div class="form-group"><label>Année construction <span class="wp-status" data-field="annee"></span></label><input type="text" id="wp-annee"></div>
+                    <div class="form-group"><label>SRE (m²) <span class="wp-status" data-field="sre"></span></label><input type="text" id="wp-sre"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Classes CECB -->
+        <div class="recueil-section">
+            <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> Classes CECB (A–G) <span class="wp-badge" data-section="classes"></span></h3></div>
+            <div class="section-body">
+                <div class="form-row">
+                    <div class="form-group"><label>Efficacité enveloppe <span class="wp-status" data-field="classeEnv"></span></label>
+                        <select id="wp-classe-env"><option value="">—</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option></select></div>
+                    <div class="form-group"><label>Efficacité globale <span class="wp-status" data-field="classeGlob"></span></label>
+                        <select id="wp-classe-glob"><option value="">—</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option></select></div>
+                    <div class="form-group"><label>Émissions CO₂ <span class="wp-status" data-field="classeCo2"></span></label>
+                        <select id="wp-classe-co2"><option value="">—</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option></select></div>
+                </div>
+                <div class="hint" style="margin-top:6px;color:var(--r-grey);font-size:.8em;font-style:italic">Pré-rempli depuis l'onglet "Classes CECB" ou extraction PDF. Éditable.</div>
+            </div>
+        </div>
+
+        <!-- Section Mandataire -->
+        <div class="recueil-section">
+            <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> Mandataire <span class="wp-badge" data-section="mandataire"></span></h3></div>
+            <div class="section-body">
+                <div class="form-row">
+                    <div class="form-group"><label>Civilité <span class="wp-status" data-field="civilite"></span></label>
+                        <select id="wp-civilite"><option>Monsieur</option><option>Madame</option></select></div>
+                    <div class="form-group"><label>Nom complet <span class="wp-status" data-field="mandNom"></span></label><input type="text" id="wp-mand-nom" placeholder="Prénom Nom"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Adresse <span class="wp-status" data-field="mandAdr"></span></label><input type="text" id="wp-mand-adr" placeholder="Rue, NPA Ville"></div>
+                    <div class="form-group"><label>Email <span class="wp-status" data-field="mandMail"></span></label><input type="email" id="wp-mand-mail"></div>
+                    <div class="form-group"><label>Téléphone <span class="wp-status" data-field="mandTel"></span></label><input type="text" id="wp-mand-tel"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Rapport (n° CECB, date) -->
+        <div class="recueil-section">
+            <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> Rapport <span class="wp-badge" data-section="rapport"></span></h3></div>
+            <div class="section-body">
+                <div class="form-row">
+                    <div class="form-group"><label>N° CECB <span class="wp-status" data-field="numCecb"></span></label><input type="text" id="wp-num-cecb" placeholder="VD-00051744.01"></div>
+                    <div class="form-group"><label>Date rapport <span class="wp-status" data-field="dateRapport"></span></label><input type="date" id="wp-date-rapport"></div>
+                    <div class="form-group"><label>Date visite <span class="wp-status" data-field="dateVisite"></span></label><input type="date" id="wp-date-visite"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Variantes (tableau récapitulatif avec cases à cocher) -->
+        <div class="recueil-section">
+            <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> Tableau récapitulatif des variantes <span class="wp-badge" data-section="variantes"></span></h3></div>
+            <div class="section-body">
+                <div class="form-row" style="margin-bottom:10px">
+                    <div class="form-group"><label>Nom Variante 1</label><input type="text" id="wp-vname-0" placeholder="Travaux correctif"></div>
+                    <div class="form-group"><label>Nom Variante 2</label><input type="text" id="wp-vname-1" placeholder="Rénovation toiture"></div>
+                    <div class="form-group"><label>Nom Variante 3</label><input type="text" id="wp-vname-2" placeholder="Rénovation globale"></div>
+                </div>
+                <div class="form-row" style="margin-bottom:12px">
+                    <div class="form-group"><label>Coût V1 (CHF)</label><input type="text" id="wp-vcost-0" placeholder="125'000.-"></div>
+                    <div class="form-group"><label>Coût V2 (CHF)</label><input type="text" id="wp-vcost-1" placeholder="204'000.-"></div>
+                    <div class="form-group"><label>Coût V3 (CHF)</label><input type="text" id="wp-vcost-2" placeholder="271'000.-"></div>
+                </div>
+                <div id="wpVarGrid" style="overflow-x:auto">
+                    <!-- rendu par wpRenderVariantsGrid() -->
+                </div>
+                <div class="hint" style="margin-top:8px">Pré-rempli depuis l'onglet « Variantes ». Les ✓ indiquent quelles interventions sont incluses dans chaque variante.</div>
+            </div>
+        </div>
+
+        <!-- Section Bases Documents -->
+        <div class="recueil-section">
+            <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> Bases → Documents <span class="wp-badge" data-section="bases"></span></h3></div>
+            <div class="section-body">
+                <div class="hint" style="margin-bottom:10px">Indiquez le statut de chaque document pour le tableau « Bases » du rapport.</div>
+                <div class="form-row">
+                    <div class="form-group"><label>Plan</label>
+                        <select id="wp-base-plan"><option value="">—</option><option>Transmis</option><option>Non transmis</option><option>Sans objet</option></select></div>
+                    <div class="form-group"><label>Vue de la façade</label>
+                        <select id="wp-base-facade"><option value="">—</option><option>Transmis</option><option>Non transmis</option><option>Sans objet</option></select></div>
+                    <div class="form-group"><label>Coupe</label>
+                        <select id="wp-base-coupe"><option value="">—</option><option>Transmis</option><option>Non transmis</option><option>Sans objet</option></select></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Conso. électricité</label>
+                        <select id="wp-base-consoElec"><option value="">—</option><option>Transmis</option><option>Non transmis</option><option>Sans objet</option></select></div>
+                    <div class="form-group"><label>Conso. chauffage</label>
+                        <select id="wp-base-consoChauff"><option value="">—</option><option>Transmis</option><option>Non transmis</option><option>Sans objet</option></select></div>
+                    <div class="form-group"><label>Autres</label>
+                        <select id="wp-base-autres"><option value="">—</option><option>Transmis</option><option>Non transmis</option><option>Sans objet</option></select></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Textes rédactionnels -->
+        <div class="recueil-section">
+            <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> Textes rédactionnels <span class="wp-badge" data-section="textes"></span></h3></div>
+            <div class="section-body">
+
+                <!-- Introduction -->
+                <div class="output-field wp-text-field" style="margin-bottom:18px">
+                    <label style="display:flex;align-items:center;gap:8px;font-weight:600;color:var(--r-primary);margin-bottom:6px">
+                        Introduction <span class="wp-status" data-field="introduction"></span>
+                        <button type="button" class="btn btn-sm" style="margin-left:auto" onclick="wpResetField('introduction')" title="Restaurer le texte par défaut">↺ Défaut</button>
+                    </label>
+                    <textarea id="wp-introduction" rows="5" style="width:100%"></textarea>
+                    <div class="output-field-btns" style="margin-top:4px;display:flex;gap:6px">
+                        <button type="button" class="btn btn-sm" onclick="wpOpenQuickPartPicker('introduction','wp-introduction')" title="Choisir un bloc pré-rédigé">📑 Quick Parts</button>
+                        <button type="button" class="btn btn-sm btn-warning" onclick="wpEnhance('wp-introduction','Introduction')">✨ Enrichir avec Claude</button>
+                    </div>
+                </div>
+
+                <!-- Résumé enrichi -->
+                <div class="output-field wp-text-field" style="margin-bottom:18px">
+                    <label style="display:flex;align-items:center;gap:8px;font-weight:600;color:var(--r-primary);margin-bottom:6px">
+                        Résumé enrichi <span class="wp-status" data-field="resume"></span>
+                        <button type="button" class="btn btn-sm" style="margin-left:auto" onclick="wpResetField('resume')" title="Restaurer le texte par défaut">↺ Défaut</button>
+                    </label>
+                    <textarea id="wp-resume" rows="5" style="width:100%"></textarea>
+                    <div class="output-field-btns" style="margin-top:4px;display:flex;gap:6px">
+                        <button type="button" class="btn btn-sm" onclick="wpOpenQuickPartPicker('resume','wp-resume')" title="Choisir un bloc pré-rédigé">📑 Quick Parts</button>
+                        <button type="button" class="btn btn-sm btn-warning" onclick="wpEnhance('wp-resume','Résumé')">✨ Enrichir avec Claude</button>
+                    </div>
+                </div>
+
+                <!-- Commentaire enveloppe -->
+                <div class="output-field wp-text-field" style="margin-bottom:14px">
+                    <label style="display:flex;align-items:center;gap:8px;font-weight:600;color:var(--r-primary);margin-bottom:6px">
+                        Commentaire — Enveloppe du bâtiment <span class="wp-status" data-field="commentEnv"></span>
+                        <button type="button" class="btn btn-sm" style="margin-left:auto" onclick="wpResetField('commentEnv')" title="Restaurer le texte par défaut">↺</button>
+                    </label>
+                    <textarea id="wp-comment-env" rows="3" style="width:100%"></textarea>
+                    <div class="output-field-btns" style="margin-top:4px;display:flex;gap:6px">
+                        <button type="button" class="btn btn-sm" onclick="wpOpenQuickPartPicker('commentEnv','wp-comment-env')" title="Choisir un bloc pré-rédigé">📑 Quick Parts</button>
+                        <button type="button" class="btn btn-sm btn-warning" onclick="wpEnhance('wp-comment-env','Commentaire enveloppe')">✨ Enrichir</button>
+                    </div>
+                </div>
+
+                <!-- Commentaire efficacité -->
+                <div class="output-field wp-text-field" style="margin-bottom:14px">
+                    <label style="display:flex;align-items:center;gap:8px;font-weight:600;color:var(--r-primary);margin-bottom:6px">
+                        Commentaire — Efficacité énergétique globale <span class="wp-status" data-field="commentEff"></span>
+                        <button type="button" class="btn btn-sm" style="margin-left:auto" onclick="wpResetField('commentEff')" title="Restaurer le texte par défaut">↺</button>
+                    </label>
+                    <textarea id="wp-comment-eff" rows="3" style="width:100%"></textarea>
+                    <div class="output-field-btns" style="margin-top:4px;display:flex;gap:6px">
+                        <button type="button" class="btn btn-sm" onclick="wpOpenQuickPartPicker('commentEff','wp-comment-eff')" title="Choisir un bloc pré-rédigé">📑 Quick Parts</button>
+                        <button type="button" class="btn btn-sm btn-warning" onclick="wpEnhance('wp-comment-eff','Commentaire efficacité')">✨ Enrichir</button>
+                    </div>
+                </div>
+
+                <!-- Commentaire CO2 -->
+                <div class="output-field wp-text-field" style="margin-bottom:18px">
+                    <label style="display:flex;align-items:center;gap:8px;font-weight:600;color:var(--r-primary);margin-bottom:6px">
+                        Commentaire — Émissions directes de CO₂ <span class="wp-status" data-field="commentCo2"></span>
+                        <button type="button" class="btn btn-sm" style="margin-left:auto" onclick="wpResetField('commentCo2')" title="Restaurer le texte par défaut">↺</button>
+                    </label>
+                    <textarea id="wp-comment-co2" rows="3" style="width:100%"></textarea>
+                    <div class="output-field-btns" style="margin-top:4px;display:flex;gap:6px">
+                        <button type="button" class="btn btn-sm" onclick="wpOpenQuickPartPicker('commentCo2','wp-comment-co2')" title="Choisir un bloc pré-rédigé">📑 Quick Parts</button>
+                        <button type="button" class="btn btn-sm btn-warning" onclick="wpEnhance('wp-comment-co2','Commentaire CO2')">✨ Enrichir</button>
+                    </div>
+                </div>
+
+                <!-- Recommandation -->
+                <div class="output-field wp-text-field" style="margin-bottom:18px">
+                    <label style="display:flex;align-items:center;gap:8px;font-weight:600;color:var(--r-primary);margin-bottom:6px">
+                        Recommandation <span class="wp-status" data-field="recoTexte"></span>
+                    </label>
+                    <div class="form-row" style="margin-bottom:6px">
+                        <div class="form-group" style="max-width:220px">
+                            <label style="font-size:.8em;font-weight:500">Variante recommandée</label>
+                            <select id="wp-reco-variante" onchange="wpOnRecoVarianteChange()">
+                                <option value="V1">Variante 1</option>
+                                <option value="V2" selected>Variante 2</option>
+                                <option value="V3">Variante 3</option>
+                                <option value="Aucune">Aucune recommandation</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="align-self:flex-end">
+                            <button type="button" class="btn btn-sm" onclick="wpResetField('recoTexte')" title="Restaurer le texte par défaut de la variante sélectionnée">↺ Défaut pour cette variante</button>
+                        </div>
+                    </div>
+                    <textarea id="wp-reco-texte" rows="5" style="width:100%"></textarea>
+                    <div class="output-field-btns" style="margin-top:4px;display:flex;gap:6px">
+                        <button type="button" class="btn btn-sm" onclick="wpOpenQuickPartPicker('recoTexte','wp-reco-texte')" title="Choisir un bloc pré-rédigé pour la variante sélectionnée">📑 Quick Parts</button>
+                        <button type="button" class="btn btn-sm btn-warning" onclick="wpEnhance('wp-reco-texte','Recommandation')">✨ Enrichir avec Claude</button>
+                    </div>
+                </div>
+
+                <!-- Remarques -->
+                <div class="output-field wp-text-field" style="margin-bottom:8px">
+                    <label style="display:flex;align-items:center;gap:8px;font-weight:600;color:var(--r-primary);margin-bottom:6px">
+                        Remarques générales <span class="wp-status" data-field="remarques"></span>
+                        <button type="button" class="btn btn-sm" style="margin-left:auto" onclick="wpResetField('remarques')" title="Restaurer le texte par défaut">↺ Défaut</button>
+                    </label>
+                    <textarea id="wp-remarques" rows="5" style="width:100%"></textarea>
+                    <div class="output-field-btns" style="margin-top:4px;display:flex;gap:6px">
+                        <button type="button" class="btn btn-sm" onclick="wpOpenQuickPartPicker('remarques','wp-remarques')" title="Choisir un bloc pré-rédigé">📑 Quick Parts</button>
+                        <button type="button" class="btn btn-sm btn-warning" onclick="wpEnhance('wp-remarques','Remarques')">✨ Enrichir avec Claude</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Bouton Générer -->
+        <div style="position:sticky;bottom:0;background:linear-gradient(180deg,rgba(248,250,252,0),#F8FAFC 30%);padding:20px 0;margin-top:20px;display:flex;gap:12px;align-items:center;justify-content:flex-end;border-top:1px solid var(--r-border)">
+            <div id="wpGenStatus" style="flex:1;font-size:.9em;color:var(--r-grey)"></div>
+            <button class="btn" type="button" onclick="wpCheckTemplate()" title="Vérifier que le template .docx est bien présent sur le serveur">Tester template</button>
+            <button class="btn btn-primary" id="wpGenerateBtn" type="button" onclick="wpGenerate()" style="padding:12px 28px;font-weight:600">Générer le rapport .docx</button>
+        </div>
+
+        <!-- Styles locaux onglet -->
+        <style>
+            #tab-wordplus .wp-status { display:inline-block;width:10px;height:10px;border-radius:50%;margin-left:6px;vertical-align:middle;background:#CBD5E1 }
+            #tab-wordplus .wp-status.ok { background:#10B981 }
+            #tab-wordplus .wp-status.miss { background:#F59E0B }
+            #tab-wordplus .wp-status.manual { background:#3B82F6 }
+            #tab-wordplus .wp-badge { font-size:.75em;font-weight:500;color:var(--r-grey);margin-left:8px }
+            #tab-wordplus .dropzone.dragover { border-color:var(--r-primary) !important;background:rgba(44,95,45,.05) }
+            #tab-wordplus .wp-pdf-ok { color:#10B981;font-weight:600 }
+            #tab-wordplus .wp-pdf-err { color:#c0392b }
+        </style>
+    </div>
+
     <!-- NOTIFICATION -->
     <div class="notification" id="notification"></div>
 
@@ -1167,10 +1446,14 @@
     <script src="textes.js"></script>
     <script src="redaction.js"></script>
     <script src="relecture.js"></script>
+    <script src="word-plus-project.js"></script>
+    <script src="word-plus-pdf.js"></script>
+    <script src="word-plus-docx.js"></script>
+    <script src="word-plus.js"></script>
     <script>
     /* ═══════ PROJECT PAGE CONTROLLER ═══════ */
 
-    var _tabsInitialized = { recueil: false, classes: false, photos: false, variantes: false, redaction: false, textes: false, relecture: false };
+    var _tabsInitialized = { recueil: false, classes: false, photos: false, variantes: false, redaction: false, textes: false, relecture: false, wordplus: false };
 
     function switchProjetTab(tab) {
         document.querySelectorAll('#projet-tabs .projet-tab').forEach(function (t) { t.classList.toggle('active', t.dataset.tab === tab); });
@@ -1187,6 +1470,7 @@
             else if (tab === 'redaction') initRedaction();
             else if (tab === 'textes') initTextes();
             else if (tab === 'relecture') initRelecture();
+            else if (tab === 'wordplus') initWordPlus();
         }
     }
 
@@ -1221,6 +1505,7 @@
         if (typeof autoSavePhotos === 'function') autoSavePhotos();
         if (typeof varSaveState === 'function') varSaveState();
         if (typeof textesAutoSave === 'function') textesAutoSave();
+        if (typeof wordPlusAutoSave === 'function') wordPlusAutoSave(true);
         var el = document.getElementById('notification');
         el.textContent = 'Projet sauvegardé';
         el.classList.add('show');
