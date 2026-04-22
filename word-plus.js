@@ -16,6 +16,8 @@
     var _wpProjectDefaults = null; // Valeurs initiales (pour distinguer "projet" vs "manuel")
     var _wpTemplates = null;    // Templates chargés depuis bibliotheque/word-plus-templates.json
     var _wpEnhanceOriginals = {}; // Textes avant "Enrichir avec Claude" (pour undo)
+    var _wpDocxBuffer = null;   // ArrayBuffer du .docx vierge CECB Plus uploadé (EN MÉMOIRE — pas persisté)
+    var _wpDocxFilename = '';   // Nom original du .docx uploadé (pour info)
 
     /* ──── Mapping champs UI → clés de l'objet state ──── */
     // Liste des (fieldKey, selector, type) — types : 'text' | 'textarea' | 'select' | 'checkbox' | 'nested'
@@ -89,14 +91,17 @@
             wpUpdateProgress();
             wpBindChangeHandlers();
             wpSetupPdfDropzone();
+            wpSetupDocxDropzone();
+            wpUpdateGenerateButton();
         }).catch(function (err) {
             console.warn('[wp] Templates non chargés :', err);
-            // Continue sans templates — les textareas restent vides
             wpFillForm(_wpState);
             wpUpdateStatusIndicators();
             wpUpdateProgress();
             wpBindChangeHandlers();
             wpSetupPdfDropzone();
+            wpSetupDocxDropzone();
+            wpUpdateGenerateButton();
         });
     }
 
@@ -314,6 +319,12 @@
                 el.style.color = filled === keys.length ? '#10B981' : (filled > 0 ? '#F59E0B' : 'var(--r-grey)');
             }
         });
+        // Badge Sources : .docx chargé ou non
+        var srcBadge = document.querySelector('#tab-wordplus .wp-badge[data-section="sources"]');
+        if (srcBadge) {
+            srcBadge.textContent = _wpDocxBuffer ? '✓ .docx chargé' : '⚠ .docx requis';
+            srcBadge.style.color = _wpDocxBuffer ? '#10B981' : '#F59E0B';
+        }
         // Badge Variantes : nombre de checks actives / 3 × 16
         var varBadge = document.querySelector('#tab-wordplus .wp-badge[data-section="variantes"]');
         if (varBadge) {
@@ -445,6 +456,57 @@
         });
     }
 
+    /* ──── Dropzone .docx vierge ──── */
+    function wpSetupDocxDropzone() {
+        var dz = document.getElementById('wpDocxDropzone');
+        var input = document.getElementById('wpDocxFileInput');
+        if (!dz || !input || dz.__wpBound) return;
+        dz.__wpBound = true;
+        dz.addEventListener('click', function () { input.click(); });
+        dz.addEventListener('dragover', function (e) { e.preventDefault(); dz.classList.add('dragover'); });
+        dz.addEventListener('dragleave', function () { dz.classList.remove('dragover'); });
+        dz.addEventListener('drop', function (e) {
+            e.preventDefault();
+            dz.classList.remove('dragover');
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) wpHandleDocxFile(e.dataTransfer.files[0]);
+        });
+        input.addEventListener('change', function () {
+            if (input.files && input.files[0]) wpHandleDocxFile(input.files[0]);
+        });
+    }
+
+    function wpHandleDocxFile(file) {
+        var status = document.getElementById('wpDocxStatus');
+        if (!file.name.toLowerCase().endsWith('.docx')) {
+            if (status) status.innerHTML = '<span class="wp-pdf-err">Fichier non reconnu (attendu : .docx)</span>';
+            return;
+        }
+        if (status) status.innerHTML = '<span style="color:var(--r-grey)">Chargement…</span>';
+        file.arrayBuffer().then(function (buf) {
+            _wpDocxBuffer = buf;
+            _wpDocxFilename = file.name;
+            if (status) {
+                status.innerHTML = '<span class="wp-pdf-ok">✓ Chargé : ' + file.name + ' (' + Math.round(buf.byteLength / 1024) + ' KB)</span>';
+            }
+            wpUpdateGenerateButton();
+            wpUpdateSectionBadges(_wpState || {});
+        }).catch(function (err) {
+            if (status) status.innerHTML = '<span class="wp-pdf-err">Erreur lecture : ' + (err.message || err) + '</span>';
+        });
+    }
+
+    function wpUpdateGenerateButton() {
+        var btn = document.getElementById('wpGenerateBtn');
+        if (!btn) return;
+        if (_wpDocxBuffer) {
+            btn.disabled = false;
+            btn.title = '';
+        } else {
+            btn.disabled = true;
+            btn.title = 'Glissez d\'abord le Word vierge CECB Plus généré par l\'outil officiel';
+        }
+    }
+
     function wpHandlePdfFile(file) {
         var status = document.getElementById('wpPdfStatus');
         if (status) status.innerHTML = '<span style="color:var(--r-grey)">Extraction en cours…</span>';
@@ -473,39 +535,32 @@
         });
     }
 
-    /* ──── Test du template (debug) ──── */
-    function wpCheckTemplate() {
-        fetch('templates/cecb_plus_template.docx').then(function (r) {
-            if (!r.ok) throw new Error('HTTP ' + r.status);
-            return r.arrayBuffer();
-        }).then(function (buf) {
-            wpToast('Template trouvé (' + Math.round(buf.byteLength / 1024) + ' KB)');
-        }).catch(function (e) {
-            wpToast('Template absent : ' + e.message + ' — voir templates/README.md pour la préparation.', 'error');
-        });
-    }
-
-    /* ──── Bouton Générer (délègue à word-plus-docx.js) ──── */
+    /* ──── Bouton Générer (modifie le .docx vierge uploadé) ──── */
     function wpGenerate() {
         if (typeof wpRenderDocx !== 'function') {
             wpToast('Module de génération Word non chargé', 'error');
             return;
         }
+        if (!_wpDocxBuffer) {
+            wpToast('Glissez d\'abord le Word vierge CECB Plus généré par l\'outil officiel', 'error');
+            return;
+        }
         // Force l'autosave immédiat pour ne rien perdre
         wordPlusAutoSave(true);
         var data = wpCollectFormData();
+        data._docxBuffer = _wpDocxBuffer;
         var btn = document.getElementById('wpGenerateBtn');
         var statusEl = document.getElementById('wpGenStatus');
-        if (btn) { btn.disabled = true; btn.textContent = 'Génération…'; }
-        if (statusEl) statusEl.textContent = 'Chargement du template…';
+        if (btn) { btn.disabled = true; btn.textContent = 'Modification en cours…'; }
+        if (statusEl) statusEl.textContent = 'Traitement du .docx…';
         wpRenderDocx(data).then(function (result) {
-            if (statusEl) statusEl.textContent = '✓ Rapport généré : ' + result.filename;
-            wpToast('Rapport Word généré');
+            if (statusEl) statusEl.textContent = '✓ Téléchargé : ' + result.filename;
+            wpToast('Rapport Word modifié et téléchargé');
         }).catch(function (err) {
             if (statusEl) statusEl.innerHTML = '<span style="color:#c0392b">✗ ' + (err.message || err) + '</span>';
             wpToast('Erreur : ' + (err.message || err), 'error');
         }).then(function () {
-            if (btn) { btn.disabled = false; btn.textContent = 'Générer le rapport .docx'; }
+            if (btn) { btn.textContent = 'Modifier et télécharger le .docx'; wpUpdateGenerateButton(); }
         });
     }
 
@@ -691,7 +746,9 @@
     global.wordPlusAutoSave = wordPlusAutoSave;
     global.wpReloadFromProject = wpReloadFromProject;
     global.wpGenerate = wpGenerate;
-    global.wpCheckTemplate = wpCheckTemplate;
+    global.wpUpdateGenerateButton = wpUpdateGenerateButton;
+    global.wpHandleDocxFile = wpHandleDocxFile;
+    global.wpSetupDocxDropzone = wpSetupDocxDropzone;
     global.wpUpdateStatusIndicators = wpUpdateStatusIndicators;
     global.wpUpdateProgress = wpUpdateProgress;
     global.wpLoadTemplates = wpLoadTemplates;

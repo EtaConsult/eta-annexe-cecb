@@ -1181,17 +1181,32 @@
             <button class="btn btn-sm" id="wpReloadProjectBtn" type="button" onclick="wpReloadFromProject()" title="Recharger les données depuis le projet">↻ Recharger projet</button>
         </div>
 
-        <!-- Zone import PDF CECB (optionnel) -->
+        <!-- Zone import DOCX CECB Plus vierge (OBLIGATOIRE) + PDF CECB (optionnel) -->
         <div class="recueil-section">
-            <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> PDF CECB officiel (optionnel — complète les classes et valeurs U)</h3></div>
+            <div class="section-header" onclick="toggleSection(this)"><h3><span class="toggle">&#x25BC;</span> Fichiers source <span class="wp-badge" data-section="sources"></span></h3></div>
             <div class="section-body">
-                <div id="wpPdfDropzone" class="dropzone" style="border:2px dashed var(--r-border);border-radius:var(--r-radius);padding:24px;text-align:center;cursor:pointer;transition:all .2s">
-                    <div style="font-size:32px;margin-bottom:8px">📄</div>
-                    <div><strong>Glissez le PDF CECB</strong> ou <u>cliquez pour sélectionner</u></div>
-                    <div style="font-size:.85em;color:var(--r-grey);margin-top:6px">Permet d'extraire automatiquement : n° CECB, classes A-G, valeurs U, surfaces, consommation mesurée</div>
-                    <input type="file" id="wpPdfFileInput" accept="application/pdf" style="display:none">
+                <div class="form-row" style="gap:14px">
+                    <div class="form-group" style="flex:1">
+                        <label style="font-weight:600;color:var(--r-primary)">1. Word vierge CECB Plus <span style="color:#c0392b">*</span></label>
+                        <div id="wpDocxDropzone" class="dropzone" style="border:2px dashed var(--r-primary);border-radius:var(--r-radius);padding:20px;text-align:center;cursor:pointer;transition:all .2s;background:#F0FDF4">
+                            <div style="font-size:28px;margin-bottom:6px">📝</div>
+                            <div><strong>Glissez le .docx vierge</strong></div>
+                            <div style="font-size:.8em;color:var(--r-grey);margin-top:4px">Le rapport vierge généré par l'outil CECB officiel pour ce projet. C'est ce fichier que l'outil va modifier.</div>
+                            <input type="file" id="wpDocxFileInput" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none">
+                        </div>
+                        <div id="wpDocxStatus" style="margin-top:8px;font-size:.9em"></div>
+                    </div>
+                    <div class="form-group" style="flex:1">
+                        <label>2. PDF CECB officiel (optionnel)</label>
+                        <div id="wpPdfDropzone" class="dropzone" style="border:2px dashed var(--r-border);border-radius:var(--r-radius);padding:20px;text-align:center;cursor:pointer;transition:all .2s">
+                            <div style="font-size:28px;margin-bottom:6px">📄</div>
+                            <div><strong>Glissez le PDF CECB</strong></div>
+                            <div style="font-size:.8em;color:var(--r-grey);margin-top:4px">Complète classes A-G, valeurs U, consommation si absentes du projet.</div>
+                            <input type="file" id="wpPdfFileInput" accept="application/pdf" style="display:none">
+                        </div>
+                        <div id="wpPdfStatus" style="margin-top:8px;font-size:.9em"></div>
+                    </div>
                 </div>
-                <div id="wpPdfStatus" style="margin-top:10px;font-size:.9em"></div>
             </div>
         </div>
 
@@ -1417,8 +1432,7 @@
         <!-- Bouton Générer -->
         <div style="position:sticky;bottom:0;background:linear-gradient(180deg,rgba(248,250,252,0),#F8FAFC 30%);padding:20px 0;margin-top:20px;display:flex;gap:12px;align-items:center;justify-content:flex-end;border-top:1px solid var(--r-border)">
             <div id="wpGenStatus" style="flex:1;font-size:.9em;color:var(--r-grey)"></div>
-            <button class="btn" type="button" onclick="wpCheckTemplate()" title="Vérifier que le template .docx est bien présent sur le serveur">Tester template</button>
-            <button class="btn btn-primary" id="wpGenerateBtn" type="button" onclick="wpGenerate()" style="padding:12px 28px;font-weight:600">Générer le rapport .docx</button>
+            <button class="btn btn-primary" id="wpGenerateBtn" type="button" onclick="wpGenerate()" style="padding:12px 28px;font-weight:600" disabled>Modifier et télécharger le .docx</button>
         </div>
 
         <!-- Styles locaux onglet -->
