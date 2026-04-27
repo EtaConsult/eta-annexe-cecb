@@ -3,21 +3,31 @@
    Cache assets statiques pour mode hors-ligne
    ═══════════════════════════════════════════════════════ */
 
-var CACHE_NAME = 'cecb-plus-v4';
+var CACHE_NAME = 'cecb-plus-v10';
 var ASSETS = [
     './',
     './accueil.html',
     './projet.html',
     './style.css',
+    './eta-mise-en-page.css',
     './auth.js',
     './project-store.js',
     './api-handler.js',
     './recueil.js',
+    './recueil-ui.js',
+    './recueil-sections.js',
+    './recueil-pdf.js',
+    './recueil-transcript.js',
     './photos.js',
     './variantes.js',
     './textes.js',
-    './relecture-tab.js'
+    './relecture.js',
+    './assets/eta-consult-logo-small.jpeg',
+    './assets/eta-consult-logo.jpeg'
 ];
+
+// Static asset extensions we cache (whitelist approach)
+var STATIC_ASSET_RE = /\.(html|js|css|json|png|jpg|jpeg|svg|ico|woff2?|ttf|webp)$/i;
 
 // Install: cache static assets
 self.addEventListener('install', function (e) {
@@ -42,24 +52,25 @@ self.addEventListener('activate', function (e) {
     self.clients.claim();
 });
 
-// Fetch: network first, fallback to cache
+// Fetch: network first, fallback to cache.
+// Whitelist: only same-origin static assets are cached. Anything else
+// (cross-origin, API calls to the proxy, dynamic POSTs) bypasses the SW
+// entirely so we never cache a response that might contain user data.
 self.addEventListener('fetch', function (e) {
-    var url = new URL(e.request.url);
+    if (e.request.method !== 'GET') return;
 
-    // Don't cache API calls
-    if (url.hostname === 'api.anthropic.com' ||
-        url.hostname === 'api.groq.com' ||
-        url.hostname.endsWith('geo.admin.ch') ||
-        url.hostname === 'api.github.com' ||
-        url.hostname === 'cdn.jsdelivr.net' ||
-        url.hostname === 'cdnjs.cloudflare.com') {
-        return;
+    var url = new URL(e.request.url);
+    var sameOrigin = url.origin === self.location.origin;
+    var isRoot = url.pathname === '/' || url.pathname.endsWith('/');
+    var isStaticAsset = STATIC_ASSET_RE.test(url.pathname);
+
+    if (!sameOrigin || (!isRoot && !isStaticAsset)) {
+        return; // Let the browser handle it without SW intervention
     }
 
     e.respondWith(
         fetch(e.request).then(function (resp) {
-            // Update cache with fresh response
-            if (resp.ok && e.request.method === 'GET') {
+            if (resp.ok) {
                 var clone = resp.clone();
                 caches.open(CACHE_NAME).then(function (cache) {
                     cache.put(e.request, clone);

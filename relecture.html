@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Assistant CECB — Relecture CECB</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="eta-mise-en-page.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script>if(window.pdfjsLib)pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
     <style>
@@ -82,6 +83,7 @@
 </head>
 <body>
     <nav class="main-nav">
+        <img class="eta-logo" src="assets/eta-consult-logo-small.jpeg" alt="Êta Consult Sàrl">
         <span class="brand" style="cursor:pointer" onclick="window.location.href='accueil.html'">Assistant CECB</span>
         <a href="accueil.html">Accueil</a>
         <a href="relecture.html" class="active">Relecture CECB</a>
@@ -136,5 +138,19 @@ function onAuthSuccess() {
     document.querySelectorAll('.container').forEach(function(el) { el.style.display = ''; });
 }
     </script>
+
+    <footer class="eta-footer">
+        <img class="eta-footer-logo" src="assets/eta-consult-logo-small.jpeg" alt="Êta Consult Sàrl">
+        <div class="eta-footer-coords">
+            <strong>Êta Consult Sàrl</strong>
+            <div class="eta-line">Route de l'Hôpital 16b, 1180 Rolle</div>
+            <div class="eta-line">078 303 81 01 — info@etaconsult.ch — www.etaconsult.ch</div>
+        </div>
+        <div class="eta-footer-fiscal">
+            <div class="eta-line">CHE-473.546.515 TVA</div>
+            <div class="eta-line">UBS Switzerland AG (BIC UBSWCHZH80A)</div>
+            <div class="eta-line">IBAN CH04 0024 3243 6169 1401 D</div>
+        </div>
+    </footer>
 </body>
 </html>

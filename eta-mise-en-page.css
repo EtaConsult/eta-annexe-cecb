@@ -1,0 +1,219 @@
+/* ════════════════════════════════════════════════════════════
+ * eta-mise-en-page.css
+ * Override de la charte graphique Êta Consult Sàrl appliqué
+ * par-dessus style.css. Principes :
+ *   - Police principale : Poppins (Calibri en fallback)
+ *   - Tout en noir #000000 sur fond blanc — aucune couleur
+ *   - Logo Êta dans la barre de navigation
+ *   - Pied de page avec coordonnées et IBAN
+ * Charger après style.css :
+ *   <link rel="stylesheet" href="style.css">
+ *   <link rel="stylesheet" href="eta-mise-en-page.css">
+ * ════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+/* ─── Police globale Poppins ─────────────────────────── */
+body,
+button,
+input,
+select,
+textarea,
+.auth-box,
+.auth-user-bar,
+.admin-panel,
+.main-nav,
+.main-nav .brand,
+.main-nav a {
+    font-family: 'Poppins', Calibri, sans-serif !important;
+}
+
+/* ─── Mise en noir : nav, brand, accents, gradients ─── */
+.main-nav {
+    background: #000 !important;
+}
+
+.main-nav .brand,
+.main-nav a.active {
+    color: #fff !important;
+}
+
+.main-nav a {
+    color: rgba(255, 255, 255, 0.65) !important;
+    border-bottom-color: transparent !important;
+}
+
+.main-nav a.active {
+    border-bottom-color: #fff !important;
+}
+
+.main-nav a:hover {
+    color: #fff !important;
+}
+
+/* ─── Boutons et accents : retire le vert/orange ────── */
+.auth-btn,
+.admin-add-form button,
+button.primary,
+.btn-primary,
+.btn-create,
+.btn-open,
+.address-row button,
+.projects-header .count,
+[onclick*="saveApiSettings"],
+[onclick*="showView"]:not(a),
+[onclick*="submitFeedback"],
+[onclick*="ProjectStore.exportAll"],
+[style*="#10B981"],
+[style*="#059669"],
+[style*="#10b981"],
+[style*="#059669"],
+.auth-user-bar .auth-admin-link.active {
+    background: #000 !important;
+    color: #fff !important;
+    box-shadow: none !important;
+}
+
+.auth-btn:hover,
+.admin-add-form button:hover,
+.btn-create:hover,
+.btn-open:hover,
+.address-row button:hover {
+    background: #333 !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+/* Bordures vertes (focus, hover) */
+.address-row input:focus,
+.settings-link:hover {
+    border-color: #000 !important;
+    color: #000 !important;
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Headings (h1, h2) avaient une bordure verte sous le titre */
+h1, h2, h3, h4, h5, h6 {
+    border-bottom-color: #000 !important;
+    color: #000 !important;
+}
+
+/* Liens / accents génériques */
+a {
+    color: #000 !important;
+}
+
+/* Gradients verts → noir uni */
+[style*="linear-gradient"] {
+    background: #000 !important;
+}
+
+/* Badges et highlights */
+.btn-copy-ei,
+.btn-copy-ap {
+    background: #000 !important;
+    color: #fff !important;
+}
+
+/* Bordures inputs : noires sur focus */
+input:focus,
+select:focus,
+textarea:focus {
+    outline: none !important;
+    border-color: #000 !important;
+}
+
+/* Liens d'accent dans la nav admin */
+.auth-user-bar {
+    background: #000 !important;
+}
+
+.auth-admin-link,
+.auth-logout {
+    color: rgba(255, 255, 255, 0.75) !important;
+}
+
+.auth-admin-link:hover,
+.auth-logout:hover {
+    color: #fff !important;
+    background: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* Headings du panneau admin */
+.admin-panel h3 {
+    color: #000 !important;
+}
+
+.admin-panel th {
+    border-bottom-color: #000 !important;
+    color: #000 !important;
+}
+
+/* ─── Logo Êta dans la nav ─────────────────────────── */
+.main-nav .eta-logo {
+    height: 28px;
+    width: auto;
+    margin-right: 14px;
+    vertical-align: middle;
+    /* Le logo Êta est noir sur fond blanc — fond blanc dans la nav noire */
+    background: #fff;
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+/* ─── Pied de page Êta ─────────────────────────────── */
+.eta-footer {
+    margin: 60px auto 0;
+    padding: 24px 40px 30px;
+    max-width: 1300px;
+    border-top: 1px solid #000;
+    background: #fff;
+    color: #000;
+    font-size: 11px;
+    line-height: 1.55;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 24px;
+    align-items: start;
+}
+
+.eta-footer .eta-footer-logo {
+    height: 48px;
+    width: auto;
+}
+
+.eta-footer .eta-footer-coords {
+    font-family: 'Poppins', Calibri, sans-serif;
+}
+
+.eta-footer .eta-footer-coords strong {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 4px;
+    font-size: 12px;
+}
+
+.eta-footer .eta-footer-coords .eta-line {
+    margin-bottom: 2px;
+}
+
+.eta-footer .eta-footer-fiscal {
+    font-family: 'Poppins', Calibri, sans-serif;
+    text-align: right;
+    color: #000;
+    font-size: 10px;
+}
+
+.eta-footer .eta-footer-fiscal .eta-line {
+    margin-bottom: 2px;
+}
+
+@media (max-width: 720px) {
+    .eta-footer {
+        grid-template-columns: 1fr;
+        text-align: left;
+    }
+    .eta-footer .eta-footer-fiscal {
+        text-align: left;
+    }
+}

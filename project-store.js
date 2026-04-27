@@ -63,6 +63,11 @@ const ProjectStore = (function () {
     /* ─── Save Queue (prevent race conditions) ────────── */
     let _saveQueue = Promise.resolve();
     let _lastSaveError = null;
+    let _lastSavedJson = null;          // Dedup cache: skip writes when nothing changed
+    let _quotaWarned = false;           // Show quota warning only once per session
+
+    // Soft cap (string length ≈ bytes for ASCII-heavy JSON; localStorage budget ~5 MB)
+    const QUOTA_WARN_BYTES = 4 * 1024 * 1024;
 
     function _enqueueSave(fn) {
         _saveQueue = _saveQueue.then(fn).catch(function (e) {
@@ -103,22 +108,42 @@ const ProjectStore = (function () {
     }
 
     function _saveAll(projects) {
-        try {
-            var data = JSON.stringify(projects);
-            localStorage.setItem(STORAGE_KEY, data);
-            // Rotate backup (every 10th save)
-            if (!_saveAll._count) _saveAll._count = 0;
-            if (++_saveAll._count % 10 === 0) {
-                localStorage.setItem(STORAGE_KEY + '-backup', data);
+        // Serialise saves through the queue so concurrent updates can't interleave
+        return _enqueueSave(function () {
+            var data;
+            try {
+                data = JSON.stringify(projects);
+            } catch (e) {
+                _showStoreToast('Erreur de sérialisation: ' + e.message, 'error');
+                throw e;
             }
-        } catch (e) {
-            if (e.name === 'QuotaExceededError' || e.code === 22 || e.code === 1014) {
-                _showStoreToast('Espace de stockage plein — impossible de sauvegarder. Exportez vos projets.', 'error');
-            } else {
-                _showStoreToast('Erreur de sauvegarde: ' + e.message, 'error');
+
+            // Dedup: skip the write entirely if nothing has changed since last save
+            if (data === _lastSavedJson) return;
+
+            // Soft quota warning (once per session)
+            if (!_quotaWarned && data.length > QUOTA_WARN_BYTES) {
+                _quotaWarned = true;
+                _showStoreToast('Stockage local proche de la limite — pensez à exporter vos anciens projets.', 'warning');
             }
-            throw e;
-        }
+
+            try {
+                localStorage.setItem(STORAGE_KEY, data);
+                _lastSavedJson = data;
+                // Rotate backup (every 10th save)
+                if (!_saveAll._count) _saveAll._count = 0;
+                if (++_saveAll._count % 10 === 0) {
+                    localStorage.setItem(STORAGE_KEY + '-backup', data);
+                }
+            } catch (e) {
+                if (e.name === 'QuotaExceededError' || e.code === 22 || e.code === 1014) {
+                    _showStoreToast('Espace de stockage plein — impossible de sauvegarder. Exportez vos projets.', 'error');
+                } else {
+                    _showStoreToast('Erreur de sauvegarde: ' + e.message, 'error');
+                }
+                throw e;
+            }
+        });
     }
 
     function _showStoreToast(msg, type) {
@@ -165,9 +190,13 @@ const ProjectStore = (function () {
         const idx = all.findIndex(p => p.id === id);
         if (idx < 0) return false;
         if (section) {
+            // Skip if section content is unchanged (avoids touching `updated` for no-op writes)
+            if (JSON.stringify(all[idx][section]) === JSON.stringify(data)) return true;
             all[idx][section] = data;
         } else {
+            var beforeJson = JSON.stringify(all[idx]);
             Object.assign(all[idx], data);
+            if (JSON.stringify(all[idx]) === beforeJson) return true;
         }
         all[idx].updated = new Date().toISOString();
         _saveAll(all);
@@ -184,7 +213,10 @@ const ProjectStore = (function () {
             if (!obj[keys[i]]) obj[keys[i]] = {};
             obj = obj[keys[i]];
         }
-        obj[keys[keys.length - 1]] = value;
+        const lastKey = keys[keys.length - 1];
+        // Skip if value didn't actually change (prevents `updated` churn + a stringify of every project)
+        if (obj[lastKey] === value) return true;
+        obj[lastKey] = value;
         all[idx].updated = new Date().toISOString();
         _saveAll(all);
         return true;
@@ -314,6 +346,12 @@ const ProjectStore = (function () {
             reader.readAsText(file);
         });
     }
+
+    /* ─── Init dedup cache from current storage ─────── */
+    try {
+        var _initialRaw = localStorage.getItem(STORAGE_KEY);
+        if (_initialRaw) _lastSavedJson = _initialRaw;
+    } catch (e) { /* ignore */ }
 
     /* ─── Flush pending saves on page unload ────────── */
     window.addEventListener('beforeunload', function () {

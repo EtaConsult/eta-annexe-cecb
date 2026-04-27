@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Assistant CECB — Projet</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="eta-mise-en-page.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -192,6 +193,7 @@
 <body>
     <!-- MAIN NAV -->
     <nav class="main-nav">
+        <img class="eta-logo" src="assets/eta-consult-logo-small.jpeg" alt="Êta Consult Sàrl">
         <span class="brand">Assistant CECB</span>
         <span class="nav-project-address" id="navProjectAddress"></span>
         <a href="accueil.html" class="nav-accueil">Accueil</a>
@@ -1472,6 +1474,10 @@
     <script src="project-store.js"></script>
     <script src="auth.js"></script>
     <script src="recueil.js"></script>
+    <script src="recueil-ui.js"></script>
+    <script src="recueil-sections.js"></script>
+    <script src="recueil-pdf.js"></script>
+    <script src="recueil-transcript.js"></script>
     <script src="photos.js"></script>
     <script src="variantes.js"></script>
     <script src="textes.js"></script>
@@ -1759,5 +1765,19 @@
         });
     });
     </script>
+
+    <footer class="eta-footer">
+        <img class="eta-footer-logo" src="assets/eta-consult-logo-small.jpeg" alt="Êta Consult Sàrl">
+        <div class="eta-footer-coords">
+            <strong>Êta Consult Sàrl</strong>
+            <div class="eta-line">Route de l'Hôpital 16b, 1180 Rolle</div>
+            <div class="eta-line">078 303 81 01 — info@etaconsult.ch — www.etaconsult.ch</div>
+        </div>
+        <div class="eta-footer-fiscal">
+            <div class="eta-line">CHE-473.546.515 TVA</div>
+            <div class="eta-line">UBS Switzerland AG (BIC UBSWCHZH80A)</div>
+            <div class="eta-line">IBAN CH04 0024 3243 6169 1401 D</div>
+        </div>
+    </footer>
 </body>
 </html>

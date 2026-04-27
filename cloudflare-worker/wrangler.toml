@@ -1,3 +1,29 @@
 name = "cecb-api"
 main = "worker.js"
 compatibility_date = "2024-01-01"
+
+# KV namespace for rate limiting (per-IP + global counters).
+# Create once with: wrangler kv:namespace create RATE_LIMIT
+# Then paste the returned id below.
+[[kv_namespaces]]
+binding = "RATE_LIMIT"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"
+
+# ─── Deployment checklist ────────────────────────────────
+# Secrets (one-time setup, never committed):
+#   wrangler secret put ANTHROPIC_API_KEY
+#   wrangler secret put GROQ_API_KEY
+#   wrangler secret put GITHUB_TOKEN
+#   wrangler secret put WORKER_SHARED_SECRET   # 32+ random bytes, share with admin
+#
+# Generate a strong shared secret (PowerShell):
+#   [Convert]::ToBase64String((1..32 | %{ Get-Random -Min 0 -Max 256 } | %{ [byte]$_ }))
+#
+# Or with Node:
+#   node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+#
+# Deploy:
+#   wrangler deploy
+#
+# Tail logs:
+#   wrangler tail

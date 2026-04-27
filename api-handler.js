@@ -5,43 +5,51 @@
 
 var CecbApi = (function () {
 
-    function getApiKey() {
-        return localStorage.getItem('cecb_api_key') || '';
-    }
+    // One-shot migration: remove any legacy local API keys from a previous version
+    try {
+        if (localStorage.getItem('cecb_api_key')) localStorage.removeItem('cecb_api_key');
+        if (localStorage.getItem('cecb_groq_key')) localStorage.removeItem('cecb_groq_key');
+    } catch (e) { /* ignore */ }
+
+    // Deprecated — proxy-only mode. Kept as no-op for backward compat with callers
+    // that check `!useProxy() && !getApiKey()` to surface the "configure proxy" message.
+    function getApiKey() { return ''; }
+    function getGroqKey() { return ''; }
 
     function getModel() {
         return localStorage.getItem('cecb_api_model') || 'claude-sonnet-4-20250514';
-    }
-
-    function getGroqKey() {
-        return localStorage.getItem('cecb_groq_key') || '';
     }
 
     function getProxyUrl() {
         return (localStorage.getItem('cecb_proxy_url') || '').replace(/\/+$/, '');
     }
 
+    function getProxyToken() {
+        return localStorage.getItem('cecb_proxy_token') || '';
+    }
+
     function useProxy() {
         return !!getProxyUrl();
     }
 
-    function getHeaders() {
-        return {
-            'Content-Type': 'application/json',
-            'x-api-key': getApiKey(),
-            'anthropic-version': '2023-06-01',
-            'anthropic-dangerous-direct-browser-access': 'true'
-        };
+    /**
+     * Build headers for a proxy request, injecting the Bearer token if present.
+     * Pass extra headers (e.g. Content-Type) via `extra`.
+     */
+    function proxyHeaders(extra) {
+        var h = Object.assign({}, extra || {});
+        var token = getProxyToken();
+        if (token) h['Authorization'] = 'Bearer ' + token;
+        return h;
     }
 
     /**
-     * Call Claude API with timeout and error handling
-     * Supports proxy mode (no local API key needed) or direct mode
+     * Call Claude API via the Cloudflare Worker proxy.
+     * Direct browser → Anthropic calls are no longer supported (key handling).
      */
     async function callClaude(opts) {
         var proxy = getProxyUrl();
-
-        if (!proxy && !getApiKey()) throw new Error('Clé API Claude non configurée (et aucun proxy défini)');
+        if (!proxy) throw new Error('Mode proxy requis. Configurez l\'URL du proxy dans Paramètres.');
 
         var body = {
             model: getModel(),
@@ -50,18 +58,9 @@ var CecbApi = (function () {
         };
         if (opts.system) body.system = opts.system;
 
-        var url, headers;
-        if (proxy) {
-            url = proxy + '/claude';
-            headers = { 'Content-Type': 'application/json' };
-        } else {
-            url = 'https://api.anthropic.com/v1/messages';
-            headers = getHeaders();
-        }
-
-        var resp = await fetchWithTimeout(url, {
+        var resp = await fetchWithTimeout(proxy + '/claude', {
             method: 'POST',
-            headers: headers,
+            headers: proxyHeaders({ 'Content-Type': 'application/json' }),
             body: JSON.stringify(body)
         }, opts.timeoutMs || 60000);
 
@@ -76,13 +75,11 @@ var CecbApi = (function () {
     }
 
     /**
-     * Call Groq Whisper for audio transcription
-     * Supports proxy mode (no local API key needed) or direct mode
+     * Call Groq Whisper for audio transcription via the proxy.
      */
     async function callWhisper(file, timeoutMs) {
         var proxy = getProxyUrl();
-
-        if (!proxy && !getGroqKey()) throw new Error('Clé API Groq non configurée (et aucun proxy défini)');
+        if (!proxy) throw new Error('Mode proxy requis. Configurez l\'URL du proxy dans Paramètres.');
 
         var formData = new FormData();
         formData.append('file', file);
@@ -90,18 +87,9 @@ var CecbApi = (function () {
         formData.append('language', 'fr');
         formData.append('response_format', 'text');
 
-        var url, headers;
-        if (proxy) {
-            url = proxy + '/whisper';
-            headers = {};
-        } else {
-            url = 'https://api.groq.com/openai/v1/audio/transcriptions';
-            headers = { 'Authorization': 'Bearer ' + getGroqKey() };
-        }
-
-        var resp = await fetchWithTimeout(url, {
+        var resp = await fetchWithTimeout(proxy + '/whisper', {
             method: 'POST',
-            headers: headers,
+            headers: proxyHeaders(),
             body: formData
         }, timeoutMs || 60000);
 
@@ -115,8 +103,6 @@ var CecbApi = (function () {
 
     /**
      * Parse JSON from Claude response (handles markdown code blocks)
-     * @param {string} text - Raw response text
-     * @returns {Object} Parsed JSON
      */
     function parseJsonResponse(text) {
         var match = text.match(/\{[\s\S]*\}/);
@@ -128,6 +114,8 @@ var CecbApi = (function () {
         getModel: getModel,
         getGroqKey: getGroqKey,
         getProxyUrl: getProxyUrl,
+        getProxyToken: getProxyToken,
+        proxyHeaders: proxyHeaders,
         useProxy: useProxy,
         callClaude: callClaude,
         callWhisper: callWhisper,

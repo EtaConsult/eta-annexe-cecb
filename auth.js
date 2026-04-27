@@ -10,11 +10,72 @@ const ADMIN_EMAIL = 'info@etaconsult.ch';
 
 /* ─── Crypto ──────────────────────────────────────────── */
 
-async function hashPassword(password) {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(password);
-    const hash = await crypto.subtle.digest('SHA-256', data);
-    return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+const PBKDF2_ITERATIONS = 100000;
+
+function bytesToHex(bytes) {
+    return Array.from(bytes).map(function (b) { return b.toString(16).padStart(2, '0'); }).join('');
+}
+
+function hexToBytes(hex) {
+    var bytes = new Uint8Array(hex.length / 2);
+    for (var i = 0; i < hex.length; i += 2) bytes[i / 2] = parseInt(hex.substr(i, 2), 16);
+    return bytes;
+}
+
+async function sha256Hex(str) {
+    var hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+    return bytesToHex(new Uint8Array(hash));
+}
+
+async function pbkdf2Hex(password, saltBytes, iterations) {
+    var key = await crypto.subtle.importKey(
+        'raw',
+        new TextEncoder().encode(password),
+        'PBKDF2',
+        false,
+        ['deriveBits']
+    );
+    var bits = await crypto.subtle.deriveBits(
+        { name: 'PBKDF2', salt: saltBytes, iterations: iterations, hash: 'SHA-256' },
+        key,
+        256
+    );
+    return bytesToHex(new Uint8Array(bits));
+}
+
+/**
+ * Produce a stored-hash string in the format `pbkdf2:<iter>:<saltHex>:<hashHex>`.
+ * If `saltHex` is omitted, a fresh 16-byte salt is generated.
+ */
+async function hashPassword(password, saltHex) {
+    var salt = saltHex ? hexToBytes(saltHex) : crypto.getRandomValues(new Uint8Array(16));
+    var saltStr = saltHex || bytesToHex(salt);
+    var hash = await pbkdf2Hex(password, salt, PBKDF2_ITERATIONS);
+    return 'pbkdf2:' + PBKDF2_ITERATIONS + ':' + saltStr + ':' + hash;
+}
+
+/**
+ * Verify a clear-text password against a stored hash.
+ * Supports both the new pbkdf2:* format and legacy bare SHA-256 hex.
+ */
+async function verifyPassword(password, storedHash) {
+    if (!storedHash) return false;
+    if (storedHash.indexOf('pbkdf2:') === 0) {
+        var parts = storedHash.split(':');
+        if (parts.length !== 4) return false;
+        var iter = parseInt(parts[1], 10) || PBKDF2_ITERATIONS;
+        var saltBytes = hexToBytes(parts[2]);
+        var expected = parts[3];
+        var actual = await pbkdf2Hex(password, saltBytes, iter);
+        return actual === expected;
+    }
+    // Legacy: bare SHA-256 hex (64 chars)
+    var sha = await sha256Hex(password);
+    return sha === storedHash;
+}
+
+function isLegacyHash(storedHash) {
+    return !!storedHash && storedHash.indexOf('pbkdf2:') !== 0;
 }
 
 /* ─── User Store ──────────────────────────────────────── */
@@ -41,6 +102,13 @@ const DEFAULT_USERS = [
 function initDefaultUsers() {
     const users = getUsers();
     let changed = false;
+    // Migration: strip legacy plainPassword field from existing users
+    users.forEach(function (u) {
+        if (Object.prototype.hasOwnProperty.call(u, 'plainPassword')) {
+            delete u.plainPassword;
+            changed = true;
+        }
+    });
     DEFAULT_USERS.forEach(function (def) {
         const existing = users.find(u => u.email.toLowerCase() === def.email.toLowerCase());
         if (!existing) {
@@ -71,19 +139,34 @@ var initAdmin = initDefaultUsers;
 
 /* ─── Session ─────────────────────────────────────────── */
 
+const SESSION_TTL_MS = 8 * 60 * 60 * 1000;          // 8 hours (default)
+const SESSION_TTL_PERSISTENT_MS = 30 * 24 * 60 * 60 * 1000; // 30 days (rester connecté)
+
 function getSession() {
     try {
         // Check sessionStorage first, then localStorage (rester connecté)
         var s = sessionStorage.getItem(AUTH_SESSION_KEY);
         if (!s) s = localStorage.getItem(AUTH_SESSION_KEY);
-        return s ? JSON.parse(s) : null;
+        if (!s) return null;
+        var session = JSON.parse(s);
+        if (session && session.expiresAt && Date.now() > session.expiresAt) {
+            clearSession();
+            return null;
+        }
+        return session;
     } catch (e) {
         return null;
     }
 }
 
 function setSession(user, persistent) {
-    var data = JSON.stringify({ email: user.email, isAdmin: user.isAdmin, name: (user.firstName || '') + ' ' + (user.lastName || '') });
+    var ttl = persistent ? SESSION_TTL_PERSISTENT_MS : SESSION_TTL_MS;
+    var data = JSON.stringify({
+        email: user.email,
+        isAdmin: user.isAdmin,
+        name: (user.firstName || '') + ' ' + (user.lastName || ''),
+        expiresAt: Date.now() + ttl
+    });
     sessionStorage.setItem(AUTH_SESSION_KEY, data);
     if (persistent) {
         localStorage.setItem(AUTH_SESSION_KEY, data);
@@ -116,8 +199,14 @@ async function login(email, password, persistent) {
         return { ok: false, msg: 'first-setup', user: user };
     }
 
-    const hash = await hashPassword(password);
-    if (hash !== user.passwordHash) return { ok: false, msg: 'Mot de passe incorrect' };
+    const ok = await verifyPassword(password, user.passwordHash);
+    if (!ok) return { ok: false, msg: 'Mot de passe incorrect' };
+
+    // Rotate legacy SHA-256 hashes to PBKDF2 transparently
+    if (isLegacyHash(user.passwordHash)) {
+        user.passwordHash = await hashPassword(password);
+        saveUsers(users);
+    }
 
     setSession(user, persistent);
     return { ok: true };
@@ -138,7 +227,7 @@ async function addUser(email, password, firstName, lastName) {
         return { ok: false, msg: 'Cet email existe déjà' };
     }
     const hash = await hashPassword(password);
-    users.push({ email: email.toLowerCase(), passwordHash: hash, plainPassword: password, isAdmin: false, firstName: firstName || '', lastName: lastName || '', name: ((firstName || '') + ' ' + (lastName || '')).trim() || email });
+    users.push({ email: email.toLowerCase(), passwordHash: hash, isAdmin: false, firstName: firstName || '', lastName: lastName || '', name: ((firstName || '') + ' ' + (lastName || '')).trim() || email });
     saveUsers(users);
     return { ok: true };
 }
@@ -287,8 +376,8 @@ async function handleSetup() {
     const confirm = document.getElementById('authConfirmPw').value;
     const errorEl = document.getElementById('authSetupError');
 
-    if (pw.length < 4) {
-        errorEl.textContent = 'Le mot de passe doit contenir au moins 4 caractères';
+    if (pw.length < 12) {
+        errorEl.textContent = 'Le mot de passe doit contenir au moins 12 caractères';
         errorEl.classList.add('visible');
         return;
     }
@@ -374,20 +463,17 @@ function renderAdminPanel() {
     panel.id = 'adminPanel';
 
     let html = '<h3>Gestion des accès</h3>';
-    html += '<table><thead><tr><th>Prénom</th><th>Nom</th><th>Email</th><th>Mot de passe</th><th>Rôle</th><th></th></tr></thead><tbody>';
+    html += '<table><thead><tr><th>Prénom</th><th>Nom</th><th>Email</th><th>Rôle</th><th>Actions</th></tr></thead><tbody>';
     users.forEach(u => {
         var fn = u.firstName || (u.name ? u.name.split(' ')[0] : '');
         var ln = u.lastName || (u.name ? u.name.split(' ').slice(1).join(' ') : '');
-        var pwCell = u.plainPassword
-            ? '<span class="pw-hidden" data-pw="' + escapeAuthHtml(u.plainPassword) + '">••••••</span> <button class="btn-reveal" onclick="this.previousElementSibling.textContent=this.previousElementSibling.dataset.pw;this.textContent=\'\';" style="padding:2px 6px;background:none;border:1px solid #ccc;border-radius:3px;cursor:pointer;font-size:11px;color:#666">Voir</button>'
-            : '<em style="color:#aaa">—</em>';
-        html += '<tr><td>' + escapeAuthHtml(fn) + '</td><td>' + escapeAuthHtml(ln) + '</td><td>' + escapeAuthHtml(u.email) + '</td><td style="font-family:monospace;font-size:12px;color:#666">' + pwCell + '</td><td>' + (u.isAdmin ? 'Admin' : 'Utilisateur') + '</td>';
+        html += '<tr><td>' + escapeAuthHtml(fn) + '</td><td>' + escapeAuthHtml(ln) + '</td><td>' + escapeAuthHtml(u.email) + '</td><td>' + (u.isAdmin ? 'Admin' : 'Utilisateur') + '</td>';
+        html += '<td>';
         if (!u.isAdmin) {
-            html += '<td><button class="btn-del" data-email="' + escapeAuthHtml(u.email) + '">Supprimer</button></td>';
-        } else {
-            html += '<td></td>';
+            html += '<button class="btn-reset-pw" data-email="' + escapeAuthHtml(u.email) + '">Réinitialiser mdp</button> ';
+            html += '<button class="btn-del" data-email="' + escapeAuthHtml(u.email) + '">Supprimer</button>';
         }
-        html += '</tr>';
+        html += '</td></tr>';
     });
     html += '</tbody></table>';
     html += '<div class="admin-add-form" id="adminAddForm">';
@@ -419,6 +505,25 @@ function renderAdminPanel() {
         });
     });
 
+    // Reset password handlers
+    panel.querySelectorAll('.btn-reset-pw').forEach(function(btn) {
+        btn.addEventListener('click', async function() {
+            const email = this.dataset.email;
+            const newPw = prompt('Nouveau mot de passe pour ' + email + ' (min. 12 caractères) :');
+            if (newPw === null) return;
+            if (newPw.length < 12) {
+                alert('Le mot de passe doit contenir au moins 12 caractères.');
+                return;
+            }
+            const ok = await setPassword(email, newPw);
+            if (ok) {
+                alert('Mot de passe mis à jour pour ' + email + '.\nCommuniquez-le à l\'utilisateur (il ne sera plus affiché ensuite).');
+            } else {
+                alert('Erreur lors de la mise à jour.');
+            }
+        });
+    });
+
     // Add handler
     document.getElementById('adminAddBtn').addEventListener('click', async function() {
         const firstName = document.getElementById('adminNewFirstName').value.trim();
@@ -432,8 +537,8 @@ function renderAdminPanel() {
             errorEl.classList.add('visible');
             return;
         }
-        if (pw.length < 4) {
-            errorEl.textContent = 'Le mot de passe doit contenir au moins 4 caractères';
+        if (pw.length < 12) {
+            errorEl.textContent = 'Le mot de passe doit contenir au moins 12 caractères';
             errorEl.classList.add('visible');
             return;
         }

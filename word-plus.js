@@ -178,7 +178,7 @@
         wpRenderVariantsGrid(data.variantsCheck || {}, data.variantNames || []);
         // Bases documents
         var bases = data.bases || {};
-        ['plan', 'facade', 'coupe', 'consoElec', 'consoChauff', 'autres'].forEach(function (k) {
+        (global.WP_BASES_ORDER || ['plan', 'facade', 'coupe', 'consoElec', 'consoChauff', 'autres']).forEach(function (k) {
             var el = document.getElementById('wp-base-' + k);
             if (el) el.value = bases[k] || '';
         });
@@ -255,7 +255,7 @@
         }
         // Bases Documents
         var bases = Object.assign({}, out.bases || {});
-        ['plan', 'facade', 'coupe', 'consoElec', 'consoChauff', 'autres'].forEach(function (k) {
+        (global.WP_BASES_ORDER || ['plan', 'facade', 'coupe', 'consoElec', 'consoChauff', 'autres']).forEach(function (k) {
             var el = document.getElementById('wp-base-' + k);
             if (el) bases[k] = el.value;
         });
@@ -362,7 +362,7 @@
         var basesBadge = document.querySelector('#tab-wordplus .wp-badge[data-section="bases"]');
         if (basesBadge) {
             var bases = data.bases || {};
-            var bKeys = ['plan', 'facade', 'coupe', 'consoElec', 'consoChauff', 'autres'];
+            var bKeys = global.WP_BASES_ORDER || ['plan', 'facade', 'coupe', 'consoElec', 'consoChauff', 'autres'];
             var bFilled = bKeys.filter(function (k) { return bases[k] && bases[k].trim(); }).length;
             basesBadge.textContent = bFilled + '/' + bKeys.length + ' renseignés';
             basesBadge.style.color = bFilled === bKeys.length ? '#10B981' : (bFilled > 0 ? '#F59E0B' : 'var(--r-grey)');
