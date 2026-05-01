@@ -469,9 +469,9 @@ function renderAdminPanel() {
         var ln = u.lastName || (u.name ? u.name.split(' ').slice(1).join(' ') : '');
         html += '<tr><td>' + escapeAuthHtml(fn) + '</td><td>' + escapeAuthHtml(ln) + '</td><td>' + escapeAuthHtml(u.email) + '</td><td>' + (u.isAdmin ? 'Admin' : 'Utilisateur') + '</td>';
         html += '<td>';
+        html += '<button class="btn-reset-pw" data-email="' + escapeAuthHtml(u.email) + '">Réinitialiser mdp</button>';
         if (!u.isAdmin) {
-            html += '<button class="btn-reset-pw" data-email="' + escapeAuthHtml(u.email) + '">Réinitialiser mdp</button> ';
-            html += '<button class="btn-del" data-email="' + escapeAuthHtml(u.email) + '">Supprimer</button>';
+            html += ' <button class="btn-del" data-email="' + escapeAuthHtml(u.email) + '">Supprimer</button>';
         }
         html += '</td></tr>';
     });
