@@ -304,6 +304,7 @@ function showLoginModal() {
                     <label for="authRemember" style="font-size:13px;color:#64748B;cursor:pointer;user-select:none">Rester connecté</label>
                 </div>
                 <button class="auth-btn" id="authLoginBtn">Se connecter</button>
+                <div style="text-align:center;margin-top:10px"><a href="#" id="authForgotLink" style="font-size:12px;color:#64748B;text-decoration:underline">Mot de passe oublié ?</a></div>
                 <div class="auth-error" id="authError"></div>
             </div>
             <div id="authSetupForm" style="display:none">
@@ -340,6 +341,42 @@ function showLoginModal() {
     document.getElementById('authConfirmPw').addEventListener('keydown', function(e) {
         if (e.key === 'Enter') handleSetup();
     });
+
+    // Forgot password handler
+    document.getElementById('authForgotLink').addEventListener('click', function(e) {
+        e.preventDefault();
+        handleForgotPassword();
+    });
+}
+
+function handleForgotPassword() {
+    const email = document.getElementById('authEmail').value.trim();
+    const errorEl = document.getElementById('authError');
+    if (!email) {
+        errorEl.textContent = 'Saisissez votre email avant de cliquer sur « Mot de passe oublié ».';
+        errorEl.classList.add('visible');
+        return;
+    }
+    const users = getUsers();
+    const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+    if (!user) {
+        errorEl.textContent = 'Compte introuvable';
+        errorEl.classList.add('visible');
+        return;
+    }
+    if (!user.isAdmin) {
+        errorEl.textContent = 'Demandez à l\'administrateur de réinitialiser votre mot de passe.';
+        errorEl.classList.add('visible');
+        return;
+    }
+    if (!confirm('Réinitialiser le mot de passe admin pour ' + user.email + ' ?\n\nVous serez invité à en définir un nouveau.')) return;
+    user.passwordHash = '';
+    saveUsers(users);
+    setupEmail = user.email;
+    errorEl.classList.remove('visible');
+    document.getElementById('authLoginForm').style.display = 'none';
+    document.getElementById('authSetupForm').style.display = 'block';
+    document.getElementById('authNewPw').focus();
 }
 
 let setupEmail = '';
