@@ -413,8 +413,8 @@ async function handleSetup() {
     const confirm = document.getElementById('authConfirmPw').value;
     const errorEl = document.getElementById('authSetupError');
 
-    if (pw.length < 12) {
-        errorEl.textContent = 'Le mot de passe doit contenir au moins 12 caractères';
+    if (!pw) {
+        errorEl.textContent = 'Veuillez saisir un mot de passe';
         errorEl.classList.add('visible');
         return;
     }
@@ -546,10 +546,10 @@ function renderAdminPanel() {
     panel.querySelectorAll('.btn-reset-pw').forEach(function(btn) {
         btn.addEventListener('click', async function() {
             const email = this.dataset.email;
-            const newPw = prompt('Nouveau mot de passe pour ' + email + ' (min. 12 caractères) :');
+            const newPw = prompt('Nouveau mot de passe pour ' + email + ' :');
             if (newPw === null) return;
-            if (newPw.length < 12) {
-                alert('Le mot de passe doit contenir au moins 12 caractères.');
+            if (!newPw) {
+                alert('Veuillez saisir un mot de passe.');
                 return;
             }
             const ok = await setPassword(email, newPw);
@@ -571,11 +571,6 @@ function renderAdminPanel() {
 
         if (!email || !pw) {
             errorEl.textContent = 'Email et mot de passe requis';
-            errorEl.classList.add('visible');
-            return;
-        }
-        if (pw.length < 12) {
-            errorEl.textContent = 'Le mot de passe doit contenir au moins 12 caractères';
             errorEl.classList.add('visible');
             return;
         }
