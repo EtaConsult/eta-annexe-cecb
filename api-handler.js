@@ -16,8 +16,27 @@ var CecbApi = (function () {
     function getApiKey() { return ''; }
     function getGroqKey() { return ''; }
 
+    // Modèle par défaut (gamme actuelle). Les anciens identifiants sont
+    // remappés automatiquement vers leur équivalent actuel — les modèles
+    // « ...-20250514 » ont été retirés par Anthropic le 15 juin 2026 et
+    // renvoient désormais une erreur 404.
+    var DEFAULT_MODEL = 'claude-opus-4-8';
+    var RETIRED_MODELS = {
+        'claude-sonnet-4-20250514': 'claude-sonnet-4-6',
+        'claude-opus-4-20250514': 'claude-opus-4-8',
+        'claude-3-5-sonnet-20241022': 'claude-sonnet-4-6',
+        'claude-3-5-sonnet-20240620': 'claude-sonnet-4-6',
+        'claude-3-opus-20240229': 'claude-opus-4-8'
+    };
+
     function getModel() {
-        return localStorage.getItem('cecb_api_model') || 'claude-sonnet-4-20250514';
+        var stored = localStorage.getItem('cecb_api_model');
+        if (!stored) return DEFAULT_MODEL;
+        if (RETIRED_MODELS[stored]) {
+            stored = RETIRED_MODELS[stored];
+            try { localStorage.setItem('cecb_api_model', stored); } catch (e) { /* ignore */ }
+        }
+        return stored;
     }
 
     function getProxyUrl() {
